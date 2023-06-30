@@ -1,25 +1,17 @@
-# CSK_Module_[ModuleName]
+# CSK_Module_DeviceNetworkConfig
 
-Module / Application to provide [...] functionality.
+Module to provide ethernet setup functionality.
 
-*If available, please also add a screenshot/gif of the UI of the module here placed within /docu/media/ (see code)*
-![](https://github.com/SICKAppSpaceCodingStarterKit/[REPO_OF_MODULE]/blob/main/docu/media/UI_Screenshot.png)
+![](https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DeviceNetworkConfig/blob/main/docu/media/UI_Screenshot.png)
 
 ## How to Run
-
-[***...please fill with informations...***]  
-For further information check out the [documentation](https://raw.githack.com/SICKAppSpaceCodingStarterKit/[REPO_OF_MODULE]/main/docu/CSK_Module_[MODULENAME].html) [update link] in the folder "docu".
+The app includes an intuitive GUI to setup the ethernet setup of the device.  
+For further information check out the [documentation](https://raw.githack.com/SICKAppSpaceCodingStarterKit/CSK_Module_DeviceNetworkConfig/main/docu/CSK_Module_DeviceNetworkConfig.html) in the folder "docu".
 
 ## Information
 
-Tested on:
-[Device] - [firmware]
-...
-
-[***optionally***]
-Following CSK modules are used for this application via Git subtrees and should NOT be further developed within this repository (see [contribution guideline](https://github.com/SICKAppSpaceCodingStarterKit/.github/blob/main/Contribution_Guideline.md) of this GitHub organization):  
-
-  * CSK_Module_XYZ (release/tag v1.2.3)
+Tested on:  
+1. SIM1012        - Firmware 2.2.0  
 
 This application / module is part of the SICK AppSpace Coding Starter Kit developing approach.  
 It is programmed in an object oriented way. Some of the modules use kind of "classes" in Lua to make it possible to reuse code / classes in other projects.  
@@ -28,4 +20,4 @@ Please check the [documentation](https://github.com/SICKAppSpaceCodingStarterKit
 
 ## Topics
 
-Coding Starter Kit, CSK, Module, SICK-AppSpace, [key_words]
+Coding Starter Kit, CSK, Module, SICK-AppSpace, Ethernet, Interface, Config, Device
