@@ -2,7 +2,6 @@
 
 ## INFO: Draft version. Not further developed / tested so far! Check for available GitHub forks of this repository to see latest updates.
 
-
 Module / Application to provide [...] functionality.
 
 *If available, please also add a screenshot/gif of the UI of the module here placed within /docu/media/ (see code)*
