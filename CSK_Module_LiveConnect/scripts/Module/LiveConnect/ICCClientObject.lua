@@ -1130,7 +1130,7 @@ end
 -- Remove a peer device when it is offline or not longer connected
 -- Serial- and part number are used to identify a device
 function m_iccClientObject.removePeerDevice(self, partNumber, serialNumber)
-  local l_deviceId = serialNumber .. partNumber
+  local l_deviceId = serialNumber .."_" .. partNumber
 
   local l_peerDevice = self.peerDevices[l_deviceId]
   if nil ~= l_peerDevice and nil ~= l_peerDevice.peerCloudTopic then

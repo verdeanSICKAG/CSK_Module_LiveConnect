@@ -40,7 +40,7 @@ Script.serveEvent('CSK_LiveConnect.OnUserLevelMaintenanceActive', 'LiveConnect_O
 Script.serveEvent('CSK_LiveConnect.OnUserLevelServiceActive', 'LiveConnect_OnUserLevelServiceActive')
 Script.serveEvent('CSK_LiveConnect.OnUserLevelAdminActive', 'LiveConnect_OnUserLevelAdminActive')
 
-Script.serveEvent('CSK_LiveConnect.OnProfileAdded', 'LiveConnect_OnProfileAdded')
+Script.serveEvent('CSK_LiveConnect.OnNewProfileAdded', 'LiveConnect_OnNewProfileAdded')
 
 Script.serveEvent("CSK_LiveConnect.OnNewMqttKeepAliveInterval", 'LiveConnect_OnNewMqttKeepAliveInterval')
 Script.serveEvent("CSK_LiveConnect.OnNewMqttConnectTimeout", 'LiveConnect_OnNewMqttConnectTimeout')
@@ -183,8 +183,8 @@ local function publishValidateTokenResult(tokenResult)
 end
 
 -------------------------------------------------------------------------------------
--- Validate token
-local function validateToken()
+-- Start token validation
+local function startTokenValidation()
   clearValidateTokenResult()
 
   local l_token = liveConnect_Model.iccClient.softApprovalToken
@@ -200,31 +200,18 @@ local function validateToken()
     end
   end
 end
-Script.serveFunction("CSK_LiveConnect.UI.validateToken", validateToken)
+Script.serveFunction("CSK_LiveConnect.startTokenValidation", startTokenValidation)
 
 -------------------------------------------------------------------------------------
--- Remove paring
+-- Remove pairing between the phsical device and the digital twin in the SICK AssetHub
 local function removePairing()
   _G.logger:info(NAME_OF_MODULE .. ": Remove pairing")
   liveConnect_Model.iccClient:removePairing()
-  liveConnect_Model.parameters.cloudSystem = "prod"
   liveConnect_Model.iccClient.softApprovalToken = ""
 
   clearValidateTokenResult()
 end
-Script.serveFunction("CSK_LiveConnect.UI.removePairing", removePairing)
-
--------------------------------------------------------------------------------------
--- Get UUID of the paired device
----@return string
-local function getDeviceUUID()
-  local l_ret = liveConnect_Model.iccClient.deviceUuid
-  if l_ret == nil then
-    l_ret = "" -- not paired
-  end
-  return l_ret
-end
-Script.serveFunction("CSK_LiveConnect.getDeviceUUID", getDeviceUUID)
+Script.serveFunction("CSK_LiveConnect.removePairing", removePairing)
 
 -------------------------------------------------------------------------------------
 -- Get device URL which refers to the digital twin on the SICK AssetHub
@@ -266,11 +253,11 @@ Script.serveFunction("CSK_LiveConnect.UI.getCurrentView", getCurrentView)
 -------------------------------------------------------------------------------------
 -- Set soft approval token
 ---@param token string
-local function setSoftApprovalToken(token)
+local function setToken(token)
   _G.logger:info(NAME_OF_MODULE .. ": Set soft approval token (" .. token ..")")
   liveConnect_Model.iccClient.softApprovalToken = token
 end
-Script.serveFunction("CSK_LiveConnect.UI.setSoftApprovalToken", setSoftApprovalToken)
+Script.serveFunction("CSK_LiveConnect.setToken", setToken)
 
 -------------------------------------------------------------------------------------
 -- Get status of the LiveConnect connection
@@ -455,7 +442,7 @@ local function addMqttProfile(partNumber, serialNumber, mqttProfile)
     local l_capabilitiesPayload = l_device.mqttCapabilities:getPayload()
     liveConnect_Model.iccClient:addMqttTopic(l_capabilitiesTopic, l_capabilitiesPayload, "QOS1")
 
-    Script.notifyEvent("LiveConnect_OnProfileAdded", mqttProfile:getName(), "AsyncAPI")
+    Script.notifyEvent("LiveConnect_OnNewProfileAdded", mqttProfile:getName(), "asyncAPI")
     return l_device.uuid
   else
     _G.logger:warning(NAME_OF_MODULE .. ": Can't add MQTT profile, because the LiveConnect client is not yet initialized. The client needs 100ms to initialize itself.")
@@ -496,7 +483,7 @@ local function addHttpProfile(partNumber, serialNumber, httpProfile)
       -- Start profile update process
       liveConnect_Model.iccClient:reloadProfiles()
 
-      Script.notifyEvent("LiveConnect_OnProfileAdded", httpProfile:getName(), "OpenAPI")
+      Script.notifyEvent("LiveConnect_OnNewProfileAdded", httpProfile:getName(), "openAPI")
     end
   else
     _G.logger:warning(NAME_OF_MODULE .. ": Can't add HTTP profile, because the LiveConnect client is not yet initialized. The client needs 100ms to initialize itself.")
@@ -554,7 +541,7 @@ local function isSystemClockConfigured()
 
   return l_ret
 end
-Script.serveFunction("CSK_LiveConnect.UI.isSystemClockConfigured", isSystemClockConfigured)
+
 
 -------------------------------------------------------------------------------------
 -- Check if the system clock is not configured

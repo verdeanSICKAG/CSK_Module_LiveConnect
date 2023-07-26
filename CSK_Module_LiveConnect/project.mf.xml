@@ -7,24 +7,28 @@
         </crown>
         <crown name="CSK_LiveConnect">
             <trait>released</trait>
-            <desc>Please fill in information regarding: What is the idea of this module and its features? +
-How to use this module in general.... like: + 
---- + 
-Typically the features of this module are used like this (check also main script of this module): +
-**
-1) Setup +
-**
-ToDo +
-**
-2) Something else.... +
-**</desc>
+            <desc>This module provides the possibility to interact with a digital device (digital twin) configured in the SICK AssetHub.
+Before data can be exchanged, the physical gateway device must first be paired with the digital twin in the SICK AssetHub.
+After the pairing process, profiles can be made known to the Gateway device itself, or an attached devices (peerDevice).
+
+There are two types of profiles that can be used:
+1.) MQTT profiles
+- The device automatically sends data into the cloud (data push)
+- Profile description "asyncAPI"
+
+2.) HTTP profiles
+- HTTP requests can be sent from the cloud side (data poll), which are answered by the device on the shop floor side.
+- Profile description "openAPI"
+
+The payload is defined in the profile. the format is JSON.</desc>
             <enum name="connectionStatus" trait="released">
-                <item name="CHECK_PAIRING">CHECK_PAIRING</item>
-                <item name="DISCONNECTED">DISCONNECTED</item>
-                <item name="ERROR">ERROR</item>
-                <item name="DISCOVERY_RESPONSE_RECEIVED">DISCOVERY_RESPONSE_RECEIVED</item>
-                <item name="STATE_CONNECTED">STATE_CONNECTED</item>
-                <item name="EXECUTING_COMMAND">EXECUTING_COMMAND</item>
+                <desc>Connection status enum</desc>
+                <item desc="Status: Check pairing information" name="CHECK_PAIRING">CHECK_PAIRING</item>
+                <item desc="Status: Disconnected from LiveConnect backend" name="DISCONNECTED">DISCONNECTED</item>
+                <item desc="Status: Error occured" name="ERROR">ERROR</item>
+                <item desc="Status: Discovery response received" name="DISCOVERY_RESPONSE_RECEIVED">DISCOVERY_RESPONSE_RECEIVED</item>
+                <item desc="Status: Connected to LiveConnect backend" name="STATE_CONNECTED">STATE_CONNECTED</item>
+                <item desc="Status: Executing command" name="EXECUTING_COMMAND">EXECUTING_COMMAND</item>
             </enum>
             <serves>
                 <event name="OnNewStatusLoadParameterOnReboot">
@@ -62,55 +66,69 @@ ToDo +
                     <trait>released</trait>
                     <desc>Event called when the LiveConnect client has been initialised.</desc>
                 </event>
-                <event name="OnProfileAdded">
+                <event name="OnNewProfileAdded">
                     <trait>released</trait>
-                    <desc>Notify when a profile has been added</desc>
-                    <param desc="" multiplicity="1" name="name" type="string"/>
-                    <param desc="AsyncAPI / OpenAPI" multiplicity="1" name="profileType" type="string"/>
+                    <desc>This event is triggered as soon as a new profile was added.</desc>
+                    <param desc="Name of the profile" multiplicity="1" name="name" type="string"/>
+                    <param desc="Profile type &#10;(asyncAPI / openAPI)" multiplicity="1" name="profileType" type="string"/>
                 </event>
                 <event name="OnNewMqttKeepAliveInterval">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="messageInterval" type="string"/>
+                    <desc>This event is triggered as soon as theMQTT keep alive interval has been changed.</desc>
+                    <param desc="Keep alive interval [ms]" multiplicity="1" name="keepAliveInterval" type="string"/>
                 </event>
                 <event name="OnNewMqttConnectTimeout">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="timeout" type="string"/>
+                    <desc>This event is triggered as soon as the MQTT connect timeout has been changed.</desc>
+                    <param desc="timeout [ms]" multiplicity="1" name="timeout" type="string"/>
                 </event>
                 <event name="OnNewMqttMessageInterval">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="messageInterval" type="string"/>
+                    <desc>This event is triggered as soon as the MQTT message interval has been changed.</desc>
+                    <param desc="Message interval [ms]" multiplicity="1" name="messageInterval" type="string"/>
                 </event>
                 <event name="OnNewMqttQueueSize">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="queueSize" type="string"/>
+                    <desc>If the LiveConnect connection is broken, the data is stored in the queue.
+When the queue is full, the oldest data is discarded automatically.
+
+This event is triggered as soon as the MQTT queue size has been changed.</desc>
+                    <param desc="Queue size" multiplicity="1" name="queueSize" type="string"/>
                 </event>
                 <event name="OnNewGatewayPartNumber">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="partNumber" type="string"/>
+                    <desc>This event is triggered as soon as the part number of the gateway device has been changed.</desc>
+                    <param desc="Part number of the gateway device" multiplicity="1" name="partNumber" type="string"/>
                 </event>
                 <event name="OnNewGatewaySerialNumber">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="serialNumber" type="string"/>
+                    <desc>This event is triggered as soon as the serial number of the gateway device has been changed.</desc>
+                    <param desc="Serial number of the gateway device" multiplicity="1" name="serialNumber" type="string"/>
                 </event>
                 <event name="OnNewProcessInterval">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="processInterval" type="string"/>
+                    <desc>This event is triggered as soon as the Process interval has been changed.</desc>
+                    <param desc="Process interval [ms]" multiplicity="1" name="processInterval" type="string"/>
                 </event>
                 <event name="OnNewTokenTimeout">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="tokenTimeout" type="string"/>
+                    <desc>This event is triggered as soon as the token timeout has been changed.</desc>
+                    <param desc="token timeout [ms]" multiplicity="1" name="tokenTimeout" type="string"/>
                 </event>
                 <event name="OnNewDeviceDiscoveryTimeout">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="deviceDiscoveryTimeout" type="string"/>
+                    <desc>This event is triggered as soon as the device discovery timeout has been changed.</desc>
+                    <param desc="timeout [ms]" multiplicity="1" name="deviceDiscoveryTimeout" type="string"/>
                 </event>
                 <event name="OnNewCloudSystem">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="cloudSystem" type="string"/>
+                    <desc>This event is triggered as soon as the cloud system has been changed.</desc>
+                    <param desc="Cloud system&#10;(prod, int, dev)" multiplicity="1" name="cloudSystem" type="string"/>
                 </event>
                 <event name="OnNewValidateTokenResult">
                     <trait>released</trait>
-                    <param desc="Validate token result status" multiplicity="1" name="status" type="string"/>
+                    <desc>This event is triggered as soon as the validate token result has been changed.</desc>
+                    <param desc="Validate token result" multiplicity="1" name="status" type="string"/>
                 </event>
                 <function name="setParameterName">
                     <desc>Function to set the name of the parameters if saved/loaded via the "PersistentData" CSK-module</desc>
@@ -140,22 +158,25 @@ ToDo +
                 </function>
                 <function name="addMqttProfile">
                     <trait>released</trait>
-                    <desc>Add an open async profile with an assignement to an device in the AssetHub</desc>
-                    <param desc="" multiplicity="1" name="partNumber" type="string"/>
-                    <param desc="" multiplicity="1" name="serialNumber" type="string"/>
-                    <param alias="CSK_LiveConnect.MqttProfile" desc="" multiplicity="1" name="profile" type="object"/>
+                    <desc>Add a new MQTT profile to new or an already exiting device</desc>
+                    <param desc="Part number of the device that should be assigned to the profile" multiplicity="1" name="partNumber" type="string"/>
+                    <param desc="Serial number of the device that should be assigned to the profile" multiplicity="1" name="serialNumber" type="string"/>
+                    <param alias="CSK_LiveConnect.MqttProfile" desc="MQTT profile designed as a crown datatype" multiplicity="1" name="profile" type="object"/>
                     <return desc="" multiplicity="1" name="uuid" type="string"/>
                 </function>
                 <function name="removePeerDevice">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="partNumber" type="string"/>
-                    <param desc="" multiplicity="1" name="serialNumber" type="string"/>
+                    <desc>Removes a peer device.
+Serial- and part number are used to identify a device.</desc>
+                    <param desc="Part number of the peer device to be removed" multiplicity="1" name="partNumber" type="string"/>
+                    <param desc="Serial number of the peer device to be removed" multiplicity="1" name="serialNumber" type="string"/>
                 </function>
                 <function name="addHttpProfile">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="partNumber" type="string"/>
-                    <param desc="" multiplicity="1" name="serialNumber" type="string"/>
-                    <param desc="" multiplicity="1" name="httpProfile" type="object"/>
+                    <desc>Add a new HTTP profile to new or an already exiting device</desc>
+                    <param desc="Part number of the device that should be assigned to the profile" multiplicity="1" name="partNumber" type="string"/>
+                    <param desc="Serial number of the device that should be assigned to the profile" multiplicity="1" name="serialNumber" type="string"/>
+                    <param alias="CSK_LiveConnect.HttpProfile" desc="HTTP profile designed as a crown datatype" multiplicity="1" name="httpProfile" type="object"/>
                 </function>
                 <function name="setMqttMessageQueueSize">
                     <trait>released</trait>
@@ -164,17 +185,19 @@ ToDo +
                 </function>
                 <function name="removeAllProfiles">
                     <trait>released</trait>
+                    <desc>Remove all profiles and connected devices instead of the paired gateway device</desc>
                 </function>
                 <function name="publishMqttDataById">
                     <trait>released</trait>
-                    <desc>Publish MQTT data to the cloud using a device UUID.</desc>
+                    <desc>Publish MQTT data to the cloud using the device UUID</desc>
                     <param desc="MQTT topic where the data should be published to.&#10;The topics are defined in the device profile." multiplicity="1" name="topic" type="string"/>
-                    <param desc="Device UUID of the device to which the data is to be sent.&#10;The ID is returned by the function &quot;addMqtt&quot; profile as return value." multiplicity="1" name="deviceUuid" type="string"/>
+                    <param desc="Device UUID of the device to which the data is to be sent.&#10;The UUID is returned by the function &quot;addMqttProfile&quot;." multiplicity="1" name="deviceUuid" type="string"/>
                     <param desc="JSON based payload to be published.&#10;The payload is defined in the MQTT profile." multiplicity="1" name="payload" type="string"/>
                 </function>
                 <function name="setMqttKeepAliveInterval">
                     <trait>released</trait>
-                    <desc/>
+                    <desc>MQTT keep alive interval
+</desc>
                     <param desc="MQTT keep alive interval [ms]" multiplicity="1" name="keepAliveInterval" type="string"/>
                 </function>
                 <function name="setProcessInterval">
@@ -194,64 +217,63 @@ ToDo +
                 </function>
                 <function name="setGatewaySerialNumber">
                     <trait>released</trait>
-                    <desc>Set serial number of the gateway device.</desc>
-                    <param desc="serial number" multiplicity="1" name="serialNumber" type="string"/>
+                    <desc>The serial number is automatically read out. If this is not possible, it can be set manually.</desc>
+                    <param desc="Serial number of the gateway device" multiplicity="1" name="serialNumber" type="string"/>
                 </function>
                 <function name="getRegisteredProfiles">
                     <trait>released</trait>
-                    <desc>Get a list of all registered devices and profiles</desc>
-                    <return desc="One or more profiles can be assigned to a unit" multiplicity="+" name="devices" type="object"/>
+                    <desc>Get a list of all registered devices and corresponding profiles</desc>
+                    <return alias="CSK_LiveConnect.Device" desc="Assigned devices and profiles to the gateway device " multiplicity="+" name="devices" type="object"/>
                 </function>
                 <function name="setMqttConnectTimeout">
                     <trait>released</trait>
-                    <desc/>
+                    <desc>MQTT connect timeout</desc>
                     <param desc="MQTT connect timeout [ms]" multiplicity="1" name="connectTimeout" type="string"/>
                 </function>
                 <function name="setMqttMessageInterval">
                     <trait>released</trait>
-                    <desc/>
+                    <desc>MQTT message forwarding interval</desc>
                     <param desc="MQTT message forwarding interval [ms]" multiplicity="1" name="messageInterval" type="string"/>
                 </function>
                 <function name="setGatewayPartNumber">
                     <trait>released</trait>
-                    <desc>Set part number of the gateway device.</desc>
-                    <param desc="serial number" multiplicity="1" name="partNumber" type="string"/>
+                    <desc>The part number is automatically read out. If this is not possible, it can be set manually.</desc>
+                    <param desc="Part number of the gateway device" multiplicity="1" name="partNumber" type="string"/>
                 </function>
                 <function name="setCloudSystem">
                     <trait>released</trait>
-                    <param desc="" multiplicity="1" name="cloudSystem" type="string"/>
+                    <desc>Set cloud system that should be used.
+The "dev" and "int" stage are only accessible in the SICK internal network.</desc>
+                    <param desc="Cloud system (prod, int, dev)" multiplicity="1" name="cloudSystem" type="string"/>
                 </function>
                 <function name="getConnectionStatus">
                     <desc>Get LiveConnect connection status</desc>
-                    <return desc="Status:&#10;- Online&#10;- Execute command&#10;- Discovery&#10;- Pairing&#10;- Offline&#10;- " multiplicity="1" name="status" type="string"/>
+                    <return desc="Status:&#10;- Online&#10;- Execute command&#10;- Discovery&#10;- Pairing&#10;- Offline" multiplicity="1" name="status" type="string"/>
                 </function>
                 <function name="getDeviceUrl">
                     <desc>Get device URL which refers to the digital twin on the SICK AssetHub</desc>
-                    <return desc="" multiplicity="1" name="url" type="string"/>
+                    <return desc="URL which refers to the digital twin on the SICK AssetHub" multiplicity="1" name="url" type="string"/>
                 </function>
-                <function name="getDeviceUUID">
-                    <desc>Get UUID of the paired device</desc>
-                    <return desc="" name="newRetVal0" type="string"/>
+                <function name="removePairing">
+                    <desc>Remove pairing between the phsical device and the digital twin in the SICK AssetHub</desc>
+                </function>
+                <function name="setToken">
+                    <trait>released</trait>
+                    <desc>Set pairing token generated from the SICK AssetHub</desc>
+                    <param desc="" multiplicity="1" name="token" type="string"/>
+                </function>
+                <function name="startTokenValidation">
+                    <desc>Start token validation</desc>
                 </function>
             </serves>
             <crown name="UI">
-                <desc/>
+                <desc>Functionalities especially for the UI</desc>
                 <serves>
-                    <function name="validateToken">
-                        <desc/>
-                    </function>
-                    <function name="removePairing">
-                        <desc/>
-                    </function>
                     <function name="getCurrentView">
                         <trait>released</trait>
                         <desc>Get current UI view (UI only)
 </desc>
                         <return desc="0 = Show pairing code and pair button&#10;1 = Show device url and unpair button" multiplicity="1" name="value" type="string"/>
-                    </function>
-                    <function name="isSystemClockConfigured">
-                        <trait>released</trait>
-                        <return desc="" multiplicity="1" name="value" type="bool"/>
                     </function>
                     <function name="getSystemClockStatus">
                         <trait>released</trait>
@@ -260,11 +282,8 @@ ToDo +
                     </function>
                     <function name="isNotSystemClockConfigured">
                         <trait>released</trait>
-                        <return desc="" multiplicity="1" name="value" type="bool"/>
-                    </function>
-                    <function name="setSoftApprovalToken">
-                        <trait>released</trait>
-                        <param desc="" multiplicity="1" name="token" type="string"/>
+                        <desc>Indicates if the system clock is not configured</desc>
+                        <return desc="true = not configured&#10;false= configured" multiplicity="1" name="value" type="bool"/>
                     </function>
                 </serves>
             </crown>

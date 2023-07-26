@@ -14,7 +14,7 @@
                         crown-function="CSK_LiveConnect/UI/isNotSystemClockConfigured">
                      </crown-set>
                      <crown-set event="change"
-                        crown-function="CSK_LiveConnect/UI/setSoftApprovalToken"
+                        crown-function="CSK_LiveConnect/setToken"
                         crown-path="token">
                      </crown-set>
                   </davinci-text-field>
@@ -25,7 +25,7 @@
                         crown-function="CSK_LiveConnect/UI/isNotSystemClockConfigured">
                      </crown-get>
                      <crown-set event="submit"
-                        crown-function="CSK_LiveConnect/UI/validateToken"
+                        crown-function="CSK_LiveConnect/startTokenValidation"
                         protocol="crownMSGPACK">
                      </crown-set>
                      <span>Validate</span>
@@ -122,7 +122,7 @@
                         icon-position="append" icon="navigation/close">
                         <span>Remove pairing with LiveConnect</span>
                         <crown-set event="submit"
-                           crown-function="CSK_LiveConnect/UI/removePairing"
+                           crown-function="CSK_LiveConnect/removePairing"
                            protocol="crownMSGPACK">
                         </crown-set>
                      </davinci-button>
