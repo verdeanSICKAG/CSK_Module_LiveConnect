@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest>
+    <application name="CSK_1stModule_Logger">
+        <crown name="CSK_1stModule_Logger">
+            <desc>This is an automatically generated CROWN (description not necessary).</desc>
+        </crown>
+        <crown name="CSK_Logger">
+            <desc>Module to provide logger functionality to log / store messages of all others CSK modules. +
+Maybe the name of this module needs to be adapted to run first and also to log messages of the global scopes. +
+Check UI of this module for most features available by this module. +
+INFO: If using the "FileSink" feature, a SD card should be used to reduce write accesses on the internal flash storage of the device. +</desc>
+            <enum name="LogLevel" trait="released">
+                <desc>Level of messages to log.</desc>
+                <item desc="Log all messages." name="ALL">ALL</item>
+                <item desc="Log nothing." name="OFF">OFF</item>
+                <item desc="Log infos, warnings and severe errors." name="INFO">INFO</item>
+                <item desc="Log only severe errors." name="SEVERE">SEVERE</item>
+                <item desc="Log warnings and severe errors." name="WARNING">WARNING</item>
+            </enum>
+            <serves>
+                <event name="OnNewMessage">
+                    <desc>Notify latest received logging message.</desc>
+                    <param desc="Logging message" multiplicity="1" name="message" type="string"/>
+                </event>
+                <event name="OnNewCompleteLogfile">
+                    <desc>Notify all available log messages once.</desc>
+                    <param desc="Full temporary / stored logfile content." multiplicity="?" name="logfile" type="string"/>
+                </event>
+                <event name="OnNewFilepath">
+                    <desc>Notify path of the logging file.</desc>
+                    <param desc="Path" multiplicity="1" name="filepath" type="string"/>
+                </event>
+                <event name="OnNewFilename">
+                    <desc>Notify file name of the logging file.</desc>
+                    <param desc="Filename" multiplicity="1" name="filename" type="string"/>
+                </event>
+                <event name="OnNewLogLevel">
+                    <desc>Notify log level to use.</desc>
+                    <param desc="Level to log." multiplicity="1" name="level" type="string"/>
+                </event>
+                <event name="OnNewStatusConsoleSink">
+                    <desc>Notify status of console sink.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnNewStatusFileSinkActive">
+                    <desc>Notify status of file sink.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnNewStatusLoadParameterOnReboot">
+                    <desc>Notify status if parameters should be loaded on app / device boot up.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnPersistentDataModuleAvailable">
+                    <desc>Notify status if features of CSK_PersistentData module  are available.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnDataLoadedOnReboot">
+                    <desc>Event to call if module tried to load parameters and should be ready.</desc>
+                </event>
+                <event name="OnNewStatusAttachedToEngineLogger">
+                    <desc>Notify status to attach logger to engine logger.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnNewFullFilePath">
+                    <desc>Notify full path of the logging file (path + name).</desc>
+                    <param desc="Full filepath (path + name)." multiplicity="1" name="filepath" type="string"/>
+                </event>
+                <event name="OnNewParameterName">
+                    <desc>Notify name of persistent data parameter.</desc>
+                    <param desc="Parameter name" multiplicity="1" name="name" type="string"/>
+                </event>
+                <event name="OnUserLevelOperatorActive">
+                    <trait>released</trait>
+                    <desc>Status of Operator userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
+                    <param desc="Status of Operator userlevel." multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnUserLevelMaintenanceActive">
+                    <trait>released</trait>
+                    <desc>Status of Maintenance userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
+                    <param desc="Status of Maintenance userlevel." multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnUserLevelServiceActive">
+                    <trait>released</trait>
+                    <desc>Status of Service userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
+                    <param desc="Status of Service userlevel." multiplicity="1" name="status" type="string"/>
+                </event>
+                <event name="OnUserLevelAdminActive">
+                    <desc>Status of Admin userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnNewLogfileSize">
+                    <desc>Notify max size of ligfile in bytes.</desc>
+                    <param desc="Size" multiplicity="1" name="size" type="int"/>
+                </event>
+                <event name="OnNewStatusCallbackSink">
+                    <desc>Notify status if the internal callbackSink for log messages is active.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <function name="pageCalled">
+                    <desc>Function to register "OnResume" of the module UI (only as helper function).</desc>
+                    <return desc="Empty string (only needed to simplify binding)." multiplicity="1" name="empty" type="string"/>
+                </function>
+                <function name="loadParameters">
+                    <desc>Load parameters for this module from the CSK_PersistentData module if possible and use them.</desc>
+                </function>
+                <function name="sendParameters">
+                    <desc>Send parameters to CSK_PersistentData module if possible to save them.</desc>
+                </function>
+                <function name="setLoadOnReboot">
+                    <desc>Configure if this module should load its saved parameters at app / device boot up.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </function>
+                <function name="setParameterName">
+                    <desc>Function to set the name of the parameters if saved/loaded via the CSK_PersistentData module.</desc>
+                    <param desc="Name of the parameter." multiplicity="1" name="name" type="string"/>
+                </function>
+                <function name="setLogLevel">
+                    <desc>Set log level.</desc>
+                    <param desc="Log level" multiplicity="1" name="level" ref="CSK_Logger.LogLevel" type="enum"/>
+                </function>
+                <function name="setConsoleSinkEnabled">
+                    <desc>Set status of console sink.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </function>
+                <function name="setFileSinkActive">
+                    <desc>Set status of file sink of the log.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </function>
+                <function name="setAttachToEngineLogger">
+                    <desc>Set status if logger should attach to engine logger.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </function>
+                <function name="setFilePath">
+                    <desc>Set path of the logging file.</desc>
+                    <param desc="Filepath" multiplicity="1" name="path" type="string"/>
+                </function>
+                <function name="setFileName">
+                    <desc>Set name of the logging file.</desc>
+                    <param desc="Filename" multiplicity="1" name="name" type="string"/>
+                </function>
+                <function name="setLogFileSize">
+                    <desc>Set size of the log file in bytes before truncating.</desc>
+                    <param desc="Size in bites. Has to be in the range [1024,104857600] bytes." multiplicity="1" name="size" type="int"/>
+                </function>
+                <function name="reloadLogsInUI">
+                    <desc>Function to reload logfile to show in UI.</desc>
+                </function>
+                <function name="setCallbackSinkActive">
+                    <desc>Function to configure if internal callback sink should be used to process incoming log messages.</desc>
+                    <param desc="Is TRUE per default to process incoming log messages. +&#10;It can make sense to set it to FALSE if e.g. &quot;FileSink&quot; is active as this will reduce the internal needed processing load to only focus on the FileSink, but then no log messages will be forwarded via &quot;OnNewMessage&quot;-event or shown in UI by this module." multiplicity="1" name="status" type="bool"/>
+                </function>
+            </serves>
+        </crown>
+        <meta key="author">SICK AG</meta>
+        <meta key="version">4.0.0</meta>
+        <meta key="priority">low</meta>
+        <meta key="copy-protected">false</meta>
+        <meta key="read-protected">false</meta>
+        <meta key="crown2-flow-engine">false</meta>
+        <meta key="LuaLoadAllEngineAPI">false</meta>
+        <entry default="CSK_Module_Logger.lua" path="scripts"/>
+    </application>
+</manifest>
