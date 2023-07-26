@@ -32,8 +32,8 @@ Function addFolderToGitIgnore
 # Description
 " "
 "====================================================================================="
-"For initial setup, please run the script without GIT update / commit." 
-"Then the corresponding AppStudio project will be created under the folder '" + $appStudioProjectFolder + "'."
+"Get the dependencies specified in the script from gitHub"
+"and create a AppStudio project folder '" + $appStudioProjectFolder + "'."
 "====================================================================================="
 
 # Script input promps
