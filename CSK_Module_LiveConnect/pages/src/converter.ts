@@ -1,4 +1,4 @@
-// Referenced in binding to disable Button when user lower as authorized client
+// Referenced in binding to disable button when user lower as authorized client
 export function getDisabled(value) {
   let disabled = true
   if (value.id >= 3){
@@ -119,8 +119,8 @@ export function showCloudSystem(userLevelId) {
 }
 
 export function updateValidateTokenButton(value) {
-  var textfield = document.getElementById('softApprovalTokenTextField');
-  var button = document.getElementById('validateTokenButton');
+  var textfield = document.getElementById('TF_Token');
+  var button = document.getElementById('BTN_ValidateToken');
 
   if (true == button.disabled) {
     // Don't manipulate button's enabled state when the textfield is disabled
@@ -128,7 +128,7 @@ export function updateValidateTokenButton(value) {
       button.disabled = false;
     }
 
-    var text = document.getElementById('softApprovalTokenTextField')
+    var text = document.getElementById('TF_Token')
     text.value = ''
   }
 

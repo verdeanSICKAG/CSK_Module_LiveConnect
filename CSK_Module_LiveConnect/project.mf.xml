@@ -108,6 +108,10 @@ ToDo +
                     <trait>released</trait>
                     <param desc="" multiplicity="1" name="cloudSystem" type="string"/>
                 </event>
+                <event name="OnNewValidateTokenResult">
+                    <trait>released</trait>
+                    <param desc="Validate token result status" multiplicity="1" name="status" type="string"/>
+                </event>
                 <function name="setParameterName">
                     <desc>Function to set the name of the parameters if saved/loaded via the "PersistentData" CSK-module</desc>
                     <param desc="Name of the parameter" multiplicity="1" name="name" type="string"/>
@@ -217,6 +221,18 @@ ToDo +
                     <trait>released</trait>
                     <param desc="" multiplicity="1" name="cloudSystem" type="string"/>
                 </function>
+                <function name="getConnectionStatus">
+                    <desc>Get LiveConnect connection status</desc>
+                    <return desc="Status:&#10;- Online&#10;- Execute command&#10;- Discovery&#10;- Pairing&#10;- Offline&#10;- " multiplicity="1" name="status" type="string"/>
+                </function>
+                <function name="getDeviceUrl">
+                    <desc>Get device URL which refers to the digital twin on the SICK AssetHub</desc>
+                    <return desc="" multiplicity="1" name="url" type="string"/>
+                </function>
+                <function name="getDeviceUUID">
+                    <desc>Get UUID of the paired device</desc>
+                    <return desc="" name="newRetVal0" type="string"/>
+                </function>
             </serves>
             <crown name="UI">
                 <desc/>
@@ -224,28 +240,14 @@ ToDo +
                     <function name="validateToken">
                         <desc/>
                     </function>
-                    <function name="getDeviceUUID">
-                        <desc/>
-                        <return desc="" name="newRetVal0" type="string"/>
-                    </function>
                     <function name="removePairing">
                         <desc/>
                     </function>
-                    <function name="currentView">
+                    <function name="getCurrentView">
                         <trait>released</trait>
-                        <return desc="" multiplicity="1" name="value" type="string"/>
-                    </function>
-                    <function name="getConnetionStatus">
-                        <desc/>
-                        <return desc="" multiplicity="1" name="status" type="string"/>
-                    </function>
-                    <function name="getValidateTokenResult">
-                        <desc/>
-                        <return desc="" multiplicity="1" name="result" type="string"/>
-                    </function>
-                    <function name="getDeviceUrl">
-                        <desc/>
-                        <return desc="" multiplicity="1" name="url" type="string"/>
+                        <desc>Get current UI view (UI only)
+</desc>
+                        <return desc="0 = Show pairing code and pair button&#10;1 = Show device url and unpair button" multiplicity="1" name="value" type="string"/>
                     </function>
                     <function name="isSystemClockConfigured">
                         <trait>released</trait>
@@ -253,7 +255,8 @@ ToDo +
                     </function>
                     <function name="getSystemClockStatus">
                         <trait>released</trait>
-                        <return desc="" multiplicity="1" name="status" type="string"/>
+                        <desc>Get the status of the system clock (UI only)</desc>
+                        <return desc="Status (configured / not configured)" multiplicity="1" name="status" type="string"/>
                     </function>
                     <function name="isNotSystemClockConfigured">
                         <trait>released</trait>
@@ -262,14 +265,6 @@ ToDo +
                     <function name="setSoftApprovalToken">
                         <trait>released</trait>
                         <param desc="" multiplicity="1" name="token" type="string"/>
-                    </function>
-                    <function name="getCloudSystem">
-                        <trait>released</trait>
-                        <return desc="" multiplicity="1" name="cloudSystem" type="string"/>
-                    </function>
-                    <function name="setCloudSystem">
-                        <trait>released</trait>
-                        <param desc="" multiplicity="1" name="cloudSystem" type="string"/>
                     </function>
                 </serves>
             </crown>

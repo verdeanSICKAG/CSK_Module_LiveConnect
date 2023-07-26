@@ -44,6 +44,9 @@ local function httpCallback(request)
     l_data = l_requestPayload.data
   elseif (request:getMethod() == "GET") then
     print("GET request from URL: " .. request:getURL())
+    local l_paraPos = string.find(request:getURL(), "index=")
+    print(l_paraPos)
+    l_index = tonumber(string.sub(request:getURL(), l_paraPos + 6, #request:getURL()))
   end
   local l_responsePayload = {}
   l_responsePayload["name"] = "Response from edge device"

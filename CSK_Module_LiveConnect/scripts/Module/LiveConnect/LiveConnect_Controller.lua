@@ -12,7 +12,6 @@ local m_mqttAsyncApiObject = require("Module.LiveConnect.profileImpl.MqttAsyncAp
 local m_httpCapabilitiesObject = require("Module.LiveConnect.profileImpl.HttpCapabilitiesObject")
 local m_httpApplicationObject = require("Module.LiveConnect.profileImpl.HttpApplicationObject")
 local m_devices = {}
-local m_validateTokenResult = ""
 local m_clearValidateTokenResultTimer = Timer.create()
 
 -------------------------------------------------------------------------------------
@@ -53,6 +52,7 @@ Script.serveEvent("CSK_LiveConnect.OnNewDeviceDiscoveryTimeout", 'LiveConnect_On
 Script.serveEvent("CSK_LiveConnect.OnNewGatewayPartNumber", 'LiveConnect_OnNewGatewayPartNumber')
 Script.serveEvent("CSK_LiveConnect.OnNewGatewaySerialNumber", 'LiveConnect_OnNewGatewaySerialNumber')
 Script.serveEvent("CSK_LiveConnect.OnNewCloudSystem", 'LiveConnect_OnNewCloudSystem')
+Script.serveEvent("CSK_LiveConnect.OnNewValidateTokenResult", 'LiveConnect_OnNewValidateTokenResult')
 
 -- **********************************************************************************
 -- Start CSK Base Functions
@@ -168,14 +168,14 @@ end
 -------------------------------------------------------------------------------------
 -- Clear token when the validation timer is exceeded
 local function clearValidateTokenResult()
-  m_validateTokenResult = ''
+  Script.notifyEvent("LiveConnect_OnNewValidateTokenResult", "")
 end
 
 -------------------------------------------------------------------------------------
 -- Publish token result
 ---@param tokenResult string
 local function publishValidateTokenResult(tokenResult)
-  m_validateTokenResult = tokenResult
+  Script.notifyEvent("LiveConnect_OnNewValidateTokenResult", tokenResult)
 
   m_clearValidateTokenResultTimer:setExpirationTime(15000)
   m_clearValidateTokenResultTimer:register("OnExpired", clearValidateTokenResult)
@@ -215,16 +215,16 @@ end
 Script.serveFunction("CSK_LiveConnect.UI.removePairing", removePairing)
 
 -------------------------------------------------------------------------------------
--- Get UUID of the device
+-- Get UUID of the paired device
 ---@return string
 local function getDeviceUUID()
   local l_ret = liveConnect_Model.iccClient.deviceUuid
   if l_ret == nil then
-    l_ret = "Not paired."
+    l_ret = "" -- not paired
   end
   return l_ret
 end
-Script.serveFunction("CSK_LiveConnect.UI.getDeviceUUID", getDeviceUUID)
+Script.serveFunction("CSK_LiveConnect.getDeviceUUID", getDeviceUUID)
 
 -------------------------------------------------------------------------------------
 -- Get device URL which refers to the digital twin on the SICK AssetHub
@@ -249,27 +249,19 @@ local function getDeviceUrl()
     return ""
   end
 end
-Script.serveFunction("CSK_LiveConnect.UI.getDeviceUrl", getDeviceUrl)
-
--------------------------------------------------------------------------------------
--- Get token result
----@return string
-local function getValidateTokenResult()
-  return m_validateTokenResult
-end
-Script.serveFunction("CSK_LiveConnect.UI.getValidateTokenResult", getValidateTokenResult)
+Script.serveFunction("CSK_LiveConnect.getDeviceUrl", getDeviceUrl)
 
 -------------------------------------------------------------------------------------
 -- Provides information about the information to be displayed on the UI page
 ---@return string
-local function currentView()
+local function getCurrentView()
   local ret = liveConnect_Model.iccClient.deviceUuid
   if ret == nil then
     return "0" -- Show paring code and button 
   end
   return "1" -- Show device url and unpair buttons
 end
-Script.serveFunction("CSK_LiveConnect.UI.currentView", currentView)
+Script.serveFunction("CSK_LiveConnect.UI.getCurrentView", getCurrentView)
 
 -------------------------------------------------------------------------------------
 -- Set soft approval token
@@ -281,26 +273,9 @@ end
 Script.serveFunction("CSK_LiveConnect.UI.setSoftApprovalToken", setSoftApprovalToken)
 
 -------------------------------------------------------------------------------------
--- Set cloud system (prod/int/dev)
----@param cloudSystem string 
-local function setCloudSystem(cloudSystem)
-  _G.logger:fine(NAME_OF_MODULE .. ": Set cloud system: " .. cloudSystem)
-  liveConnect_Model.parameters.cloudSystem = cloudSystem
-end
-Script.serveFunction('CSK_LiveConnect.UI.setCloudSystem', setCloudSystem)
-
--------------------------------------------------------------------------------------
--- Get current selected cloud system (prod/int/dev)
----@return string
-local function getCloudSystem()
-  return liveConnect_Model.parameters.cloudSystem
-end
-Script.serveFunction('CSK_LiveConnect.UI.getCloudSystem', getCloudSystem)
-
--------------------------------------------------------------------------------------
 -- Get status of the LiveConnect connection
 ---@result string
-local function getConnetionStatus()
+local function getConnectionStatus()
   if not liveConnect_Model.iccClient:isEnabled() then
     return "Offline"
   else
@@ -318,7 +293,7 @@ local function getConnetionStatus()
     end
   end
 end
-Script.serveFunction("CSK_LiveConnect.UI.getConnetionStatus", getConnetionStatus)
+Script.serveFunction("CSK_LiveConnect.getConnectionStatus", getConnectionStatus)
 
 -------------------------------------------------------------------------------------
 -- Create / get a device and assign a UUID
