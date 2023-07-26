@@ -1,0 +1,10 @@
+.myCustomFrame_CSK_Module_DeviceNetworkConfig {
+  border-style: solid;
+  border-width: 1px;
+  border-color: grey;
+  margin: 6px;
+}
+
+.myCustomMinWidth_CSK_Module_DeviceNetworkConfig {
+  min-width: 60px;
+}
