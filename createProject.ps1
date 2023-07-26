@@ -1,8 +1,8 @@
 # Adapter definitions
 $appStudioProjectFolder = "project"
 $gitIgnoreFile = ".gitignore"
-$adapters = ("v3.0.0", "moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
-			("v4.0.0", "modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
+$modules = ("v3.0.0", "modules/moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
+			("v4.0.0", "modules/modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
 
 # Add folder to the GIT ignore list if not already exist
 Function addFolderToGitIgnore
@@ -32,19 +32,13 @@ Function addFolderToGitIgnore
 "====================================================================================="
 
 # Script input promps
-$updateSubtrees = Read-Host -Prompt "Update local adapter repository (add/pull GIT subtrees)? (y/n)"
-$pushSubtrees = Read-Host -Prompt "Push changes to the dedicated adapter repositories (it takes about 10min)? (y/n)"
-
+$updateSubtrees = Read-Host -Prompt "Add / update module epositories (add/pull GIT subtrees)? (y/n)"
 $adapterUpdate = $false
-$adapterPush = $false
 if ($updateSubtrees -eq "y")
 {
 	$adapterUpdate = $true
 }
-if ($pushSubtrees -eq "y")
-{
-	$adapterPush = $true
-}
+
 
 # Create AppStudio project folder if not exist
 if (-not(Test-Path -Path $appStudioProjectFolder))
@@ -52,7 +46,7 @@ if (-not(Test-Path -Path $appStudioProjectFolder))
 	New-Item $appStudioProjectFolder -Type Directory
 }
 
-foreach($adapter in $adapters)
+foreach($adapter in $modules)
 {
 	# GIT add / pull
 	if ($adapterUpdate)
@@ -69,16 +63,14 @@ foreach($adapter in $adapters)
 		}
 	}
 	
-	# GIT push
-	if ($adapterPush)
-	{
-		"===== Push adapter changes from " + $adapter[1] + " to GIT (push) ====="
-		git subtree push --prefix $adapter[1] $adapter[2] $adapter[0]
-	}
-	
 	# Create sym links if not exists
 	foreach($app in Get-ChildItem $adapter[1] -Directory)
 	{
+		if (($app.name -match ".git") -or ($app.name -match "docu"))
+		{
+			continue
+		}
+		
 		$source = $adapter[1] + '\' + $app.name
 		$destination = $appStudioProjectFolder + '\' + $app.name
 		
