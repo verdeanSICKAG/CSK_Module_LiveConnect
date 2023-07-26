@@ -1,6 +1,5 @@
 # Adapter definitions
 $appStudioProjectFolder = "project"
-$dependentModulesFolder = "modules"
 $gitIgnoreFile = ".gitignore"
 $dependentModules = ("v3.0.0", "modules/moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
 					("v4.0.0", "modules/modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
@@ -71,14 +70,14 @@ foreach($module in $dependentModules)
 	}
 	
 	# Create sym links if not exists
-	foreach($app in Get-ChildItem ($dependentModulesFolder + "/" + $module[1]) -Directory)
+	foreach($app in Get-ChildItem ($module[1]) -Directory)
 	{
 		if (($app.name -match ".git") -or ($app.name -match "docu"))
 		{
 			continue
 		}
 		
-		$source = $dependentModulesFolder + "/" + $module[1] + '\' + $app.name
+		$source = $module[1] + '\' + $app.name
 		$destination = $appStudioProjectFolder + '\' + $app.name
 		
 		if (-not(Test-Path -Path $destination))
@@ -104,7 +103,7 @@ foreach($module in $modules)
 }
 
 addFolderToGitIgnore($appStudioProjectFolder)
-addFolderToGitIgnore($dependentModulesFolder)
+addFolderToGitIgnore("modules")
 	
 
 Write-Host -NoNewLine 'Press any key to exit...';
