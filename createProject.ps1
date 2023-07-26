@@ -61,12 +61,12 @@ foreach($module in $dependentModules)
 		if (Test-Path -Path $module[1])
 		{
 			"===== Update " + $module[1] + " (pull from GIT) ====="
-			git subtree pull --prefix $dependentModulesFolder + "/" + $module[1] $module[2] $module[0]
+			git subtree pull --prefix $module[1] $module[2] $module[0]
 		}
 		else
 		{
 			"===== Add " + $module[1] + " (add from GIT) ====="
-			git subtree add --prefix $dependentModulesFolder + "/" + $module[1] $module[2] $module[0]
+			git subtree add --prefix $module[1] $module[2] $module[0]
 		}
 	}
 	
