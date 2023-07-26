@@ -8,6 +8,7 @@ $modules = ("v3.0.0", "modules/moduleDateTime", "https://github.com/SICKAppSpace
 Function addFolderToGitIgnore
 {
 	Param ($folderToAdd)
+	
 	$entry = "/" + $folderToAdd.replace("\", "/")
 	if (Test-Path -Path $gitIgnoreFile -PathType Leaf)
 	{
@@ -24,9 +25,6 @@ Function addFolderToGitIgnore
 	}
 	"Adding '" + $entry + "' to the GIT ignore list"
 	Add-Content $gitIgnoreFile $entry
-	
-	# Adding possible AppStudio lock file
-	Add-Content $gitIgnoreFile ("/" + $appStudioProjectFolder + "/lock")
 }
 
 # Description
@@ -86,8 +84,13 @@ foreach($adapter in $modules)
 		}
 		
 		# Add linked app to the GIT ignore list
-		addFolderToGitIgnore $destination
+		addFolderToGitIgnore($destination)
 	}
+	
+	addFolderToGitIgnore($appStudioProjectFolder)
+	
+	
+	
 }
 
 Write-Host -NoNewLine 'Press any key to exit...';
