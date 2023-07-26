@@ -1,0 +1,11 @@
+{
+  "name": "LoggerTemplateApp",
+  "version": "1.0.0",
+  "description": "Generated",
+  "components": [
+    "@sick-davinci/basic-elements"
+  ],
+  "dependencies": {
+    "@sick-davinci/basic-elements": "^5.1.1-snapshot.1"
+  }
+}
