@@ -1,0 +1,102 @@
+asyncapi: "1.2.0"
+info:
+  title: Capabilities
+  version: "0.1.2.20181011150000A"
+  description: The SICK Standard Capabilities MQTT profile.
+  
+baseTopic: 'sick.capabilities'
+  
+servers:
+  - url: '{device}:{port}'
+    description: Allows you to connect using the MQTT protocol.
+    scheme: mqtt
+    variables:    
+      device:
+        default: 192.168.0.1
+      port:
+        enum:
+          - '5676'
+          - '5677'
+        default: '5676'
+  
+topics:
+  "profiles.{$device.name}.{$device.version}.{$device.serialNumber}":
+    publish:
+      $ref: "#/components/messages/profiles"
+    
+components:
+    
+  messages:
+    profiles:
+      headers:
+        type: object
+        description: Get a list of the supported MQTT profiles.
+        properties:
+          qos:
+            $ref: "#/components/schemas/MQTTQoSHeader"
+          retainFlag:
+            $ref: "#/components/schemas/MQTTRetainHeader"
+      payload:
+        type: array
+        items:
+          oneOf:
+            - $ref: '#/components/schemas/Profile'
+            - $ref: '#/components/schemas/AsyncApiSpecification'
+    
+  schemas:  
+    MQTTQoSHeader:
+      title: qos
+      description: Quality of Service
+      type: integer
+      format: int32
+      default: 1
+      enum:
+        - 0
+        - 2
+      
+    MQTTRetainHeader:
+      title: retainFlag
+      description: |
+        This flag determines if the message will be saved by the broker for the specified
+        topic as last known good value. New clients that subscribe to that topic will receive
+        the last retained message on that topic instantly after subscribing. More on retained messages
+        and best practices in one of the next posts.
+      type: boolean
+      default: false      
+      
+    Profile:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        name:
+          type: "string"
+        description:
+          type: "string"
+        version:
+          $ref: "#/components/schemas/Version"
+        baseTopic:
+          type: "string"
+    ProfileSpecification:
+        allOf:
+          - $ref: '#/components/schemas/Profile'
+          - type: object
+            properties:
+              location:
+                type: "string"
+                format: uri
+    AsyncApiSpecification:
+        allOf:
+          - $ref: '#/components/schemas/ProfileSpecification'
+          - type: object
+    Version:
+      type: "object"
+      properties:
+        major:
+          type: "integer"
+        minor:
+          type: "integer"
+        patch:
+          type: "integer"
+        qualifier:
+          type: "string"
