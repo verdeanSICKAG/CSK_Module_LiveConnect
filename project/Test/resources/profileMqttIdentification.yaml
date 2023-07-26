@@ -1,0 +1,119 @@
+asyncapi: 2.4.0
+info:
+  title: IO-Link Device Identification
+  version: 0.0.1.202205251000A
+  description: IO-Link device identification data
+servers:
+  default:
+    url: '{device}:{port}'
+    description: Allows you to connect using the MQTT protocol.
+    variables:
+      device:
+        default: 192.168.0.1
+      port:
+        enum:
+          - '5676'
+          - '5677'
+        default: '5676'
+    protocol: mqtt
+channels:
+  sick/iolink/identdata/{deviceId}:
+    publish:
+      message:
+        $ref: '#/components/messages/identdata'
+    parameters:
+      deviceId:
+        schema:
+          type: string
+        description: A unique identifier for the device, e.g. a combination of device name, version and serial number or a generated UUID
+components:
+  messages:
+    identdata:
+      headers:
+        type: object
+        properties:
+          qos:
+            $ref: '#/components/schemas/MQTTQoSHeader'
+          retainFlag:
+            $ref: '#/components/schemas/MQTTRetainHeader'
+      payload:
+        $ref: '#/components/schemas/IdentDataPayload'
+  schemas:
+    MQTTQoSHeader:
+      title: qos
+      description: Quality of Service
+      type: integer
+      format: int32
+      default: 1
+      enum:
+        - 0
+        - 1
+        - 2
+    MQTTRetainHeader:
+      title: retainFlag
+      description: >
+        This flag determines if the message will be saved by the broker for the
+        specified topic as last known good value. New clients that subscribe to
+        that topic will receive the last retained message on that topic
+        instantly after subscribing.
+      type: boolean
+      default: false
+    IdentDataPayload:
+      type: object
+      required:
+      - timestamp
+      - vendorName
+      - productName
+      - productId
+      - serialNumber
+      properties:
+        timestamp:
+          description: UTC timestamp according to RFC 3339
+          type: string
+          example: '2022-05-23T06:34:42.694Z'
+        vendorId:
+          description: Vendor id of the connected device
+          type: integer
+          format: uint16
+          example: 26
+        deviceId:
+          description: Device id of the connected device
+          type: integer
+          format: uint32
+          example: 12345678
+        vendorName:
+          description: Vendor name of the connectd device
+          type: string
+          example: 'SICK AG'
+        vendorText:
+          description: Additional vendor information
+          type: string
+          example: 'Additional vendor info'       
+        productName:
+          description: Detailed product or type name
+          type: string
+          example: 'WTB12'
+        productId:
+          description: Product or type identification
+          type: string
+          example: '12345678'
+        productText:
+          description: Description of device function or characteristic
+          type: string
+          example: 'Distance sensor'
+        serialNumber:
+          description: Vendor specific serial number
+          type: string
+          example: '12345678'           
+        hardwareRevision:
+          description: Vendor specific format
+          type: string
+          example: 'V0.6.9' 
+        firmwareRevision:
+          description: Vendor specific format
+          type: string
+          example: 'V1.2.3'
+        applicationSpecificTag:
+          description: Tag location or tag function defined by user
+          type: string
+          example: 'Machine 1 / Part 2'

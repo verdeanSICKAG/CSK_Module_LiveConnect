@@ -1,0 +1,99 @@
+asyncapi: "1.2.0"
+info:
+  title: Device Identification
+  version: "0.1.2.20181016150000A"
+  description: The SICK Standard Device Identification MQTT profile.
+  
+baseTopic: 'identification'
+  
+servers:
+  - url: '{device}:{port}'
+    description: Allows you to connect using the MQTT protocol.
+    scheme: mqtt
+    variables:    
+      device:
+        default: 192.168.0.1
+      port:
+        enum:
+          - '5676'
+          - '5677'
+        default: '5676'
+  
+topics:
+  identity:
+    publish:
+      $ref: "#/components/messages/identity"
+   
+components:  
+  messages:
+    identity:
+      headers:
+        type: object
+        description: Get all identification information of the device.
+        properties:
+          qos:
+            $ref: "#/components/schemas/MQTTQoSHeader"
+          retainFlag:
+            $ref: "#/components/schemas/MQTTRetainHeader"
+      payload:
+        $ref: "#/components/schemas/DeviceIndentification"
+        example:
+          name: "A SICK Device"
+          orderNumber: "1234567"
+          serialNumber: "987654321"
+          hardwareVersion:
+            major: 1
+            minor: 0
+            patch: 0
+            qualifier: 1001R
+          firmwareVersion:
+            major: 1
+            minor: 0
+            patch: 0
+            qualifier: 1001R        
+             
+  schemas:  
+    MQTTQoSHeader:
+      title: qos
+      description: Quality of Service
+      type: integer
+      format: int32
+      default: 1
+      enum:
+        - 0
+        - 2
+      
+    MQTTRetainHeader:
+      title: retainFlag
+      description: |
+        This flag determines if the message will be saved by the broker for the specified
+        topic as last known good value. New clients that subscribe to that topic will receive
+        the last retained message on that topic instantly after subscribing.
+      type: boolean
+      default: false
+       
+    DeviceIndentification:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        orderNumber:
+          type: "integer"
+        serialNumber:
+          type: "integer"
+        hardwareVersion:
+          $ref: "#/components/schemas/Version"
+        firmwareVersion:
+          $ref: "#/components/schemas/Version"
+           
+    Version:
+      type: "object"
+      properties:
+        major:
+          type: "integer"
+        minor:
+          type: "integer"
+        patch:
+          type: "integer"
+        qualifier:
+          type: "string"
