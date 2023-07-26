@@ -12,7 +12,6 @@ Function addFolderToGitIgnore
 	foreach($line in Get-Content $gitIgnoreFile) 
 	{
 		if($line -match $regex)
-		
 		{
 			if ($line -eq $entry)
 			{
@@ -22,6 +21,9 @@ Function addFolderToGitIgnore
 	}
 	"Adding '" + $entry + "' to the GIT ignore list"
 	Add-Content $gitIgnoreFile $entry
+	
+	# Adding possible AppStudio lock file
+	Add-Content $gitIgnoreFile ("/" + $appStudioProjectFolder + "/lock")
 }
 
 # Description
