@@ -12,7 +12,7 @@ Function addFolderToGitIgnore
 {
 	Param ($folderToAdd)
 	
-	$entry = "/" + $folderToAdd.replace("\", "/")
+	$entry = $folderToAdd.replace("\", "/")
 	if (Test-Path -Path $gitIgnoreFile -PathType Leaf)
 	{
 		foreach($line in Get-Content $gitIgnoreFile) 
