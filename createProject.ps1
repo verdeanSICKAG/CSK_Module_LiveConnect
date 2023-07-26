@@ -1,8 +1,8 @@
 # Adapter definitions
 $appStudioProjectFolder = "project"
 $gitIgnoreFile = ".gitignore"
-$adapters = ("tag/v3.0.0", "moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
-			("tag/v4.0.0", "modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
+$adapters = ("releases/tag/v3.0.0", "moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
+			("releases/tag/v4.0.0", "modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
 
 # Add folder to the GIT ignore list if not already exist
 Function addFolderToGitIgnore
