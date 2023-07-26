@@ -1,0 +1,106 @@
+openapi: 3.0.2
+   
+info:
+  title: "Device Identification"
+  version: "0.1.4.20190510130000A"
+  description: "The SICK Standard Device Identification HTTP/REST profile."
+  
+servers:
+  - url: "{location}/identification"
+    variables:
+      location:
+        default: http://localhost
+        description: The service location URI.
+   
+tags:
+- name: "Device Identification"
+  description: ""
+   
+paths:
+  /identity:
+    get:
+      tags:
+      - "Device Identification"
+      summary: "Get all identification information of the device."
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceIndentification"
+              example:
+                name: "A SICK Device"
+                orderNumber: "1234567"
+                serialNumber: "987654321"
+                hardwareVersion: "1.0.0.1001R"
+                firmwareVersion: "1.0.0.1001R"
+  /applicationSpecificName:
+    get:
+      tags:
+      - "Device Identification"
+      summary: "Get the application specific name to identify a certain device more easily."
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "string"
+              example:
+                "A SICK Device"
+    put:
+      tags:
+        - "Device Identification"
+      summary: "Set the application specific name to identify a certain device more easily."
+      requestBody:
+        required: true
+        description: "Application specific name to identify a certain device."
+        content:
+          application/json:
+            schema:
+              type: string
+            example:
+              "A SICK Device"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "The application specific name is invalid. See the error message in the content for more details."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    oneOf:
+                      - type: number
+                        enum: [1001]
+                        title: StringTooLong
+                        description: The string is too long.
+                      - type: number
+                        enum: [1002]
+                        title: InvalidCharacter
+                        description: The string contains invalid characters.
+                  errorMessage:
+                    type: string
+components:
+  schemas:
+    DeviceIndentification:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        orderNumber:
+          type: "integer"
+        serialNumber:
+          type: "integer"
+        hardwareVersion:
+          type: "string"
+          description: "The version string must comply with the SICK Versioning Standard 1.0.1."
+        firmwareVersion:
+          type: "string"
+          description: "The version string must comply with the SICK Versioning Standard 1.0.1."
+
+     
+    

@@ -1,8 +1,11 @@
 # Adapter definitions
 $appStudioProjectFolder = "project"
+$dependentModulesFolder = "modules"
 $gitIgnoreFile = ".gitignore"
-$modules = ("v3.0.0", "modules/moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
-			("v4.0.0", "modules/modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
+$dependentModules = ("v3.0.0", "moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
+					("v4.0.0", "modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
+			
+$modules = 	"CSK_Module_LiveConnect","Test"
 
 # Add folder to the GIT ignore list if not already exist
 Function addFolderToGitIgnore
@@ -36,10 +39,10 @@ Function addFolderToGitIgnore
 
 # Script input promps
 $updateSubtrees = Read-Host -Prompt "Add / update module epositories (add/pull GIT subtrees)? (y/n)"
-$adapterUpdate = $false
+$moduleUpdate = $false
 if ($updateSubtrees -eq "y")
 {
-	$adapterUpdate = $true
+	$moduleUpdate = $true
 }
 
 
@@ -49,32 +52,33 @@ if (-not(Test-Path -Path $appStudioProjectFolder))
 	New-Item $appStudioProjectFolder -Type Directory
 }
 
-foreach($adapter in $modules)
+# Adding dependencies
+foreach($module in $dependentModules)
 {
 	# GIT add / pull
-	if ($adapterUpdate)
+	if ($moduleUpdate)
 	{
-		if (Test-Path -Path $adapter[1])
+		if (Test-Path -Path $module[1])
 		{
-			"===== Update " + $adapter[1] + " (pull from GIT) ====="
-			git subtree pull --prefix $adapter[1] $adapter[2] $adapter[0]
+			"===== Update " + $module[1] + " (pull from GIT) ====="
+			git subtree pull --prefix $dependentModulesFolder + "/" + $module[1] $module[2] $module[0]
 		}
 		else
 		{
-			"===== Add " + $adapter[1] + " (add from GIT) ====="
-			git subtree add --prefix $adapter[1] $adapter[2] $adapter[0]
+			"===== Add " + $module[1] + " (add from GIT) ====="
+			git subtree add --prefix $dependentModulesFolder + "/" + $module[1] $module[2] $module[0]
 		}
 	}
 	
 	# Create sym links if not exists
-	foreach($app in Get-ChildItem $adapter[1] -Directory)
+	foreach($app in Get-ChildItem ($dependentModulesFolder + "/" + $module[1]) -Directory)
 	{
 		if (($app.name -match ".git") -or ($app.name -match "docu"))
 		{
 			continue
 		}
 		
-		$source = $adapter[1] + '\' + $app.name
+		$source = $dependentModulesFolder + "/" + $module[1] + '\' + $app.name
 		$destination = $appStudioProjectFolder + '\' + $app.name
 		
 		if (-not(Test-Path -Path $destination))
@@ -88,9 +92,24 @@ foreach($adapter in $modules)
 	}
 	
 	addFolderToGitIgnore($appStudioProjectFolder)
+	addFolderToGitIgnore($dependentModulesFolder)
+}
+
+# Adding modules
+foreach($module in $modules)
+{
+	$source = $module
+	$destination = $appStudioProjectFolder + '\' + $module
 	
+	if (-not(Test-Path -Path $destination))
+	{
+		Write-Output($source)
+		"===== Create sym link for " + $module + " ====="
+		New-Item -Path $destination -ItemType SymbolicLink -Value $source
+	}
 	
-	
+	# Add linked app to the GIT ignore list
+	addFolderToGitIgnore($destination)
 }
 
 Write-Host -NoNewLine 'Press any key to exit...';
