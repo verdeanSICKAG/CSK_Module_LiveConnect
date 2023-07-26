@@ -9,13 +9,16 @@ Function addFolderToGitIgnore
 {
 	Param ($folderToAdd)
 	$entry = "/" + $folderToAdd.replace("\", "/")
-	foreach($line in Get-Content $gitIgnoreFile) 
+	if (Test-Path -Path $gitIgnoreFile -PathType Leaf)
 	{
-		if($line -match $regex)
+		foreach($line in Get-Content $gitIgnoreFile) 
 		{
-			if ($line -eq $entry)
+			if($line -match $regex)
 			{
-				return
+				if ($line -eq $entry)
+				{
+					return
+				}
 			}
 		}
 	}
