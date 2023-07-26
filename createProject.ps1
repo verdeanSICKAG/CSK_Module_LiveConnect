@@ -1,8 +1,8 @@
 # Adapter definitions
 $appStudioProjectFolder = "project"
 $gitIgnoreFile = ".gitignore"
-$dependentModules = ("v3.0.0", "modules/moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
-					("v4.0.0", "modules/modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
+$dependentModules = ("v3.0.0", "dependencies/moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
+					("v4.0.0", "dependencies/modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
 			
 $modules = 	"CSK_Module_LiveConnect","Test"
 
@@ -103,7 +103,6 @@ foreach($module in $modules)
 }
 
 addFolderToGitIgnore($appStudioProjectFolder)
-addFolderToGitIgnore("modules")
 	
 
 Write-Host -NoNewLine 'Press any key to exit...';
