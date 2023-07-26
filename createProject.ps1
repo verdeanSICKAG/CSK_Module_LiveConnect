@@ -86,13 +86,7 @@ foreach($module in $dependentModules)
 			"===== Create sym link for " + $app.name + " ====="
 			New-Item -Path $destination -ItemType SymbolicLink -Value $source
 		}
-		
-		# Add linked app to the GIT ignore list
-		addFolderToGitIgnore($destination)
 	}
-	
-	addFolderToGitIgnore($appStudioProjectFolder)
-	addFolderToGitIgnore($dependentModulesFolder)
 }
 
 # Adding modules
@@ -107,10 +101,11 @@ foreach($module in $modules)
 		"===== Create sym link for " + $module + " ====="
 		New-Item -Path $destination -ItemType SymbolicLink -Value $source
 	}
-	
-	# Add linked app to the GIT ignore list
-	addFolderToGitIgnore($destination)
 }
+
+addFolderToGitIgnore($appStudioProjectFolder)
+addFolderToGitIgnore($dependentModulesFolder)
+	
 
 Write-Host -NoNewLine 'Press any key to exit...';
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
