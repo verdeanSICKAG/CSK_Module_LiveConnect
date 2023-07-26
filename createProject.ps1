@@ -4,8 +4,7 @@ $gitIgnoreFile = ".gitignore"
 $dependentModules = ("v3.0.0", "dependencies/moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
 					("v4.0.0", "dependencies/modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData"),
 					("v4.0.0", "dependencies/module1stModuleLogger", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_1stModule_Logger"),
-					("v2.0.0", "dependencies/moduleDeviceNetworkConfig", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DeviceNetworkConfig"),
-					("v2.0.0", "dependencies/moduleDeviceNetworkConfig", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DeviceNetworkConfig"),
+					("v2.0.0", "dependencies/moduleDeviceNetworkConfig", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DeviceNetworkConfig")
 			
 $modules = 	"CSK_Module_LiveConnect",
 			"Homescreen",
