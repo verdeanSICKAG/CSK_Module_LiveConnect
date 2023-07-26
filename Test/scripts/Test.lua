@@ -221,7 +221,7 @@ Script.serveFunction('Test.deleteAllProfiles', deleteAllProfiles)
 local function profileAdded(name, profileType)
   print(string.format("%s profile added (%s)", profileType, name))
 end
-Script.register("CSK_LiveConnect.OnProfileAdded", profileAdded)
+Script.register("CSK_LiveConnect.OnNewProfileAdded", profileAdded)
 
 -------------------------------------------------------------------------------------
 -- Start delay to ensude the LiveConnect client is intialized
