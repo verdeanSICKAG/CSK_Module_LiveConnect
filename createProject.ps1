@@ -2,8 +2,8 @@
 $appStudioProjectFolder = "project"
 $dependentModulesFolder = "modules"
 $gitIgnoreFile = ".gitignore"
-$dependentModules = ("v3.0.0", "moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
-					("v4.0.0", "modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
+$dependentModules = ("v3.0.0", $dependentModulesFolder + "/moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
+					("v4.0.0", $dependentModulesFolder "/modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData")
 			
 $modules = 	"CSK_Module_LiveConnect","Test"
 
