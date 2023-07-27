@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest>
+    <application name="UnitTests_LiveConnect">
+        <crown name="UnitTests_LiveConnect">
+            <desc>user script</desc>
+            <serves>
+                <function name="runTests">
+                    <trait>released</trait>
+                    <desc>Run unit tests for this adapter</desc>
+                    <param alias="UnitTests_LiveConnect.TestParams" desc="" multiplicity="1" name="params" type="string"/>
+                    <return desc="Test performed successfully" multiplicity="1" name="success" type="bool"/>
+                </function>
+                <function name="getTestParams">
+                    <trait>released</trait>
+                    <return alias="UnitTests_LiveConnect.TestParams" desc="" multiplicity="+" name="testParams" type="object"/>
+                </function>
+            </serves>
+            <crown builtin="true" name="TestParams">
+                <trait>released</trait>
+                <serves>
+                    <function name="getName">
+                        <trait>released</trait>
+                        <param alias="UnitTests_LiveConnect.TestParams" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="" multiplicity="1" name="Name" type="string"/>
+                    </function>
+                    <function name="setName">
+                        <trait>released</trait>
+                        <param alias="UnitTests_LiveConnect.TestParams" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="" multiplicity="1" name="Name" type="string"/>
+                    </function>
+                    <function name="create">
+                        <trait>released</trait>
+                        <return alias="UnitTests_LiveConnect.TestParams" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                    </function>
+                    <function name="getValue">
+                        <trait>released</trait>
+                        <param alias="UnitTests_LiveConnect.TestParams" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="" multiplicity="1" name="Value" type="auto"/>
+                    </function>
+                    <function name="setValue">
+                        <trait>released</trait>
+                        <param alias="UnitTests_LiveConnect.TestParams" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="" multiplicity="1" name="Value" type="auto"/>
+                    </function>
+                </serves>
+            </crown>
+        </crown>
+        <meta key="author">Andreas Verdenhalven</meta>
+        <meta key="version">1.0.0</meta>
+        <meta key="priority">low</meta>
+        <meta key="copy-protected">false</meta>
+        <meta key="read-protected">false</meta>
+        <entry default="Main.lua" path="scripts"/>
+    </application>
+</manifest>

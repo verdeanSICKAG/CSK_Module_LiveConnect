@@ -49,7 +49,7 @@ local function httpCallback(request)
     l_index = tonumber(string.sub(request:getURL(), l_paraPos + 6, #request:getURL()))
   end
   local l_responsePayload = {}
-  l_responsePayload["name"] = "Response from edge device"
+  l_responsePayload["name"] = request:getMethod() .. " response from edge device"
   l_responsePayload["timestamp"] = getTimestamp()
   l_responsePayload["index"] = l_index
   l_responsePayload["data"] = l_data

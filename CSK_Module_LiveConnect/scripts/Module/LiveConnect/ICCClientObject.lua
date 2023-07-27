@@ -380,11 +380,11 @@ function m_iccClientObject.handlePerformHTTPRequestCommand(self, command, device
     l_defaultResponseTopic = self.mqttDefaultCloud
   end
 
-  local response, responseTopic = self:createHttpResponseCommand(command, defaultResponseTopic)
-  local responseJSON = m_json.encode(response)
-  _G.logger:fine(NAME_OF_MODULE .. ": PERFORM_HTTP_REQUEST response to " ..  responseTopic .. ": " .. m_inspect(response))
+  local l_response, l_responseTopic = self:createHttpResponseCommand(command, defaultResponseTopic)
+  local l_responseJSON = m_json.encode(l_response)
+  _G.logger:fine(NAME_OF_MODULE .. ": PERFORM_HTTP_REQUEST response to " ..  l_responseTopic .. ": " .. m_inspect(l_response))
 
-  MQTTClient.publish(self.iccBackendMqttClient, responseTopic, responseJSON, "QOS1")
+  MQTTClient.publish(self.iccBackendMqttClient, l_responseTopic, l_responseJSON, "QOS1")
 end
 
 -------------------------------------------------------------------------------------
@@ -439,13 +439,13 @@ end
 -------------------------------------------------------------------------------------
 -- Perfom HTTP request and generate a HTTP response back via ICC channel 
 function m_iccClientObject.createHttpResponseCommand(self, command, responseTopic)
-  local generatedUUID = uuid()
-  local ret = {
+  local l_generatedUUID = uuid()
+  local l_ret = {
     command = "ANNOUNCE_HTTP_RESPONSE",
-    uuid = generatedUUID,
+    uuid = l_generatedUUID,
     payload = {}
   }
-  ret["payload"]["referrer-uuid"] = command['uuid']
+  l_ret["payload"]["referrer-uuid"] = command['uuid']
   if (nil ~= command['uuid']
     and nil ~= command['payload']
     and nil ~= command['payload']['request']['url']
@@ -507,18 +507,19 @@ function m_iccClientObject.createHttpResponseCommand(self, command, responseTopi
     if not l_success then
       local l_message = "PERFORM_HTTP_REQUEST: HTTP endpoint not in repository (" .. l_request:getURL() .. ")"
       _G.logger:warning(NAME_OF_MODULE .. ": " .. l_message)
-      ret['payload']['response'] = {
+      l_ret['payload']['response'] = {
         error = "E_REQUEST_FAILED",
         message = l_message
       }
     else
       local l_headers = {}
       l_headers["Content-Length"] = #l_response:getContent()
+      l_headers["Cache-Control"] = "no-cache, no-store"
       for _, header in pairs(l_response:getHeaders()) do
         l_headers[CSK_LiveConnect.Header.getKey(header)] = CSK_LiveConnect.Header.getValue(header)
       end
 
-      ret['payload']['response'] = {
+      l_ret['payload']['response'] = {
         statusCode = l_response:getStatusCode(),
         body = l_response:getContent(),
         headers = l_headers
@@ -526,12 +527,12 @@ function m_iccClientObject.createHttpResponseCommand(self, command, responseTopi
     end
   else
     _G.logger:warning(NAME_OF_MODULE .. ": PERFORM_HTTP_REQUEST command invalid")
-    ret['payload']['response'] = {
+    l_ret['payload']['response'] = {
       error = "E_INVALID_COMMAND",
       message = "Invalid command",
     }
   end
-  return ret, responseTopic
+  return l_ret, responseTopic
 end
 
 -------------------------------------------------------------------------------------
@@ -809,12 +810,7 @@ function m_iccClientObject.getTokenValidationPayload(self, token)
     else
       _G.logger:fine(NAME_OF_MODULE .. ": Generating key pair completed")
       
-      
       local l_csr = Cipher.Certificate.SigningRequest.create()
-
-
-
-
       l_csr:setKeyPair(l_publicKey, l_privateKey)
       local l_csrBuf = l_csr:encode("PEM")
       if l_csrBuf == nil then

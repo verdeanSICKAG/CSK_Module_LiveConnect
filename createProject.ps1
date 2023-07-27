@@ -8,7 +8,8 @@ $dependentModules = ("v3.0.0", "dependencies/moduleDateTime", "https://github.co
 			
 $modules = 	"CSK_Module_LiveConnect",
 			"HomeScreen",
-			"Test"
+			"Test",
+			"UnitTests_LiveConnect"
 
 # Add folder to the GIT ignore list if not already exist
 Function addFolderToGitIgnore

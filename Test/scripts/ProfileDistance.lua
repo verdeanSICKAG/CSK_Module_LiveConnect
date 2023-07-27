@@ -58,7 +58,6 @@ local function httpCallback(request)
   l_payload["unit"] = "mm"
 
   l_response:setContent(m_json.encode(l_payload))
-
   return l_response
 end
 
