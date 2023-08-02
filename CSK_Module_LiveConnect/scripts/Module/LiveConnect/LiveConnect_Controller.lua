@@ -18,7 +18,6 @@ local m_validateTokenResult = ""
 -------------------------------------------------------------------------------------
 -- Constant values
 local NAME_OF_MODULE = 'CSK_LiveConnect'
-local WATCHDOG_ADD_PROFILE_MS = 10000
 
 -- Timer to update UI via events after page was loaded
 local m_tmrLiveConnect = Timer.create()
@@ -195,13 +194,15 @@ local function startTokenValidation()
   _G.logger:info(NAME_OF_MODULE .. ": Validate Token (" .. l_token .. ")")
   l_token = string.gsub(l_token, "^%s*(.-)%s*$", "%1") -- trim
   if nil ~= l_token and l_token ~= "" then
-    local l_success, l_errorMessage = liveConnect_Model.iccClient:validateToken(l_token)
+    local l_success, l_statusMessage = liveConnect_Model.iccClient:validateToken(l_token)
     if (l_success) then
       liveConnect_Model.iccClient.softApprovalToken = ""
       publishValidateTokenResult("Registration successful")
     else
-      publishValidateTokenResult("Token validation error: " .. l_errorMessage)
+      publishValidateTokenResult("Token validation error: " .. l_statusMessage)
     end
+  else
+    publishValidateTokenResult("Token validation error: Empty token")
   end
 end
 Script.serveFunction("CSK_LiveConnect.startTokenValidation", startTokenValidation)

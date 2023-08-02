@@ -4,3 +4,7 @@
   border-color: grey;
   margin: 6px;
 }
+
+.myCustomText_Status{
+  font-style:italic;
+}

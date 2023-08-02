@@ -3,7 +3,7 @@
 -- Variable declarations
 local m_fifo = require("utils.fifo.fifo")
 local m_json = require("utils.Lunajson")
-local m_inspect = require("utils.inspect")
+local m_inspect = require("utils.Inspect")
 local m_base64 = require("utils.base64.base64")
 local m_iccClientObject = {}
 local m_httpGatewayObject = require("Module.LiveConnect.profileImpl.HttpGatewayObject")
@@ -56,7 +56,7 @@ function m_iccClientObject.create()
   self.softApprovalToken = "";
 
   self.enabled = false
-  self.eventSubscribers = { OnConnected = {}, OnDisconnected = {}, OnConnectionStateChanged = {}, OnCommand = {} }
+  self.eventSubscribers = { OnConnectionStateChanged = {}}
   self.state = 'CHECK_PAIRING'
   self.discoveryResponse = nil
   self.isConnectionEstablished = false
@@ -711,18 +711,19 @@ end
 -------------------------------------------------------------------------------------
 -- Validate token
 function m_iccClientObject.validateToken(self, token)
-  local l_errorMessage = nil
+  local l_statusMessage = nil
   local l_success = false
   if nil == self.deviceUuid then
     local l_tokenValidationResponse = nil
-    l_success, l_errorMessage, l_tokenValidationResponse = self:runTokenValidation(token)
+    l_success, l_statusMessage, l_tokenValidationResponse = self:runTokenValidation(token)
     if l_success then
-      l_success, l_errorMessage = self:processTokenValidationResponse(l_tokenValidationResponse)
+      l_success, l_statusMessage = self:processTokenValidationResponse(l_tokenValidationResponse)
     end
   else
-    l_errorMessage = "Already paired"
+    l_statusMessage = "Already paired"
   end
-  return l_success, l_errorMessage
+
+  return l_success, l_statusMessage
 end
 
 -------------------------------------------------------------------------------------
@@ -758,7 +759,7 @@ function m_iccClientObject.setConnectionState(self, newState)
   if self.state ~= newState then
     self.state = newState
     for _, callback in ipairs(self.eventSubscribers["OnConnectionStateChanged"]) do
-      callback(payload, newState)
+      callback(newState)
     end
   end
 end
@@ -880,7 +881,7 @@ function m_iccClientObject.runTokenValidation(self, token)
 
     local l_req = HTTPClient.Request.create()
     l_req:setMethod("POST")
-    
+
     l_req:setURL(self:getSoftapprovalUrl())
     l_req:addHeader('X-Api-Key', self.iccApiKey)
     l_req:setContentBuffer(l_payloadJSON)
@@ -916,9 +917,12 @@ function m_iccClientObject.runTokenValidation(self, token)
       end
     end
   end
+
+  -- Print message
   if not l_success and (l_errorMessage ~= nil) then
     _G.logger:warning(NAME_OF_MODULE .. ": " .. l_errorMessage)
   end
+
   return l_success, l_errorMessage, l_tokenResponse
 end
 
