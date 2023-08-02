@@ -30,6 +30,16 @@ local function uuid()
 end
 
 -------------------------------------------------------------------------------------
+-- Get UTC time according to RFC 3339
+local function getTimestamp()
+  local l_day, l_month, l_year, l_hour, l_minute, l_second, l_millisecond = DateTime.getDateTimeValuesUTC()
+  local l_ret = string.format("%04d-%02d-%02dT%02d:%02d:%02d.%03dZ",
+    l_year, l_month, l_day, l_hour, l_minute, l_second, l_millisecond)
+
+  return l_ret
+end
+
+-------------------------------------------------------------------------------------
 -- Create profile object
 function m_iccClientObject.create()
   local self = setmetatable({}, m_iccClientObject)
@@ -600,7 +610,7 @@ function m_iccClientObject.addMqttTopic(self, topic, data, qos)
       topic = topic,
       data = data,
       qos = qos,
-      timestamp = DateTime.getUnixTime()
+      timestamp = getTimestamp() --DateTime.getUnixTime()
     }
 
     -- Store message
@@ -727,7 +737,9 @@ function m_iccClientObject.removePairing(self)
   File.del(self:getFileUuid())
   File.del(self:getFileCred())
   File.del(self:getFileCert())
+
   self.deviceUuid = nil
+  self.softApprovalToken = ""
 
   if l_enableAgain then
     self:enable()
@@ -868,7 +880,7 @@ function m_iccClientObject.runTokenValidation(self, token)
 
     local l_req = HTTPClient.Request.create()
     l_req:setMethod("POST")
-
+    
     l_req:setURL(self:getSoftapprovalUrl())
     l_req:addHeader('X-Api-Key', self.iccApiKey)
     l_req:setContentBuffer(l_payloadJSON)
@@ -1044,7 +1056,7 @@ end
 -- Publish "device connected" to the given topic (backend)
 function m_iccClientObject.publishConnectedCommand(self, deviceBaseUrl, topic)
   local l_generatedUuid = uuid()
-  local l_connectedCommad = {
+  local l_connectedCommand = {
     uuid = l_generatedUuid,
     command = "DEVICE_CONNECTED",
     type = "COMMAND",
@@ -1054,11 +1066,11 @@ function m_iccClientObject.publishConnectedCommand(self, deviceBaseUrl, topic)
       baseUrl = deviceBaseUrl
     }
   }
-  local l_connectedCommadObject = m_json.encode(l_connectedCommad)
+  local l_connectedCommadObject = m_json.encode(l_connectedCommand)
   MQTTClient.publish(self.iccBackendMqttClient, topic, l_connectedCommadObject , "QOS1")
 
   _G.logger:info(string.format(NAME_OF_MODULE .. ": Device is connected (topic: %s)", topic))
-  _G.logger:fine(string.format(NAME_OF_MODULE .. ": Device is connected (topic: %s payload: %s)", topic, m_inspect(l_connectedCommad)))
+  _G.logger:fine(string.format(NAME_OF_MODULE .. ": - payload: %s)", m_inspect(l_connectedCommand)))
 end
 
 -------------------------------------------------------------------------------------

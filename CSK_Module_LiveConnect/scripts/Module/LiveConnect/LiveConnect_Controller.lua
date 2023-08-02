@@ -13,10 +13,12 @@ local m_httpCapabilitiesObject = require("Module.LiveConnect.profileImpl.HttpCap
 local m_httpApplicationObject = require("Module.LiveConnect.profileImpl.HttpApplicationObject")
 local m_devices = {}
 local m_clearValidateTokenResultTimer = Timer.create()
+local m_validateTokenResult = ""
 
 -------------------------------------------------------------------------------------
 -- Constant values
 local NAME_OF_MODULE = 'CSK_LiveConnect'
+local WATCHDOG_ADD_PROFILE_MS = 10000
 
 -- Timer to update UI via events after page was loaded
 local m_tmrLiveConnect = Timer.create()
@@ -168,13 +170,15 @@ end
 -------------------------------------------------------------------------------------
 -- Clear token when the validation timer is exceeded
 local function clearValidateTokenResult()
-  Script.notifyEvent("LiveConnect_OnNewValidateTokenResult", "")
+  m_validateTokenResult = ""
+  Script.notifyEvent("LiveConnect_OnNewValidateTokenResult", m_validateTokenResult)
 end
 
 -------------------------------------------------------------------------------------
 -- Publish token result
 ---@param tokenResult string
 local function publishValidateTokenResult(tokenResult)
+  m_validateTokenResult = tokenResult
   Script.notifyEvent("LiveConnect_OnNewValidateTokenResult", tokenResult)
 
   m_clearValidateTokenResultTimer:setExpirationTime(15000)
@@ -207,7 +211,6 @@ Script.serveFunction("CSK_LiveConnect.startTokenValidation", startTokenValidatio
 local function removePairing()
   _G.logger:info(NAME_OF_MODULE .. ": Remove pairing")
   liveConnect_Model.iccClient:removePairing()
-  liveConnect_Model.iccClient.softApprovalToken = ""
 
   clearValidateTokenResult()
 end
@@ -272,9 +275,9 @@ local function getConnectionStatus()
     elseif l_currentState == 'EXECUTING_COMMAND' then
       return "Execute command"
     elseif l_currentState == 'DISCOVERY_RESPONSE_RECEIVED' then
-      return "Discovery"
+      return "Discover devices"
     elseif l_currentState == 'CHECK_PAIRING' then
-      return "Pairing"
+      return "Waiting for token validation"
     else
       return "Offline"
     end
@@ -482,11 +485,14 @@ local function addHttpProfile(partNumber, serialNumber, httpProfile)
 
       -- Start profile update process
       liveConnect_Model.iccClient:reloadProfiles()
-
-      Script.notifyEvent("LiveConnect_OnNewProfileAdded", httpProfile:getName(), "openAPI")
     end
+
+    -- Check if profile was successfully added
+    Script.notifyEvent("LiveConnect_OnNewProfileAdded", httpProfile:getName(), "openAPI")
+    return true
   else
     _G.logger:warning(NAME_OF_MODULE .. ": Can't add HTTP profile, because the LiveConnect client is not yet initialized. The client needs 100ms to initialize itself.")
+      return false
   end
 end
 Script.serveFunction("CSK_LiveConnect.addHttpProfile", addHttpProfile)
@@ -644,7 +650,7 @@ end
 Script.serveFunction('CSK_LiveConnect.setDeviceDiscoveryTimeout', setDeviceDiscoveryTimeout)
 
 -------------------------------------------------------------------------------------
--- Set part number of the gateway
+-- Set part number of the gateway device
 ---@param partNumber string
 local function setGatewayPartNumber(partNumber)
   _G.logger:info(string.format("%s: Set part number of the gateway device (%s)", NAME_OF_MODULE, partNumber))
@@ -653,13 +659,29 @@ end
 Script.serveFunction('CSK_LiveConnect.setGatewayPartNumber', setGatewayPartNumber)
 
 -------------------------------------------------------------------------------------
--- Set serial number of the gateway
+-- Get part number of the gateway device
+---@return string
+local function getGatewayPartNumber()
+  return liveConnect_Model.parameters.partNumber
+end
+Script.serveFunction('CSK_LiveConnect.getGatewayPartNumber', getGatewayPartNumber)
+
+-------------------------------------------------------------------------------------
+-- Set serial number of the gateway device
 ---@param serialNumber string
 local function setGatewaySerialNumber(serialNumber)
   _G.logger:info(string.format("%s: Set serial number of the gateway device (%s)", NAME_OF_MODULE, serialNumber))
   liveConnect_Model.parameters.serialNumber = serialNumber
 end
 Script.serveFunction('CSK_LiveConnect.setGatewaySerialNumber', setGatewaySerialNumber)
+
+-------------------------------------------------------------------------------------
+-- Get serial number of the gateway device
+---@return string 
+local function getGatewaySerialNumber()
+  return liveConnect_Model.parameters.serialNumber
+end
+Script.serveFunction('CSK_LiveConnect.getGatewaySerialNumber', getGatewaySerialNumber)
 
 -------------------------------------------------------------------------------------
 -- Set cloud system (prod/int/dev)
@@ -712,6 +734,14 @@ local function getRegisteredProfiles()
   return l_devices
 end
 Script.serveFunction('CSK_LiveConnect.getRegisteredProfiles', getRegisteredProfiles)
+
+-------------------------------------------------------------------------------------
+-- Get validate token result
+---@return string status
+local function getValidateTokenResult()
+  return m_validateTokenResult
+end
+Script.serveFunction('CSK_LiveConnect.getValidateTokenResult', getValidateTokenResult)
 
 -------------------------------------------------------------------------------------
 -- Remove all registered profiles and devices

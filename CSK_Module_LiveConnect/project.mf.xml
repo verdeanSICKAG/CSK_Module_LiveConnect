@@ -177,6 +177,7 @@ Serial- and part number are used to identify a device.</desc>
                     <param desc="Part number of the device that should be assigned to the profile" multiplicity="1" name="partNumber" type="string"/>
                     <param desc="Serial number of the device that should be assigned to the profile" multiplicity="1" name="serialNumber" type="string"/>
                     <param alias="CSK_LiveConnect.HttpProfile" desc="HTTP profile designed as a crown datatype" multiplicity="1" name="httpProfile" type="object"/>
+                    <return desc="Profile successfully added" multiplicity="1" name="success" type="bool"/>
                 </function>
                 <function name="setMqttMessageQueueSize">
                     <trait>released</trait>
@@ -264,6 +265,21 @@ The "dev" and "int" stage are only accessible in the SICK internal network.</des
                 </function>
                 <function name="startTokenValidation">
                     <desc>Start token validation</desc>
+                </function>
+                <function name="getValidateTokenResult">
+                    <trait>released</trait>
+                    <desc>Get validate token result</desc>
+                    <return desc="Validate token result" multiplicity="1" name="status" type="string"/>
+                </function>
+                <function name="getGatewayPartNumber">
+                    <trait>released</trait>
+                    <desc>Get part number of the gateway device itself</desc>
+                    <return desc="Part number of the gateway device" multiplicity="1" name="partNumber" type="string"/>
+                </function>
+                <function name="getGatewaySerialNumber">
+                    <trait>released</trait>
+                    <desc>Get serial number of the gateway device itself</desc>
+                    <return desc="Serial number of the gateway device" multiplicity="1" name="serialNumber" type="string"/>
                 </function>
             </serves>
             <crown name="UI">
@@ -504,14 +520,6 @@ The "dev" and "int" stage are only accessible in the SICK internal network.</des
                         <param alias="CSK_LiveConnect.Request" desc="The instance" name="obj" type="object"/>
                         <return desc="REST payload (body)" name="arg" type="binary"/>
                     </function>
-                    <function name="setURL">
-                        <param alias="CSK_LiveConnect.Request" desc="The instance" name="obj" type="object"/>
-                        <param desc="Url from the sender. Depending on the application, the URL contains REST parameter information." name="arg" type="string"/>
-                    </function>
-                    <function name="getURL">
-                        <param alias="CSK_LiveConnect.Request" desc="The instance" name="obj" type="object"/>
-                        <return desc="Url from the sender. Depending on the application, the URL contains REST parameter information." name="arg" type="string"/>
-                    </function>
                     <function name="getHost">
                         <trait>released</trait>
                         <param alias="CSK_LiveConnect.Request" desc="The instance" multiplicity="1" name="obj" type="object"/>
@@ -531,6 +539,16 @@ The "dev" and "int" stage are only accessible in the SICK internal network.</des
                         <trait>released</trait>
                         <param alias="CSK_LiveConnect.Request" desc="The instance" multiplicity="1" name="obj" type="object"/>
                         <param alias="CSK_LiveConnect.Header" desc="HTTP header information" multiplicity="+" name="key" type="object"/>
+                    </function>
+                    <function name="getURL">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="Url from the sender. Depending on the application, the URL contains REST parameter information." multiplicity="1" name="u" type="string"/>
+                    </function>
+                    <function name="setURL">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="Url from the sender. Depending on the application, the URL contains REST parameter information." multiplicity="1" name="u" type="string"/>
                     </function>
                 </serves>
             </crown>
