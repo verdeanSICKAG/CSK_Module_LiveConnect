@@ -4,7 +4,7 @@ This module provides the possibility to interact with a digital device (digital 
 ## Pairing
 Before data can be exchanged, the physical gateway device must first be paired with the digital twin in the SICK AssetHub.
 
-![plot](./blob/develop/docu/media/AssetHub_Pairing.jpg)
+![plot](./docu/media/AssetHub_Pairing.jpg)
 
 
 After the pairing process, profiles can be made known to the Gateway device itself, or an attached devices (peerDevice).
