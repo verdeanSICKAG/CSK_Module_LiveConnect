@@ -1,6 +1,4 @@
 --[[
-        luaunit.lua
-
 Description: A unit testing framework
 Homepage: https://github.com/bluebird75/luaunit
 Development by Philippe Fremy <phil@freehackers.org>

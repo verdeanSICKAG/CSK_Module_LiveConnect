@@ -1,0 +1,85 @@
+openapi: 3.0.3
+
+info:
+  title: "LiveConnect HTTP test profile"
+  description: "Profile to test bi-direction communication between the server and the client"
+  version: "0.2.0"
+paths:
+  /getwithoutparam:
+      get:
+        summary: "GET test"
+        description: "GET endpoint without parameters"
+        responses:
+          200:
+            description: "successful operation"
+            content:
+              application/json:
+                schema: 
+                  $ref: '#/components/schemas/payload'
+          400:
+            $ref: '#/components/responses/400'
+
+  /getwithparam/{index}:
+    get:
+      summary: "GET test"
+      description: "GET endpoint with parameters"
+      parameters:
+        - in: path
+          name: index
+          schema:
+            type: integer
+          required: true
+          description: Numeric index
+          example: 69
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/payload'
+        400:
+          $ref: '#/components/responses/400'
+
+  /postwithbody:
+    post:
+      summary: "POST test"
+      description: ""
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payload'
+      responses:
+        '200':
+          description: "Status 200"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/payload'
+        '400':
+          $ref: '#/components/responses/400'
+ 
+components:
+  responses:
+    '400':
+      description: "bad request"
+  schemas:
+    payload:
+      type: object
+      properties:
+        timestamp:
+          description: "UTC time stamp of the request from the cloud side"
+          type: string
+          format: date-time
+          example: "2020-05-11T15:46:37.797Z"
+        index:
+          description: "Index"
+          type: integer
+          minimum: 0
+          example: 123               
+        data:
+          description: "Data"
+          type: string
+          example: "Hello World"
