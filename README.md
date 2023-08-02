@@ -1,11 +1,32 @@
 # CSK_Module_LiveConnect
+This module provides the possibility to interact with a digital device (digital twin) configured in the SICK AssetHub.
 
-## INFO: Draft version. Not further developed / tested so far! Check for available GitHub forks of this repository to see latest updates.
+## Pairing
+Before data can be exchanged, the physical gateway device must first be paired with the digital twin in the SICK AssetHub.
 
-Module / Application to provide [...] functionality.
+![plot](./blob/main/docu/media/AssetHub_Pairing.jpg)
 
-*If available, please also add a screenshot/gif of the UI of the module here placed within /docu/media/ (see code)*
-![](https://github.com/SICKAppSpaceCodingStarterKit/[REPO_OF_MODULE]/blob/main/docu/media/UI_Screenshot.png)
+
+After the pairing process, profiles can be made known to the Gateway device itself, or an attached devices (peerDevice).
+
+
+
+## Profiles
+The data that is exchanged between the device and the AssetHub is defined via profiles. It is possible to bind one or more profiles to a device.
+There are two types of profiles that can be used:
+1.) MQTT profiles
+Use-Case: The device automatically push data into the cloud.
+Profile-Type: [AsyncAPI]
+Profile-Editor: [AsyncAPI Studio]
+
+2.) HTTP profiles
+Use-Case: An HTTP request sent from the cloud side is transmitted to the device. The device generates a response that corresponds to the data profile and sends it back to the cloud.
+Profile-Type: [OpenAPI]
+Profile-Editor: [Swagger Editor]
+
+
+
+
 
 ## How to Run
 
@@ -30,4 +51,9 @@ Please check the [documentation](https://github.com/SICKAppSpaceCodingStarterKit
 
 ## Topics
 
-Coding Starter Kit, CSK, Module, SICK-AppSpace, [key_words]
+Coding Starter Kit, CSK, Module, SICK-AppSpace, LiveConnect, AssetHub, Cloud
+
+[AsyncAPI]: <https://www.asyncapi.com>
+[AsyncAPI Studio]: <https://studio.asyncapi.com>
+[OpenAPI]: <https://www.openapis.org>
+[Swagger Editor]: <https://editor.swagger.io>
