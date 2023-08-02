@@ -1,17 +1,42 @@
--- ==================================================================================
+---@diagnostic disable: duplicate-set-field
 --[[
+=====================================================================================
 Description:
+This unit test establishes a paring between the device and the digital twin in the 
+AssetHub.The corresponding asset must already exist in the AssetHub. The pairing 
+token is given as the parameter "token" when the test is started. A peer device is 
+automatically added to the gateway device. An HTTP and an MQTT profile are added to 
+both devices (gateway and peer device). After the unit test has been successfully
+completed, the functionality must be checked using the attached checklist.
 
-The test classes are executed in alphabetical order
+Please use the checklist to check if everything works as expected. 
+The unit tests can be started via an HTTP REST call (POST) or with a standard crown
+call.
+
+=====================================================================================
+HTTP REST call to start the unit tests:
+URL = {{device-url}}/api/crown/UnitTests_LiveConnect/runTests
+Body = 
+{
+    "data": {
+        "token": "" // Empty string = Use an already existing pairing
+    }
+}
+
+=====================================================================================
+Hint:
+The test classes are executed in alphabetical order.
+The test cases do not really have a unit test character, but are a mixture of unit
+tests and integration tests.
+
+=====================================================================================
 --]]
--- ==================================================================================
 
 -------------------------------------------------------------------------------------
 -- Variables
 local m_lu = require('utils/LuaUnit')
 local m_httpProfile = require('profiles/ProfileHttpTest')
 local m_mqttProfile = require('profiles/ProfileMqttTest')
-local m_initialized = false
 local m_params = {}
 local m_numRegisteredProfilesExpected
 TestClass = {}
@@ -20,7 +45,8 @@ TestClass = {}
 -- Constant values
 local WATCHDOG_MS = 15000
 local PEER_DEVICE = {partNumber = "1057651", serialNumber = "UNITTEST"}
-local QUERY_TIME_MS = 200
+local QUERY_TIME_MS = 200 -- Query time for the "observableValue" of the "waitingForComparision" function
+local CLOUD_SYSTEM = "prod"
 
 -------------------------------------------------------------------------------------
 -- Get parameter value from the HTTP request
@@ -38,7 +64,7 @@ end
 
 -------------------------------------------------------------------------------------
 -- Waiting for a specified comparison value
-local function waitingForAction(observableValue, comparisonValue, comperator)
+local function waitingForComparision(observableValue, comparisonValue, comperator)
   local l_watchdogTime = DateTime.getTimestamp() + WATCHDOG_MS
   local l_result = true
   local l_observableValue
@@ -92,7 +118,7 @@ end
 -------------------------------------------------------------------------------------
 -- Initialization
 function TestClass:test01()
-  print("======================================")
+  print("============================================================================")
   print("Test-Case 02: Initial setup")
   -- Load parameters
   m_params = UnitTests_LiveConnect.getTestParams()
@@ -100,24 +126,22 @@ function TestClass:test01()
   m_numRegisteredProfilesExpected = 0
 end
 
-
 -------------------------------------------------------------------------------------
 -- Test-case: Pair device [prod]
 function TestClass:test02()
-  print("======================================")
+  print("============================================================================")
   print("Test-Case 02: Pair device")
   local l_temp
   local l_token = getParameterValue("token")
-  
 
-  if l_token ~= nil then
+  if l_token ~= "" then
     -- Go offline
     if CSK_LiveConnect.getConnectionStatus() ~= "Waiting for token validation" then
       print("- Remove old pairing")
       CSK_LiveConnect.removePairing()
 
       -- Waiting if the device is offline
-      l_temp = waitingForAction(CSK_LiveConnect.getConnectionStatus, "Waiting for token validation", "EQUAL")
+      l_temp = waitingForComparision(CSK_LiveConnect.getConnectionStatus, "Waiting for token validation", "EQUAL")
       if not l_temp then
         m_lu.assertIsTrue(false, "Can't remove pairing")
       end
@@ -125,11 +149,11 @@ function TestClass:test02()
 
     -- Go online using the given pairing token
     print("- Start pairing process")
-    CSK_LiveConnect.setCloudSystem("prod")
-    CSK_LiveConnect.setToken(getParameterValue("token"))
+    CSK_LiveConnect.setCloudSystem(CLOUD_SYSTEM)
+    CSK_LiveConnect.setToken(l_token)
     CSK_LiveConnect.startTokenValidation()
 
-    l_temp = waitingForAction(CSK_LiveConnect.getConnectionStatus, "Online", "EQUAL")
+    l_temp = waitingForComparision(CSK_LiveConnect.getConnectionStatus, "Online", "EQUAL")
     if not l_temp then
       m_lu.assertIsTrue(false, "Can't pair device (" .. CSK_LiveConnect.getValidateTokenResult() ..")")
     end
@@ -151,7 +175,7 @@ end
 -------------------------------------------------------------------------------------
 -- Test-case: Add HTTP profile (LiveConnect HTTP test profile) to a peer device"
 function TestClass:test03()
-  print("======================================")
+  print("============================================================================")
   print("Test-Case 03: Add HTTP profile (LiveConnect HTTP test profile) to a peer device")
   local l_temp
 
@@ -172,7 +196,7 @@ end
 -------------------------------------------------------------------------------------
 -- Test-case: Add MQTT test profile
 function TestClass:test04()
-  print("======================================")
+  print("============================================================================")
   print("Test-Case 04: Add MQTT profile (LiveConnect MQTT test profile) to a peer device")
   local l_temp
 
@@ -195,7 +219,7 @@ end
 -------------------------------------------------------------------------------------
 -- Test-case: Add HTTP profile (LiveConnect HTTP test profile) to the gateway device itself
 function TestClass:test05()
-  print("======================================")
+  print("============================================================================")
   print("Test-Case 05: Add HTTP profile (LiveConnect HTTP test profile) to the gateway device itself")
   local l_temp
   local l_gatewayPartNumber = CSK_LiveConnect.getGatewayPartNumber()
@@ -217,7 +241,7 @@ end
 -------------------------------------------------------------------------------------
 -- Test-case: Add MQTT profile (LiveConnect MQTT test profile) to the gateway device itself
 function TestClass:test06()
-  print("======================================")
+  print("============================================================================")
   print("Test-Case 06: Add MQTT profile (LiveConnect MQTT test profile) to the gateway device itself")
   local l_temp
   local l_gatewayPartNumber = CSK_LiveConnect.getGatewayPartNumber()
@@ -242,7 +266,7 @@ end
 -------------------------------------------------------------------------------------
 -- Test-case: Check number registered profiles
 function TestClass:test07()
-  print("======================================")
+  print("============================================================================")
   print("Test-Case 07: Check number registered profiles")
   local l_devices = CSK_LiveConnect.getRegisteredProfiles()
   local l_numRegisteredProfiles = 0

@@ -5,9 +5,9 @@ local m_testInstance
 
 -------------------------------------------------------------------------------------
 -- Run AdapterIOLink tests
-local function runTests(params)
+local function runTests(token)
   local l_success = false
-  local l_testScripts = {"unitTests/LiveConnectTests"} -- Define test scripts to run
+  local l_testScripts = {"tests/UnitTestLiveConnect"} -- Define test scripts to run
 
   -- Create test instance
   if m_testInstance == nil then
@@ -16,7 +16,7 @@ local function runTests(params)
 
   -- Run test instance
   if m_testInstance ~= nil then
-    m_testInstance:setTestParams(params)
+    m_testInstance:setTestParam({name = "token", value = token}) -- Define parameters
     l_success = m_testInstance:run()
   end
 

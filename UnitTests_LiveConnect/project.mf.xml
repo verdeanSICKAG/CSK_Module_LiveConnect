@@ -6,27 +6,29 @@
             <serves>
                 <function name="runTests">
                     <trait>released</trait>
-                    <desc>Run unit tests for this adapter</desc>
-                    <param alias="UnitTests_LiveConnect.TestParams" desc="" multiplicity="1" name="params" type="string"/>
+                    <desc>Run unit tests</desc>
+                    <param desc="LiveConnect token. Empty string = Use an already existing pairing" multiplicity="1" name="token" type="string"/>
                     <return desc="Test performed successfully" multiplicity="1" name="success" type="bool"/>
                 </function>
                 <function name="getTestParams">
                     <trait>released</trait>
-                    <return alias="UnitTests_LiveConnect.TestParams" desc="" multiplicity="+" name="testParams" type="object"/>
+                    <desc>Get passed parameters</desc>
+                    <return alias="UnitTests_LiveConnect.TestParams" desc="Parameter object" multiplicity="+" name="testParams" type="object"/>
                 </function>
             </serves>
             <crown builtin="true" name="TestParams">
                 <trait>released</trait>
+                <desc>Parameters for a parameterized test</desc>
                 <serves>
                     <function name="getName">
                         <trait>released</trait>
                         <param alias="UnitTests_LiveConnect.TestParams" desc="The instance" multiplicity="1" name="obj" type="object"/>
-                        <return desc="" multiplicity="1" name="Name" type="string"/>
+                        <return desc="Paramete rname" multiplicity="1" name="Name" type="string"/>
                     </function>
                     <function name="setName">
                         <trait>released</trait>
                         <param alias="UnitTests_LiveConnect.TestParams" desc="The instance" multiplicity="1" name="obj" type="object"/>
-                        <param desc="" multiplicity="1" name="Name" type="string"/>
+                        <param desc="Paramete rname" multiplicity="1" name="Name" type="string"/>
                     </function>
                     <function name="create">
                         <trait>released</trait>
@@ -35,12 +37,12 @@
                     <function name="getValue">
                         <trait>released</trait>
                         <param alias="UnitTests_LiveConnect.TestParams" desc="The instance" multiplicity="1" name="obj" type="object"/>
-                        <return desc="" multiplicity="1" name="Value" type="auto"/>
+                        <return desc="Parameter value" multiplicity="1" name="Value" type="auto"/>
                     </function>
                     <function name="setValue">
                         <trait>released</trait>
                         <param alias="UnitTests_LiveConnect.TestParams" desc="The instance" multiplicity="1" name="obj" type="object"/>
-                        <param desc="" multiplicity="1" name="Value" type="auto"/>
+                        <param desc="Parameter value" multiplicity="1" name="Value" type="auto"/>
                     </function>
                 </serves>
             </crown>

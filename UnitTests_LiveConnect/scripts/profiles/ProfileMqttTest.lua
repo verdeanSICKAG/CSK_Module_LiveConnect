@@ -1,4 +1,7 @@
 ---@diagnostic disable: param-type-mismatch
+
+-------------------------------------------------------------------------------------
+-- Variables
 local m_json = require("utils.Lunajson")
 local m_timer = Timer.create()
 local m_returnFunctions = {}
@@ -17,11 +20,11 @@ end
 
 -------------------------------------------------------------------------------------
 -- Publish MQTT payload
-local function publishPayload(partNumber, serialNumber)
+local function publishPayload(partNumber, serialNumber, updateTime_ms)
   local l_payload = {}
   l_payload.timestamp = getTimestamp()
-  l_payload.index = 69
-  l_payload.data = "Push data from edge device"
+  l_payload.index = math.random(0,255)
+  l_payload.data = string.format("Random index value pushed from the edge side, updated every %sms", updateTime_ms)
 
   local l_payloadJson = m_json.encode(l_payload)
   CSK_LiveConnect.publishMqttData("sick/device/mqtt-test", partNumber, serialNumber, l_payloadJson)
@@ -36,7 +39,7 @@ function m_returnFunctions.startPayloadSimulation(partNumber, serialNumber, upda
 
   m_mqttRegisteredFunctions[partNumber .. serialNumber] =
     function()
-      return publishPayload(partNumber, serialNumber)
+      return publishPayload(partNumber, serialNumber, updateTime_ms)
     end
   m_timer:setExpirationTime(updateTime_ms)
   m_timer:setPeriodic(true)

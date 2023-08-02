@@ -1,18 +1,16 @@
----@diagnostic disable: missing-parameter, redundant-parameter
+---@diagnostic disable: missing-parameter, redundant-parameter, param-type-mismatch, undefined-field
 
 -------------------------------------------------------------------------------------
 -- Variable declarations
 local m_unitTestInstance = {}
-local m_json = require("utils.Lunajson")
 
 -------------------------------------------------------------------------------------
 -- Failed table lookups on the instances should fallback to the class table, to get methods
 m_unitTestInstance.__index = m_unitTestInstance
 
 local function getParamList(self)
-  local l_paramTable = m_json.decode(self.params)
   local l_params = {}
-  for k,v in pairs(l_paramTable) do
+  for k,v in pairs(self.params) do
     local l_param = UnitTests_LiveConnect.TestParams.create()
     l_param:setName(k)
     l_param:setValue(v)
@@ -21,7 +19,6 @@ local function getParamList(self)
 
   return l_params
 end
-
 
 -------------------------------------------------------------------------------------
 -- Create unit test instance object
@@ -44,9 +41,15 @@ function m_unitTestInstance.create(testScripts)
 end
 
 -------------------------------------------------------------------------------------
--- Set test params
-function m_unitTestInstance.setTestParams(self, params)
-  self.params = params
+-- Set param
+function m_unitTestInstance.setTestParam(self, param)
+  self.params[param.name] = param.value
+end
+
+-------------------------------------------------------------------------------------
+-- Get params as table
+function m_unitTestInstance.getTestParams(self)
+  return self.params
 end
 
 -------------------------------------------------------------------------------------

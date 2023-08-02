@@ -1,5 +1,9 @@
 ---@diagnostic disable: param-type-mismatch, redundant-parameter
+
+-------------------------------------------------------------------------------------
+-- Variables
 local m_json = require("utils.Lunajson")
+local m_netUrl = require("utils.neturl.url")
 local m_returnFunctions = {}
 
 -------------------------------------------------------------------------------------
@@ -35,24 +39,32 @@ local function httpCallback(request)
   l_response:setHeaders({l_header})
   l_response:setStatusCode(200)
 
-  local l_index = 123
-  local l_endpoint = ""
+  local l_index
+  local l_data
   if string.find(request:getURL(), "postwithbody") then
     local l_requestPayload = m_json.decode(request:getContent())
     l_index = l_requestPayload.index
-    l_endpoint = "/postwithbody"
+    l_data = string.format("Mirrowed index value from the edge side (endpoint: /postwithbody) (method: %s)", request:getMethod())
   elseif string.find(request:getURL(), "getwithparam") then
-    local l_paraPos = string.find(request:getURL(), "index=")
-    l_index = tonumber(string.sub(request:getURL(), l_paraPos + 6, #request:getURL()))
-    l_endpoint = "/getwithparam"
+    local l_parsedUrl = m_netUrl.parse(request:getURL())
+    if l_parsedUrl.query["index"] ~= nil then
+      l_index = l_parsedUrl.query["index"]
+      l_data = string.format("Mirrowed index value from the edge side (endpoint: /postwithbody) (method: %s)", request:getMethod())
+    else
+      l_index = math.random(0,255)
+      l_data = string.format("Random index value from the edge side (endpoint: /postwithbody) (method: %s)", request:getMethod())
+    end
   elseif string.find(request:getURL(), "getwithoutparam") then
-    l_index = 123
-    l_endpoint = "/getwithoutparam"
+    l_index = math.random(0,255)
+    l_data = string.format("Random index value from the edge side (endpoint: /postwithoutparam) (method: %s)", request:getMethod())
+  else
+    l_index = 0
+    l_data = "Endpoint not configured in script"
   end
   local l_responsePayload = {}
   l_responsePayload["timestamp"] = getTimestamp()
   l_responsePayload["index"] = l_index
-  l_responsePayload["data"] = string.format("Response from edge device (endpoint: %s) (method: %s)", l_endpoint, request:getMethod())
+  l_responsePayload["data"] = l_data
 
   l_response:setContent(m_json.encode(l_responsePayload))
 
