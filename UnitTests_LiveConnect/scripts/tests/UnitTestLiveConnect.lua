@@ -7,7 +7,7 @@ AssetHub.The corresponding asset must already exist in the AssetHub. The pairing
 token is given as the parameter "token" when the test is started. A peer device is 
 automatically added to the gateway device. An HTTP and an MQTT profile are added to 
 both devices (gateway and peer device). After the unit test has been successfully
-completed, the functionality must be checked using the attached checklist.
+completed, the functionality must be checked using the checklist.
 
 Please use the checklist to check if everything works as expected. 
 The unit tests can be started via an HTTP REST call (POST) or with a standard crown
