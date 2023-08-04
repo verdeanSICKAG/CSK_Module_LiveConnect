@@ -1,5 +1,3 @@
-
-
 # CSK_Module_LiveConnect
 This module provides the possibility to communicate data to a digital device (digital twin) configured in the SICK AssetHub.
 
@@ -81,7 +79,10 @@ AH ->> LC: ...
 ```
 
 ## How to Run
-[Crown interface](./docu/CSK_Module_LiveConnect.html)
+Please checkout the project and run the Powershell script "createProject.ps1". The script creates a project folder that can be opened with AppStudio. New versions of the dependent modules can also be loaded into the project via the script.
+
+### Crown documention
+A crown documentation of the app can be found [here](./docu/CSK_Module_LiveConnect.html)
 
 ## Information
 ### Tested on
@@ -101,11 +102,28 @@ Following CSK modules are used for this application via Git subtrees and should 
 |CSK_Module_DeviceNetworkConfig|[V2.0.0](https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DeviceNetworkConfig/releases/tag/v2.0.0)|This module is not required using a TDC-E as gateway device
 |CSK_Module_PersistentData|[V4.0.0](https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData/releases/tag/v4.0.0)|Necessary to persist data
 
->**Note**
+>**Please note**
 This application / module is part of the SICK AppSpace Coding Starter Kit developing approach.  
 It is programmed in an object oriented way. Some of the modules use kind of "classes" in Lua to make it possible to reuse code / classes in other projects.  
 In general it is not neccessary to code this way, but the architecture of this app can serve as a sample to be used especially for bigger projects and to make it easier to share code.  
 Please check the [documentation](https://github.com/SICKAppSpaceCodingStarterKit/.github/blob/main/docu/SICKAppSpaceCodingStarterKit_Documentation.md) of CSK for further information.
+
+## Tests
+The project includes a test script that tests some aspects of the app.
+
+This unit test establishes a paring between the device and the digital twin in the AssetHub. The corresponding asset must already exist in the AssetHub. The pairing token is given as the parameter "token" when the test is started. A peer device is automatically added to the gateway device. An HTTP and an MQTT profile are added to both devices (gateway and peer device). After the unit test has been successfully completed, the functionality must be checked using the checklist.
+
+The unit tests can be started via an HTTP REST call (POST) or with a standard crown call.
+
+    Body:
+    {
+      "data": {
+        "token": "" // Empty string = Use an already existing pairing
+      }
+    }
+
+>**Remark**
+The test classes are executed in alphabetical order. The test cases do not really have a "unit test" character, but are a mixture of unit tests and integration tests.
 
 ## Topics
 Coding Starter Kit, CSK, Module, SICK-AppSpace, LiveConnect, AssetHub, Cloud
