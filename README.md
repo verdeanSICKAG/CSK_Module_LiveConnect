@@ -187,7 +187,7 @@ local function httpCallback(request)
   local l_responsePayload = {}
   l_responsePayload["timestamp"] = DateTime.getDateTime()
   l_responsePayload["index"] = math.random(0,255)
-  l_responsePayload["data"] = "Response paylaod from the edge side"
+  l_responsePayload["data"] = "Response payload from the edge side"
 
   l_response:setContent(m_json.encode(l_responsePayload))
   return l_response

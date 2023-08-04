@@ -433,30 +433,30 @@ The "dev" and "int" stage are only accessible in the SICK internal network.</des
                     <serves>
                         <function name="create">
                             <desc>Creates an object</desc>
-                            <return alias="SICK_HTTP_Interface_Server.Profile.URI" desc="The instance" name="obj" type="object"/>
+                            <return alias="CSK_LiveConnect.HttpProfile.Endpoint" desc="The instance" name="obj" type="object"/>
                         </function>
                         <function name="setURI">
-                            <param alias="SICK_HTTP_Interface_Server.Profile.URI" desc="The instance" name="obj" type="object"/>
+                            <param alias="CSK_LiveConnect.HttpProfile.Endpoint" desc="The instance" name="obj" type="object"/>
                             <param desc="Relative URI of the HTTP endpoint without a leading &quot;/&quot;" name="arg" type="string"/>
                         </function>
                         <function name="getURI">
-                            <param alias="SICK_HTTP_Interface_Server.Profile.URI" desc="The instance" name="obj" type="object"/>
+                            <param alias="CSK_LiveConnect.HttpProfile.Endpoint" desc="The instance" name="obj" type="object"/>
                             <return desc="Relative URI of the HTTP endpoint without a leading &quot;/&quot;" name="arg" type="string"/>
                         </function>
                         <function name="setMethod">
-                            <param alias="SICK_HTTP_Interface_Server.Profile.URI" desc="The instance" name="obj" type="object"/>
+                            <param alias="CSK_LiveConnect.HttpProfile.Endpoint" desc="The instance" name="obj" type="object"/>
                             <param desc="HTTP method that is allowed on this endpoint (GET, POST)" name="arg" type="string"/>
                         </function>
                         <function name="getMethod">
-                            <param alias="SICK_HTTP_Interface_Server.Profile.URI" desc="The instance" name="obj" type="object"/>
+                            <param alias="CSK_LiveConnect.HttpProfile.Endpoint" desc="The instance" name="obj" type="object"/>
                             <return desc="HTTP method that is allowed on this endpoint (GET, POST)" name="arg" type="string"/>
                         </function>
                         <function name="setHandlerFunction">
-                            <param alias="SICK_HTTP_Interface_Server.Profile.URI" desc="The instance" name="obj" type="object"/>
+                            <param alias="CSK_LiveConnect.HttpProfile.Endpoint" desc="The instance" name="obj" type="object"/>
                             <param desc="CROWN name of a function with parameter type is request and return value type is response." name="arg" type="string"/>
                         </function>
                         <function name="getHandlerFunction">
-                            <param alias="SICK_HTTP_Interface_Server.Profile.URI" desc="The instance" name="obj" type="object"/>
+                            <param alias="CSK_LiveConnect.HttpProfile.Endpoint" desc="The instance" name="obj" type="object"/>
                             <return desc="CROWN name of a function with parameter type is request and return value type is response." name="arg" type="string"/>
                         </function>
                     </serves>
