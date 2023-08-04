@@ -104,7 +104,7 @@ Please checkout the project and run the Powershell script "createProject.ps1". T
 ### Add MQTT profile (data push)
 Code snipped to add an MQTT profile and send data every 5s into the cloud.
 >**Remark**
-The profile "profileMqttTest.yaml" is part of the app "UnitTests_LiveConnect".
+> The profile "profileMqttTest.yaml" is part of the app "UnitTests_LiveConnect".
 The UUID is profile specific, if you want to create an own profile, please generate a UUID for it.
 
 ```lua
@@ -270,7 +270,7 @@ Following CSK modules are used for this application via Git subtrees and should 
 |CSK_Module_PersistentData|[V4.0.0](https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData/releases/tag/v4.0.0)|Necessary to persist data
 
 >**Please note**
-This application / module is part of the SICK AppSpace Coding Starter Kit developing approach.  
+> This application / module is part of the SICK AppSpace Coding Starter Kit developing approach.  
 It is programmed in an object oriented way. Some of the modules use kind of "classes" in Lua to make it possible to reuse code / classes in other projects.  
 In general it is not neccessary to code this way, but the architecture of this app can serve as a sample to be used especially for bigger projects and to make it easier to share code.  
 Please check the [documentation](https://github.com/SICKAppSpaceCodingStarterKit/.github/blob/main/docu/SICKAppSpaceCodingStarterKit_Documentation.md) of CSK for further information.
@@ -292,7 +292,7 @@ Body:
 ```
 
 >**Remark**
-The test classes are executed in alphabetical order. The test cases do not really have a "unit test" character, but are a mixture of unit tests and integration tests.
+> The test classes are executed in alphabetical order. The test cases do not really have a "unit test" character, but are a mixture of unit tests and integration tests.
 
 ## Topics
 Coding Starter Kit, CSK, Module, SICK-AppSpace, LiveConnect, AssetHub, Cloud
