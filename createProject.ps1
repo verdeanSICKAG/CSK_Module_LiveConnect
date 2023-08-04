@@ -36,12 +36,12 @@ Function addFolderToGitIgnore
 # Description
 " "
 "====================================================================================="
-"Get the dependencies specified in the script from gitHub"
-"and create a AppStudio project folder '" + $appStudioProjectFolder + "'."
+"Get the dependencies specified in the script from GitHub"
+"and create a project folder, which can be used by SICK AppStudio."
 "====================================================================================="
 
 # Script input promps
-$updateSubtrees = Read-Host -Prompt "Add / update module epositories (add/pull GIT subtrees)? (y/n)"
+$updateSubtrees = Read-Host -Prompt "Do you want to add/update the dependent modules used in this project? (add/pull GIT subtrees)? (y=add/update + create project, n=create project only)"
 $moduleUpdate = $false
 if ($updateSubtrees -eq "y")
 {
