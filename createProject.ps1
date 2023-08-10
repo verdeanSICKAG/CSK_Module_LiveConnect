@@ -1,7 +1,7 @@
 # Adapter definitions
 $appStudioProjectFolder = "project"
 $gitIgnoreFile = ".gitignore"
-$dependentModules = ("v3.0.0", "dependencies/moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
+$dependentModules = ,("v3.0.0", "dependencies/moduleDateTime", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DateTime"),
 					("v4.0.0", "dependencies/modulePersistentData", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_PersistentData"),
 					("v4.0.0", "dependencies/module1stModuleLogger", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_1stModule_Logger"),
 					("v2.0.0", "dependencies/moduleDeviceNetworkConfig", "https://github.com/SICKAppSpaceCodingStarterKit/CSK_Module_DeviceNetworkConfig")
@@ -41,7 +41,7 @@ Function addFolderToGitIgnore
 "====================================================================================="
 
 # Script input promps
-$updateSubtrees = Read-Host -Prompt "Do you want to add/update the dependent modules used in this project? (add/pull GIT subtrees)? (y=add/update + create project, n=create project only)"
+$updateSubtrees = Read-Host -Prompt "Do you want to add/update the dependent modules used in this project? (y=add/update + create project, n=create project only)"
 $moduleUpdate = $false
 if ($updateSubtrees -eq "y")
 {
