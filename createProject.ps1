@@ -76,7 +76,7 @@ foreach($module in $dependentModules)
 	# Create sym links if not exists
 	foreach($app in Get-ChildItem ($module[1]) -Directory)
 	{
-		if (($app.name -match ".git") -or ($app.name -match "docu"))
+		if (-Not $app.name.StartsWith('CSK_'))
 		{
 			continue
 		}
