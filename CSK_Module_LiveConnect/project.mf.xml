@@ -296,9 +296,9 @@ The "dev" and "int" stage are only accessible in the SICK internal network.</des
                         <desc>Get the status of the system clock (UI only)</desc>
                         <return desc="Status (configured / not configured)" multiplicity="1" name="status" type="string"/>
                     </function>
-                    <function name="isNotSystemClockConfigured">
+                    <function name="isSystemClockConfigured">
                         <trait>released</trait>
-                        <desc>Indicates if the system clock is not configured</desc>
+                        <desc>Indicates if the system clock is configured</desc>
                         <return desc="true = not configured&#10;false= configured" multiplicity="1" name="value" type="bool"/>
                     </function>
                 </serves>

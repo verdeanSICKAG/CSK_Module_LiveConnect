@@ -543,20 +543,12 @@ Script.serveFunction("CSK_LiveConnect.publishMqttDataById", publishMqttDataById)
 ---@return bool
 local function isSystemClockConfigured()
   -- Check if time is set correctly
-  -- Check if day 2001-09-09T01:46:40Z pasted
-  local l_ret = DateTime.getUnixTime() >= 1000000000
+  -- Check if day 2023-08-11T00:00:00Z pasted
+  local l_ret = DateTime.getUnixTime() >= 1691704800
 
   return l_ret
 end
-
-
--------------------------------------------------------------------------------------
--- Check if the system clock is not configured
----@return bool
-local function isNotSystemClockConfigured()
-  return not isSystemClockConfigured()
-end
-Script.serveFunction("CSK_LiveConnect.UI.isNotSystemClockConfigured", isNotSystemClockConfigured)
+Script.serveFunction("CSK_LiveConnect.UI.isSystemClockConfigured", isSystemClockConfigured)
 
 -------------------------------------------------------------------------------------
 -- Get status of the system clock
