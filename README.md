@@ -248,6 +248,39 @@ Script.register("Engine.OnStarted", main)
 On the AssetHub side, the data can send a GET request to the endpoint. The response telegram can be viewed.
 ![plot](./docu/media/AssetHub_LiveData_Http.jpg)
 
+## Parameters
+Some specific parameters can be changed in order to adapt the behavior of the client to your application.  
+Once the parameters have been changed, please press the **"Save & Restart"** button to persist all parameters and restart the client.  If the **"Load parameters on app start"** checkbox is activated, all parameters are automatically loaded after a restart.
+
+>**Remark**
+> Usually no changes need to be made here
+
+![plot](./docu/media/LiveConnect_Parameter.jpg)
+
+### LiveConnect settings
+General LiveConnect settings. 
+
+| Parameter name | Description  |
+|--|--|
+| Cloud system | Selection of the cloud system to be used (prod,int,dev). **For SICK internal use only**|
+| Process interval [ms] | Process interval to notice status changes of the LiveConnect connection |
+| Token timeout [ms] | Timeout for the accepting of the pairing token. You can adjust this parameter if you have a slow internet connection. |
+| Device discovery timeout [ms] | Device discovery timeout to sync the configured devices with the AssetHub. |
+| Message queue size | If the LiveConnect connection is broken, the produced data from the edge side is stored in a queue. This data is retransmitted as soon as a connection to the cloud is established. If the queue is full, the oldest data is discarded.|
+| Part number (gateway device) | Part number of the gateway device. If it cannot determined automatically, you can specify it here. |
+| Serial number (gateway device) | Serial number of the gateway device. If it cannot determined automatically, you can specify it here. |
+
+### Connection settings
+If your application has an slow internet connection, the following parameters may need to be adjusted.
+
+| Parameter name | Description  |
+|--|--|
+| MQTT keep alive interval [ms] | Keep alive interval of the MQTT client. |
+| MQTT Connect timeout [ms] | Connect timeout of the MQTT client. |
+| MQTT message forwarding interval [ms] | Specifies the minimum interval at which data should be updated on the cloud side. |
+
+
+
 ## Crown documentation
 A crown documentation of the app can be found [here](./docu/CSK_Module_LiveConnect.html)
 
