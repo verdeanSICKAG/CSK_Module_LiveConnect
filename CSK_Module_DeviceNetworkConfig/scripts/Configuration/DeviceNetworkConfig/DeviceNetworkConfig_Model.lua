@@ -14,6 +14,9 @@ local deviceNetworkConfig_Model = {}
 -- Check if CSK_UserManagement features can be used if wanted
 deviceNetworkConfig_Model.userManagementModuleAvailable = CSK_UserManagement ~= nil or false
 
+-- Check if DataPersistent module can be used if wanted
+deviceNetworkConfig_Model.persistentModuleAvailable = CSK_PersistentData ~= nil or false
+
 -- Load script to communicate with the DeviceNetworkConfig_Model interface and give access
 -- to the DeviceNetworkConfig_Model object.
 -- Check / edit this script to see/edit functions which communicate with the UI
@@ -25,6 +28,14 @@ deviceNetworkConfig_Model.helperFuncs = require('Configuration/DeviceNetworkConf
 
 deviceNetworkConfig_Model.interfacesTable = {} -- table to hold setup of available ethernet interfaces
 deviceNetworkConfig_Model.ping_ip_adress = "" -- IP address to check for ping
+
+deviceNetworkConfig_Model.parameters = {}
+deviceNetworkConfig_Model.parameters.nameservers = {}; -- Name servers (DNS)
+
+-- Default values for persistent data
+-- If available, following values will be updated from data of CSK_PersistentData module (check CSK_PersistentData module for this)
+deviceNetworkConfig_Model.parametersName = 'CSK_DeviceNetworkConfig_Parameter' -- name of parameter dataset to be used for this module
+deviceNetworkConfig_Model.parameterLoadOnReboot = true -- Status if parameter dataset should be loaded on app/device reboot
 
 --**************************************************************************
 --********************** End Global Scope **********************************
