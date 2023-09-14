@@ -9,7 +9,7 @@
 
 local funcs = {}
 -- Providing standard JSON functions
-funcs.json = require('Module/LiveConnect/helper/Json')
+funcs.json = require('Communication/LiveConnect/helper/Json')
 
 --**************************************************************************
 --********************** End Global Scope **********************************

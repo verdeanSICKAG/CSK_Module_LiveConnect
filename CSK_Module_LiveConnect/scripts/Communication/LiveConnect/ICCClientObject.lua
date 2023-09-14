@@ -1,14 +1,14 @@
 ---@diagnostic disable: undefined-global, param-type-mismatch, redundant-parameter
 -------------------------------------------------------------------------------------
 -- Variable declarations
-local m_fifo = require("utils.fifo.fifo")
-local m_json = require("utils.Lunajson")
-local m_inspect = require("utils.Inspect")
-local m_base64 = require("utils.base64.base64")
+local m_fifo = require("Communication.LiveConnect.utils.fifo.fifo")
+local m_json = require("Communication.LiveConnect.utils.Lunajson")
+local m_inspect = require("Communication.LiveConnect.utils.Inspect")
+local m_base64 = require("Communication.LiveConnect.utils.base64.base64")
 local m_iccClientObject = {}
-local m_httpGatewayObject = require("Module.LiveConnect.profileImpl.HttpGatewayObject")
-local m_httpRestObject = require("Module.LiveConnect.profileImpl.HttpRestObject")
-local m_httpCapabilitiesObject = require("Module.LiveConnect.profileImpl.HttpCapabilitiesObject")
+local m_httpGatewayObject = require("Communication.LiveConnect.profileImpl.HTTPGatewayObject")
+local m_httpRestObject = require("Communication.LiveConnect.profileImpl.HTTPRestObject")
+local m_httpCapabilitiesObject = require("Communication.LiveConnect.profileImpl.HTTPCapabilitiesObject")
 
 -------------------------------------------------------------------------------------
 -- Constant values
@@ -192,6 +192,7 @@ function m_iccClientObject.process(self)
     -- Start process timer
     Timer.start(self.processTimer)
   end
+  CSK_LiveConnect.pageCalled()
 end
 
 -------------------------------------------------------------------------------------
@@ -219,6 +220,8 @@ function m_iccClientObject.disable(self)
   self:setConnectionState('CHECK_PAIRING')
   self.enabled = false
   self.deviceUuid = nil
+
+  CSK_LiveConnect.pageCalled()
 end
 
 -------------------------------------------------------------------------------------
@@ -235,6 +238,7 @@ function m_iccClientObject.reloadProfiles(self)
 
   -- Enabled it again
   self:enable()
+
 end
 
 -------------------------------------------------------------------------------------
@@ -390,7 +394,7 @@ function m_iccClientObject.handlePerformHTTPRequestCommand(self, command, device
     l_defaultResponseTopic = self.mqttDefaultCloud
   end
 
-  local l_response, l_responseTopic = self:createHttpResponseCommand(command, defaultResponseTopic)
+  local l_response, l_responseTopic = self:createHTTPResponseCommand(command, defaultResponseTopic)
   local l_responseJSON = m_json.encode(l_response)
   _G.logger:fine(NAME_OF_MODULE .. ": PERFORM_HTTP_REQUEST response to " ..  l_responseTopic .. ": " .. m_inspect(l_response))
 
@@ -420,6 +424,7 @@ function m_iccClientObject.handleDeviceIdentityCommand(self, command)
   else
     _G.logger:warning(string.format("%s: Peer device (PN: %s and SN %s) is not known by the client", NAME_OF_MODULE, l_partNumber, l_serialNumber))
   end
+  CSK_LiveConnect.pageCalled()
 end
 
 -------------------------------------------------------------------------------------
@@ -448,7 +453,7 @@ end
 
 -------------------------------------------------------------------------------------
 -- Perfom HTTP request and generate a HTTP response back via ICC channel 
-function m_iccClientObject.createHttpResponseCommand(self, command, responseTopic)
+function m_iccClientObject.createHTTPResponseCommand(self, command, responseTopic)
   local l_generatedUUID = uuid()
   local l_ret = {
     command = "ANNOUNCE_HTTP_RESPONSE",
@@ -503,8 +508,8 @@ function m_iccClientObject.createHttpResponseCommand(self, command, responseTopi
 
       if endpointUrl == l_requestUrl then
         -- Check REST method
-        if l_request:getMethod() == CSK_LiveConnect.HttpProfile.Endpoint.getMethod(endpoint) then
-          local l_handlerFunction = CSK_LiveConnect.HttpProfile.Endpoint.getHandlerFunction(endpoint)
+        if l_request:getMethod() == CSK_LiveConnect.HTTPProfile.Endpoint.getMethod(endpoint) then
+          local l_handlerFunction = CSK_LiveConnect.HTTPProfile.Endpoint.getHandlerFunction(endpoint)
           l_success, l_response = Script.callFunction(l_handlerFunction, l_request)
           break
         else
@@ -604,7 +609,7 @@ end
 
 -------------------------------------------------------------------------------------
 -- Add MQTT profile payload to the message queue
-function m_iccClientObject.addMqttTopic(self, topic, data, qos)
+function m_iccClientObject.addMQTTTopic(self, topic, data, qos)
   if _qos ~= 'QOS0' then
     local l_message = {
       topic = topic,
@@ -652,6 +657,7 @@ function m_iccClientObject.setStage(self, stageEnum)
       self:enable()
     end
   end
+  CSK_LiveConnect.pageCalled()
 end
 
 -------------------------------------------------------------------------------------
@@ -745,6 +751,7 @@ function m_iccClientObject.removePairing(self)
   if l_enableAgain then
     self:enable()
   end
+  CSK_LiveConnect.pageCalled()
 end
 
 -------------------------------------------------------------------------------------
@@ -959,6 +966,7 @@ function m_iccClientObject.processTokenValidationResponse(self, tokenResponse)
   if nil ~= l_errorMessage then
     _G.logger:warning(NAME_OF_MODULE .. ": " .. l_errorMessage)
   end
+
   return l_success, l_errorMessage
 end
 
@@ -1116,6 +1124,8 @@ function m_iccClientObject.addPeerDevice(self, peerDevicePartNumber, peerDeviceS
     self:registerPeerDevice(l_peerDevice)
   end
   self.peerDevices[l_deviceId] = l_peerDevice
+
+  CSK_LiveConnect.pageCalled()
 end
 
 -------------------------------------------------------------------------------------
@@ -1160,14 +1170,14 @@ end
 
 -------------------------------------------------------------------------------------
 -- Add main device profiles 
-function m_iccClientObject.addHttpProfileGatewayDevice(self, profile)
+function m_iccClientObject.addHTTPProfileGatewayDevice(self, profile)
   table.insert(self.httpProfilesGatewayDevice, profile)
   self.profileCapabilities:setProfileList(self.httpProfilesGatewayDevice)
 end
 
 -------------------------------------------------------------------------------------
 -- Add peer device profiles 
-function m_iccClientObject.addHttpProfilePeerDevice(self, profile, partNumber, serialNumber)
+function m_iccClientObject.addHTTPProfilePeerDevice(self, profile, partNumber, serialNumber)
   local  l_index = partNumber .. "_" .. serialNumber
   if self.httpProfilesPeerDevice[l_index] == nil then
     self.httpProfilesPeerDevice[l_index] = {}
@@ -1181,17 +1191,17 @@ function m_iccClientObject.addMainCapabilities(self)
   --for serviceLocation, endpoint in pairs(self.profileGateway:getEndpoints()) do
   --  self.httpEndpoints[serviceLocation] = endpoint
   --end
-  --self:addHttpProfileGatewayDevice(self.profileGateway.profile)
+  --self:addHTTPProfileGatewayDevice(self.profileGateway.profile)
 
   for serviceLocation, endpoint in pairs(self.profileRest:getEndpoints()) do
     self.httpEndpoints[serviceLocation] = endpoint
   end
-  self:addHttpProfileGatewayDevice(self.profileRest.profile)
+  self:addHTTPProfileGatewayDevice(self.profileRest.profile)
 
   for serviceLocation, endpoint in pairs(self.profileCapabilities:getEndpoints()) do
     self.httpEndpoints[serviceLocation] = endpoint
   end
-  self:addHttpProfileGatewayDevice(self.profileCapabilities.profile)
+  self:addHTTPProfileGatewayDevice(self.profileCapabilities.profile)
 end
 
 -------------------------------------------------------------------------------------

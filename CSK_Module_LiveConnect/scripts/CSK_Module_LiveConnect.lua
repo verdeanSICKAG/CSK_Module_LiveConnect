@@ -20,8 +20,8 @@
 --OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 --SOFTWARE.
 
--- luacheck: no max line length
--- CreationTemplateVersion: X.X.X
+---@diagnostic disable: undefined-global, redundant-parameter, missing-parameter
+
 --**************************************************************************
 --**********************Start Global Scope *********************************
 --**************************************************************************
@@ -29,7 +29,7 @@
 -- If App property "LuaLoadAllEngineAPI" is FALSE, use this to load and check for required APIs
 -- This can improve performance of garbage collection
 
---_G.availableAPIs = require('Module/LiveConnect/helper/checkAPIs') -- can be used to adjust function scope of the module related on available APIs of the device
+--_G.availableAPIs = require('Communication/LiveConnect/helper/checkAPIs') -- can be used to adjust function scope of the module related on available APIs of the device
   ----------------------------------------------------------------------------------------
 -- Logger
 _G.logger = Log.SharedLogger.create('ModuleLogger')
@@ -42,7 +42,7 @@ _G.logHandle:applyConfig()
 
 -- Loading script regarding LiveConnect_Model
 -- Check this script regarding LiveConnect_Model parameters and functions
-_G.liveConnect_Model = require('Module/LiveConnect/LiveConnect_Model')
+_G.liveConnect_Model = require('Communication/LiveConnect/LiveConnect_Model')
 
 --**************************************************************************
 --**********************End Global Scope ***********************************
@@ -61,6 +61,7 @@ local function main()
   --       loading parameters
   --
   -- Can be used e.g. like this
+  -- see "Communication.LiveConnect.SampleCode" script
   ----------------------------------------------------------------------------------------
 
   _G.liveConnect_Model.createIccClient()
@@ -70,14 +71,6 @@ local function main()
 end
 
 Script.register("Engine.OnStarted", main)
-
-
---if CSK_PersistentData ~= nil or false then
-  --Call function after persistent data was loaded
-  --Script.register("CSK_LiveConnect.OnDataLoadedOnReboot", main)
---else
- -- Script.register("Engine.OnStarted", main)
---end
 
 --**************************************************************************
 --**********************End Function Scope *********************************

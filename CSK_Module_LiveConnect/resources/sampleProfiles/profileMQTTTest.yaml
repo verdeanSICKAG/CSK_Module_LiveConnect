@@ -1,0 +1,82 @@
+asyncapi: 2.4.0
+info:
+  title: LiveConnect MQTT test profile
+  version: 0.1.0
+  description: Profile to test data push mechanism
+servers:
+  default:
+    url: '{device}:{port}'
+    description: Allows you to connect using the MQTT protocol.
+    variables:
+      device:
+        default: 192.168.0.1
+      port:
+        enum:
+          - '5676'
+          - '5677'
+        default: '5676'
+    protocol: mqtt
+channels:
+  'sick/device/mqtt-test/{deviceId}':
+    publish:
+      message:
+        $ref: '#/components/messages/payloadData'
+    parameters:
+      deviceId:
+        schema:
+          type: string
+        description: >-
+          A unique identifier for the device, e.g. a combination of device name,
+          version and serial number or a generated UUID
+components:
+  messages:
+    payloadData:
+      headers:
+        type: object
+        properties:
+          qos:
+            $ref: '#/components/schemas/MQTTQoSHeader'
+          retainFlag:
+            $ref: '#/components/schemas/MQTTRetainHeader'
+      payload:
+        $ref: '#/components/schemas/Payload'
+  schemas:
+    MQTTQoSHeader:
+      title: qos
+      description: Quality of Service
+      type: integer
+      format: int32
+      default: 1
+      enum:
+        - 0
+        - 1
+        - 2
+    MQTTRetainHeader:
+      title: retainFlag
+      description: >
+        This flag determines if the message will be saved by the broker for the
+        specified topic as last known good value. New clients that subscribe to
+        that topic will receive the last retained message on that topic
+        instantly after subscribing.
+      type: boolean
+      default: false
+    Payload:
+      type: object
+      required:
+        - timestamp
+        - index
+        - data
+      properties:
+        timestamp:
+          description: UTC timestamp according to RFC 3339
+          type: string
+          example: '2022-05-23T06:34:42.694Z'
+        index:
+          description: Index
+          type: number
+          format: integer
+          example: 69
+        data:
+          description: Data
+          type: string
+          example: 'Hello World'

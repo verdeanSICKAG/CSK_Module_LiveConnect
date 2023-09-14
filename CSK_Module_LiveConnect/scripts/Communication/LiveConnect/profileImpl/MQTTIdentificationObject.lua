@@ -2,7 +2,7 @@
 -------------------------------------------------------------------------------------
 -- Variable declarations
 local m_object = {}
-local m_json = require("utils.Lunajson")
+local m_json = require("Communication.LiveConnect.utils.Lunajson")
 
 -------------------------------------------------------------------------------------
 -- Failed table lookups on the instances should fallback to the class table, to get methods
@@ -16,13 +16,13 @@ function m_object.create(topic, clientName, partNumber, serialNumber)
   self.partNumber = partNumber
   self.serialNumber = serialNumber
 
-  local l_profile = CSK_LiveConnect.MqttProfile.create()
-  CSK_LiveConnect.MqttProfile.setUuid(l_profile, "b2fe7196-3f15-4574-a2db-e5f90bac3db2")
-  CSK_LiveConnect.MqttProfile.setName(l_profile, "Device Identification")
-  CSK_LiveConnect.MqttProfile.setDescription(l_profile, "The SICK Standard Device Identification MQTT profile.")
-  CSK_LiveConnect.MqttProfile.setBaseTopic(l_profile, topic)
-  CSK_LiveConnect.MqttProfile.setAsyncAPISpecification(l_profile, File.open("resources/profiles/mqtt_identification.yaml", "rb"):read())
-  CSK_LiveConnect.MqttProfile.setVersion(l_profile, "0.1.2.20181016150000A")
+  local l_profile = CSK_LiveConnect.MQTTProfile.create()
+  CSK_LiveConnect.MQTTProfile.setUUID(l_profile, "b2fe7196-3f15-4574-a2db-e5f90bac3db2")
+  CSK_LiveConnect.MQTTProfile.setName(l_profile, "Device Identification")
+  CSK_LiveConnect.MQTTProfile.setDescription(l_profile, "The SICK Standard Device Identification MQTT profile.")
+  CSK_LiveConnect.MQTTProfile.setBaseTopic(l_profile, topic)
+  CSK_LiveConnect.MQTTProfile.setAsyncAPISpecification(l_profile, File.open("resources/profiles/mqtt_identification.yaml", "rb"):read())
+  CSK_LiveConnect.MQTTProfile.setVersion(l_profile, "0.1.2.20181016150000A")
 
   self.profile = l_profile
 
