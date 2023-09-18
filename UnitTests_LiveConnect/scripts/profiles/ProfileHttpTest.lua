@@ -75,10 +75,10 @@ end
 -- Get endpoint
 local function createEndpoint(method, uri)
   local l_crownName = Engine.getCurrentAppName() .. "." .. createUuid()
-  local l_endpoint = CSK_LiveConnect.HttpProfile.Endpoint.create()
-  CSK_LiveConnect.HttpProfile.Endpoint.setHandlerFunction(l_endpoint, l_crownName)
-  CSK_LiveConnect.HttpProfile.Endpoint.setMethod(l_endpoint, method)
-  CSK_LiveConnect.HttpProfile.Endpoint.setURI(l_endpoint, uri)
+  local l_endpoint = CSK_LiveConnect.HTTPProfile.Endpoint.create()
+  CSK_LiveConnect.HTTPProfile.Endpoint.setHandlerFunction(l_endpoint, l_crownName)
+  CSK_LiveConnect.HTTPProfile.Endpoint.setMethod(l_endpoint, method)
+  CSK_LiveConnect.HTTPProfile.Endpoint.setURI(l_endpoint, uri)
 
   return l_endpoint
 end
@@ -87,7 +87,7 @@ end
 -- Register HTTP callback function
 function m_returnFunctions.registerCallbackFunctions(profile)
   -- Serve functions for each HTTP endpoint
-  for _,endpoint in pairs(CSK_LiveConnect.HttpProfile.getEndpoints(profile)) do
+  for _,endpoint in pairs(CSK_LiveConnect.HTTPProfile.getEndpoints(profile)) do
     local l_handlerFunction = endpoint:getHandlerFunction()
     Script.serveFunction(l_handlerFunction, httpCallback, "object:CSK_LiveConnect.Request", "object:CSK_LiveConnect.Response")
   end
@@ -96,13 +96,13 @@ end
 -------------------------------------------------------------------------------------
 -- Create HTTP profile
 function m_returnFunctions.create()
-  local l_httpProfile =  CSK_LiveConnect.HttpProfile.create()
-  CSK_LiveConnect.HttpProfile.setName(l_httpProfile, "LiveConnect HTTP test profile")
-  CSK_LiveConnect.HttpProfile.setDescription(l_httpProfile, "Profile to test bi-direction communication between the server and the client")
-  CSK_LiveConnect.HttpProfile.setVersion(l_httpProfile, "0.2.0")
-  CSK_LiveConnect.HttpProfile.setUuid(l_httpProfile, "68f372d5-607c-4e16-b137-63af9fadaaa5")
-  CSK_LiveConnect.HttpProfile.setOpenAPISpecification(l_httpProfile, File.open("resources/profileHttpTest.yaml", "rb"):read())
-  CSK_LiveConnect.HttpProfile.setServiceLocation(l_httpProfile, "http-test")
+  local l_httpProfile =  CSK_LiveConnect.HTTPProfile.create()
+  CSK_LiveConnect.HTTPProfile.setName(l_httpProfile, "LiveConnect HTTP test profile")
+  CSK_LiveConnect.HTTPProfile.setDescription(l_httpProfile, "Profile to test bi-direction communication between the server and the client")
+  CSK_LiveConnect.HTTPProfile.setVersion(l_httpProfile, "0.2.0")
+  CSK_LiveConnect.HTTPProfile.setUUID(l_httpProfile, "68f372d5-607c-4e16-b137-63af9fadaaa5")
+  CSK_LiveConnect.HTTPProfile.setOpenAPISpecification(l_httpProfile, File.open("resources/profileHttpTest.yaml", "rb"):read())
+  CSK_LiveConnect.HTTPProfile.setServiceLocation(l_httpProfile, "http-test")
 
   -- Endpoint definition
   local l_endpoints = {}
@@ -111,7 +111,7 @@ function m_returnFunctions.create()
   table.insert(l_endpoints, createEndpoint("POST", "postwithbody"))
 
   -- Add endpoints
-  CSK_LiveConnect.HttpProfile.setEndpoints(l_httpProfile, l_endpoints)
+  CSK_LiveConnect.HTTPProfile.setEndpoints(l_httpProfile, l_endpoints)
 
   return l_httpProfile
 end

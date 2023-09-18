@@ -183,7 +183,7 @@ function TestClass:test03()
   m_httpProfile.registerCallbackFunctions(l_profile)
 
 
-  l_temp = CSK_LiveConnect.addHttpProfile(PEER_DEVICE.partNumber, PEER_DEVICE.serialNumber, l_profile)
+  l_temp = CSK_LiveConnect.addHTTPProfile(PEER_DEVICE.partNumber, PEER_DEVICE.serialNumber, l_profile)
   if not l_temp then
     m_lu.assertIsTrue(false, "Can't add HTTP profile")
   end
@@ -202,7 +202,7 @@ function TestClass:test04()
 
   local l_profile = m_mqttProfile.create()
 
-  l_temp = CSK_LiveConnect.addMqttProfile(PEER_DEVICE.partNumber, PEER_DEVICE.serialNumber, l_profile)
+  l_temp = CSK_LiveConnect.addMQTTProfile(PEER_DEVICE.partNumber, PEER_DEVICE.serialNumber, l_profile)
   if l_temp == nil then
     m_lu.assertIsTrue(false, "Can't add MQTT profile")
   end
@@ -227,7 +227,7 @@ function TestClass:test05()
   local l_profile = m_httpProfile.create()
   m_httpProfile.registerCallbackFunctions(l_profile)
 
-  l_temp = CSK_LiveConnect.addHttpProfile(l_gatewayPartNumber, l_gatewaySerialNumber, l_profile)
+  l_temp = CSK_LiveConnect.addHTTPProfile(l_gatewayPartNumber, l_gatewaySerialNumber, l_profile)
   if not l_temp then
     m_lu.assertIsTrue(false, "Can't add HTTP profile")
   end
@@ -248,7 +248,7 @@ function TestClass:test06()
 
   local l_profile = m_mqttProfile.create()
 
-  l_temp = CSK_LiveConnect.addMqttProfile(l_gatewayPartNumber, l_gatewaySerialNumber, l_profile)
+  l_temp = CSK_LiveConnect.addMQTTProfile(l_gatewayPartNumber, l_gatewaySerialNumber, l_profile)
   if l_temp == nil then
     m_lu.assertIsTrue(false, "Can't add MQTT profile")
   end

@@ -27,7 +27,7 @@ local function publishPayload(partNumber, serialNumber, updateTime_ms)
   l_payload.data = string.format("Random index value pushed from the edge side, updated every %sms", updateTime_ms)
 
   local l_payloadJson = m_json.encode(l_payload)
-  CSK_LiveConnect.publishMqttData("sick/device/mqtt-test", partNumber, serialNumber, l_payloadJson)
+  CSK_LiveConnect.publishMQTTData("sick/device/mqtt-test", partNumber, serialNumber, l_payloadJson)
 end
 
 -------------------------------------------------------------------------------------
@@ -59,13 +59,13 @@ end
 -------------------------------------------------------------------------------------
 -- Create MQTT profile
 function m_returnFunctions.create()
-  local l_mqttProfile = CSK_LiveConnect.MqttProfile.create()
-  CSK_LiveConnect.MqttProfile.setUuid(l_mqttProfile, "55aa8083-24dc-41aa-bad0-ee28d5892d9d")
-  CSK_LiveConnect.MqttProfile.setName(l_mqttProfile, "LiveConnect MQTT test profile")
-  CSK_LiveConnect.MqttProfile.setDescription(l_mqttProfile, "Profile to test data push mechanism")
-  CSK_LiveConnect.MqttProfile.setBaseTopic(l_mqttProfile, "sick/device/mqtt-test")
-  CSK_LiveConnect.MqttProfile.setAsyncAPISpecification(l_mqttProfile, File.open("resources/profileMqttTest.yaml", "rb"):read())
-  CSK_LiveConnect.MqttProfile.setVersion(l_mqttProfile, "0.1.0")
+  local l_mqttProfile = CSK_LiveConnect.MQTTProfile.create()
+  CSK_LiveConnect.MQTTProfile.setUUID(l_mqttProfile, "55aa8083-24dc-41aa-bad0-ee28d5892d9d")
+  CSK_LiveConnect.MQTTProfile.setName(l_mqttProfile, "LiveConnect MQTT test profile")
+  CSK_LiveConnect.MQTTProfile.setDescription(l_mqttProfile, "Profile to test data push mechanism")
+  CSK_LiveConnect.MQTTProfile.setBaseTopic(l_mqttProfile, "sick/device/mqtt-test")
+  CSK_LiveConnect.MQTTProfile.setAsyncAPISpecification(l_mqttProfile, File.open("resources/profileMqttTest.yaml", "rb"):read())
+  CSK_LiveConnect.MQTTProfile.setVersion(l_mqttProfile, "0.1.0")
 
   return l_mqttProfile
 end
