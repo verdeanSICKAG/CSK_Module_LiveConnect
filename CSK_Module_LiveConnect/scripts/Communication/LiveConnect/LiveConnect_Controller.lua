@@ -1,16 +1,21 @@
 ---@diagnostic disable: param-type-mismatch, undefined-global, redundant-parameter
+
 --***********************************************************************************
 -- Inside of this script, you will find the necessary functions,
--- variables and events to communicate with the LiveConnect model
+-- variables and events to communicate with the LiveConnect_Model
 --***********************************************************************************
+
+--**************************************************************************
+--************************ Start Global Scope ******************************
+--**************************************************************************
 
 -------------------------------------------------------------------------------------
 -- Variables
-local m_mqttCapabilitiesObject = require("Module.LiveConnect.profileImpl.MqttCapabilitiesObject")
-local m_mqttIdentificationObject = require("Module.LiveConnect.profileImpl.MqttIdentificationObject")
-local m_mqttAsyncApiObject = require("Module.LiveConnect.profileImpl.MqttAsyncApiObject")
-local m_httpCapabilitiesObject = require("Module.LiveConnect.profileImpl.HttpCapabilitiesObject")
-local m_httpApplicationObject = require("Module.LiveConnect.profileImpl.HttpApplicationObject")
+local m_mqttCapabilitiesObject = require("Communication.LiveConnect.profileImpl.MQTTCapabilitiesObject")
+local m_mqttIdentificationObject = require("Communication.LiveConnect.profileImpl.MQTTIdentificationObject")
+local m_mqttAsyncApiObject = require("Communication.LiveConnect.profileImpl.MQTTAsyncApiObject")
+local m_httpCapabilitiesObject = require("Communication.LiveConnect.profileImpl.HTTPCapabilitiesObject")
+local m_httpApplicationObject = require("Communication.LiveConnect.profileImpl.HTTPApplicationObject")
 local m_devices = {}
 local m_clearValidateTokenResultTimer = Timer.create()
 local m_validateTokenResult = ""
@@ -31,6 +36,13 @@ local liveConnect_Model
 -- UI Events
 -- **********************************************************************************
 
+Script.serveEvent("CSK_LiveConnect.OnClientInitialized", "LiveConnect_OnClientInitialized")
+Script.serveEvent('CSK_LiveConnect.UI.OnNewStatusSystemClockConfigured', 'LiveConnect_OnNewStatusSystemClockConfigured')
+Script.serveEvent('CSK_LiveConnect.UI.OnNewStatusSystemClock', 'LiveConnect_OnNewStatusSystemClock')
+Script.serveEvent('CSK_LiveConnect.OnNewStatusConnectionStatus', 'LiveConnect_OnNewStatusConnectionStatus')
+Script.serveEvent('CSK_LiveConnect.OnNewStatusDeviceURL', 'LiveConnect_OnNewStatusDeviceURL')
+Script.serveEvent('CSK_LiveConnect.UI.OnNewStatusCurrentView', 'LiveConnect_OnNewStatusCurrentView')
+
 Script.serveEvent("CSK_LiveConnect.OnNewStatusLoadParameterOnReboot", "LiveConnect_OnNewStatusLoadParameterOnReboot")
 Script.serveEvent("CSK_LiveConnect.OnPersistentDataModuleAvailable", "LiveConnect_OnPersistentDataModuleAvailable")
 Script.serveEvent("CSK_LiveConnect.OnNewParameterName", "LiveConnect_OnNewParameterName")
@@ -43,10 +55,10 @@ Script.serveEvent('CSK_LiveConnect.OnUserLevelAdminActive', 'LiveConnect_OnUserL
 
 Script.serveEvent('CSK_LiveConnect.OnNewProfileAdded', 'LiveConnect_OnNewProfileAdded')
 
-Script.serveEvent("CSK_LiveConnect.OnNewMqttKeepAliveInterval", 'LiveConnect_OnNewMqttKeepAliveInterval')
-Script.serveEvent("CSK_LiveConnect.OnNewMqttConnectTimeout", 'LiveConnect_OnNewMqttConnectTimeout')
-Script.serveEvent("CSK_LiveConnect.OnNewMqttMessageInterval", 'LiveConnect_OnNewMqttMessageInterval')
-Script.serveEvent("CSK_LiveConnect.OnNewMqttQueueSize", 'LiveConnect_OnNewMqttQueueSize')
+Script.serveEvent("CSK_LiveConnect.OnNewMQTTKeepAliveInterval", 'LiveConnect_OnNewMQTTKeepAliveInterval')
+Script.serveEvent("CSK_LiveConnect.OnNewMQTTConnectTimeout", 'LiveConnect_OnNewMQTTConnectTimeout')
+Script.serveEvent("CSK_LiveConnect.OnNewMQTTMessageInterval", 'LiveConnect_OnNewMQTTMessageInterval')
+Script.serveEvent("CSK_LiveConnect.OnNewMQTTQueueSize", 'LiveConnect_OnNewMQTTQueueSize')
 Script.serveEvent("CSK_LiveConnect.OnNewProcessInterval", 'LiveConnect_OnNewProcessInterval')
 Script.serveEvent("CSK_LiveConnect.OnNewTokenTimeout", 'LiveConnect_OnNewTokenTimeout')
 Script.serveEvent("CSK_LiveConnect.OnNewDeviceDiscoveryTimeout", 'LiveConnect_OnNewDeviceDiscoveryTimeout')
@@ -61,32 +73,34 @@ Script.serveEvent("CSK_LiveConnect.OnNewValidateTokenResult", 'LiveConnect_OnNew
 
 -------------------------------------------------------------------------------------
 -- Functions to forward logged in user roles via CSK_UserManagement module (if available)
--- @handleOnUserLevelOperatorActive(status:bool):
+-- ***********************************************
+
+--- Function to react on status change of Operator user level
+---@param status boolean Status if Operator level is active
 local function handleOnUserLevelOperatorActive(status)
   Script.notifyEvent("LiveConnect_OnUserLevelOperatorActive", status)
 end
 
--------------------------------------------------------------------------------------
--- @handleOnUserLevelMaintenanceActive(status:bool):
+--- Function to react on status change of Maintenance user level
+---@param status boolean Status if Maintenance level is active
 local function handleOnUserLevelMaintenanceActive(status)
   Script.notifyEvent("LiveConnect_OnUserLevelMaintenanceActive", status)
 end
 
--------------------------------------------------------------------------------------
--- @handleOnUserLevelServiceActive(status:bool):
+--- Function to react on status change of Service user level
+---@param status boolean Status if Service level is active
 local function handleOnUserLevelServiceActive(status)
   Script.notifyEvent("LiveConnect_OnUserLevelServiceActive", status)
 end
 
--------------------------------------------------------------------------------------
--- @handleOnUserLevelAdminActive(status:bool):
+--- Function to react on status change of Admin user level
+---@param status boolean Status if Admin level is active
 local function handleOnUserLevelAdminActive(status)
   Script.notifyEvent("LiveConnect_OnUserLevelAdminActive", status)
 end
 
--------------------------------------------------------------------------------------
--- Function to get access to the LiveConnect object
----@param handle table
+-- Function to get access to the liveConnect_Model object
+---@param handle handle Handle of encoder_Model object
 local function setLiveConnect_Model_Handle(handle)
   liveConnect_Model = handle
   if liveConnect_Model.userManagementModuleAvailable then
@@ -119,14 +133,20 @@ end
 local function handleOnExpiredTmrLiveConnect()
   updateUserLevel()
 
+  Script.notifyEvent("LiveConnect_OnNewStatusSystemClockConfigured", CSK_LiveConnect.UI.isSystemClockConfigured())
+  Script.notifyEvent("LiveConnect_OnNewStatusSystemClock", CSK_LiveConnect.UI.getSystemClockStatus())
+  Script.notifyEvent("LiveConnect_OnNewStatusConnectionStatus", CSK_LiveConnect.getConnectionStatus())
+  Script.notifyEvent("LiveConnect_OnNewStatusDeviceURL", CSK_LiveConnect.getDeviceURL())
+  Script.notifyEvent("LiveConnect_OnNewStatusCurrentView", CSK_LiveConnect.UI.getCurrentView())
+
   Script.notifyEvent("LiveConnect_OnNewStatusLoadParameterOnReboot", liveConnect_Model.parameterLoadOnReboot)
   Script.notifyEvent("LiveConnect_OnPersistentDataModuleAvailable", liveConnect_Model.persistentModuleAvailable)
   Script.notifyEvent("LiveConnect_OnNewParameterName", liveConnect_Model.parametersName)
 
-  Script.notifyEvent("LiveConnect_OnNewMqttConnectTimeout", tostring(liveConnect_Model.parameters.mqttConnectTimeoutMs))
-  Script.notifyEvent("LiveConnect_OnNewMqttKeepAliveInterval", tostring(liveConnect_Model.parameters.mqttKeepAliveIntervalMs))
-  Script.notifyEvent("LiveConnect_OnNewMqttMessageInterval", tostring(liveConnect_Model.parameters.mqttMessageForwardingIntervalMs))
-  Script.notifyEvent("LiveConnect_OnNewMqttQueueSize", tostring(liveConnect_Model.parameters.mqttMessageQueueMaxLength))
+  Script.notifyEvent("LiveConnect_OnNewMQTTConnectTimeout", tostring(liveConnect_Model.parameters.mqttConnectTimeoutMs))
+  Script.notifyEvent("LiveConnect_OnNewMQTTKeepAliveInterval", tostring(liveConnect_Model.parameters.mqttKeepAliveIntervalMs))
+  Script.notifyEvent("LiveConnect_OnNewMQTTMessageInterval", tostring(liveConnect_Model.parameters.mqttMessageForwardingIntervalMs))
+  Script.notifyEvent("LiveConnect_OnNewMQTTQueueSize", tostring(liveConnect_Model.parameters.mqttMessageQueueMaxLength))
 
   Script.notifyEvent("LiveConnect_OnNewProcessInterval", tostring(liveConnect_Model.parameters.processIntervalMs))
   Script.notifyEvent("LiveConnect_OnNewTokenTimeout", tostring(liveConnect_Model.parameters.tokenTimeoutMs))
@@ -156,7 +176,7 @@ end
 -------------------------------------------------------------------------------------
 -- Generate a random UUID
 ---@return string
-local function createUuid()
+local function createUUID()
   local l_template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
   local l_uuid =  string.gsub(l_template, '[xy]', function (c)
     local l_val = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
@@ -204,6 +224,7 @@ local function startTokenValidation()
   else
     publishValidateTokenResult("Token validation error: Empty token")
   end
+  CSK_LiveConnect.pageCalled()
 end
 Script.serveFunction("CSK_LiveConnect.startTokenValidation", startTokenValidation)
 
@@ -218,33 +239,31 @@ end
 Script.serveFunction("CSK_LiveConnect.removePairing", removePairing)
 
 -------------------------------------------------------------------------------------
--- Get device URL which refers to the digital twin on the SICK AssetHub
----@return string
-local function getDeviceUrl()
+
+local function getDeviceURL()
   local l_cloudSystem = liveConnect_Model.parameters.cloudSystem
-  local l_deviceUuid = liveConnect_Model.iccClient.deviceUuid
-  if l_deviceUuid == nil then
+  local l_deviceUUID = liveConnect_Model.iccClient.deviceUuid
+  if l_deviceUUID == nil then
     return ""
   end
 
   if l_cloudSystem == "prod" then
     ---@diagnostic disable-next-line: return-type-mismatch
-    return string.format("https://assethub.cloud.sick.com/liveconnect/%s", l_deviceUuid)
+    return string.format("https://assethub.cloud.sick.com/liveconnect/%s", l_deviceUUID)
   elseif l_cloudSystem == "int" then
     ---@diagnostic disable-next-line: return-type-mismatch
-    return string.format("https://assethub.int.sickag.cloud/liveconnect/%s", l_deviceUuid)
+    return string.format("https://assethub.int.sickag.cloud/liveconnect/%s", l_deviceUUID)
   elseif l_cloudSystem == "dev" then
     ---@diagnostic disable-next-line: return-type-mismatch
-    return string.format("https://assethub.dev.sickag.cloud/liveconnect/%s", l_deviceUuid)
+    return string.format("https://assethub.dev.sickag.cloud/liveconnect/%s", l_deviceUUID)
   else
     return ""
   end
 end
-Script.serveFunction("CSK_LiveConnect.getDeviceUrl", getDeviceUrl)
+Script.serveFunction("CSK_LiveConnect.getDeviceURL", getDeviceURL)
 
 -------------------------------------------------------------------------------------
--- Provides information about the information to be displayed on the UI page
----@return string
+
 local function getCurrentView()
   local ret = liveConnect_Model.iccClient.deviceUuid
   if ret == nil then
@@ -255,8 +274,7 @@ end
 Script.serveFunction("CSK_LiveConnect.UI.getCurrentView", getCurrentView)
 
 -------------------------------------------------------------------------------------
--- Set soft approval token
----@param token string
+
 local function setToken(token)
   _G.logger:info(NAME_OF_MODULE .. ": Set soft approval token (" .. token ..")")
   liveConnect_Model.iccClient.softApprovalToken = token
@@ -264,8 +282,7 @@ end
 Script.serveFunction("CSK_LiveConnect.setToken", setToken)
 
 -------------------------------------------------------------------------------------
--- Get status of the LiveConnect connection
----@result string
+
 local function getConnectionStatus()
   if not liveConnect_Model.iccClient:isEnabled() then
     return "Offline"
@@ -297,12 +314,12 @@ local function getDevice(partNumber, serialNumber)
   local l_index = partNumber .. serialNumber
   -- Check if the device is a peer device
   local l_isPeerDevice = not ((partNumber == liveConnect_Model.parameters.partNumber) and (serialNumber == liveConnect_Model.parameters.serialNumber))
-  local l_deviceUuid = createUuid()
-  local l_deviceUrl;
+  local l_deviceUUID = createUUID()
+  local l_deviceURL;
   if l_isPeerDevice then
-    l_deviceUrl = liveConnect_Model.iccClient.standardInterfaceServer .. "/gateway/" .. l_deviceUuid
+    l_deviceURL = liveConnect_Model.iccClient.standardInterfaceServer .. "/gateway/" .. l_deviceUUID
   else
-    l_deviceUrl = liveConnect_Model.iccClient.standardInterfaceServer
+    l_deviceURL = liveConnect_Model.iccClient.standardInterfaceServer
   end
 
   if getArrayLength(m_devices) > 0 then
@@ -316,7 +333,7 @@ local function getDevice(partNumber, serialNumber)
 
   if l_isNewDevice then
     m_devices[l_index] = {
-      uuid = l_deviceUuid,
+      uuid = l_deviceUUID,
       httpCapabilities = nil,
       mqttCapabilities = nil,
       mqttIdentification = nil,
@@ -324,7 +341,7 @@ local function getDevice(partNumber, serialNumber)
       isPeerDevice = l_isPeerDevice,
       partNumber = partNumber,
       serialNumber = serialNumber,
-      url = l_deviceUrl
+      url = l_deviceURL
     }
   end
 
@@ -336,7 +353,7 @@ end
 -- Create a new peer device if it doesn't already exist
 ---@param device table
 ---@param isNewDevice bool
----@param applicationProfile CSK_LiveConnect.HttpProfile
+---@param applicationProfile CSK_LiveConnect.HTTPProfile
 local function handlePeerDevice(device, isNewDevice, applicationProfile)
   if isNewDevice then
     -- Add capabilities profile
@@ -365,12 +382,8 @@ local function handlePeerDevice(device, isNewDevice, applicationProfile)
 end
 
 -------------------------------------------------------------------------------------
--- Add a MQTT application profile to the registered profile list
----@param partNumber string
----@param serialNumber string
----@param mqttProfile CSK_LiveConnect.HttpProfile
----@return string
-local function addMqttProfile(partNumber, serialNumber, mqttProfile)
+
+local function addMQTTProfile(partNumber, serialNumber, mqttProfile)
   if liveConnect_Model.iccClient ~= nil then
     _G.logger:info(NAME_OF_MODULE .. ": Register MQTT profile (" .. mqttProfile:getName() .. ")")
 
@@ -387,10 +400,10 @@ local function addMqttProfile(partNumber, serialNumber, mqttProfile)
       l_device.mqttCapabilities:addProfile(l_device.mqttCapabilities.profile)
 
       -- Publish async api profile payload
-      local l_profileId = CSK_LiveConnect.MqttProfile.getUuid(l_device.mqttCapabilities.profile)
+      local l_profileId = CSK_LiveConnect.MQTTProfile.getUUID(l_device.mqttCapabilities.profile)
       local l_asyncApiTopic = string.format('%s/%s/%s', liveConnect_Model.iccClient.mqttTopicAsyncApi, l_profileId, l_device.uuid)
-      local l_asyncApiPayload = CSK_LiveConnect.MqttProfile.getAsyncAPISpecification(l_device.mqttCapabilities.profile)
-      liveConnect_Model.iccClient:addMqttTopic(l_asyncApiTopic, l_asyncApiPayload, "QOS1")
+      local l_asyncApiPayload = CSK_LiveConnect.MQTTProfile.getAsyncAPISpecification(l_device.mqttCapabilities.profile)
+      liveConnect_Model.iccClient:addMQTTTopic(l_asyncApiTopic, l_asyncApiPayload, "QOS1")
     end
 
     -- Add identification profile
@@ -407,13 +420,13 @@ local function addMqttProfile(partNumber, serialNumber, mqttProfile)
       -- Publish identification profile payload
       local l_deviceIdentificationTopic = string.format('%s/%s', liveConnect_Model.iccClient.mqttTopicBaseIdentification, l_device.uuid)
       local l_deviceIdentificationPayload = l_device.mqttIdentification:getPayload()
-      liveConnect_Model.iccClient:addMqttTopic(l_deviceIdentificationTopic, l_deviceIdentificationPayload, "QOS1")
+      liveConnect_Model.iccClient:addMQTTTopic(l_deviceIdentificationTopic, l_deviceIdentificationPayload, "QOS1")
 
       -- Publish async api profile payload
-      local l_profileId = CSK_LiveConnect.MqttProfile.getUuid(l_device.mqttIdentification.profile)
+      local l_profileId = CSK_LiveConnect.MQTTProfile.getUUID(l_device.mqttIdentification.profile)
       local l_asyncApiTopic = string.format('%s/%s/%s', liveConnect_Model.iccClient.mqttTopicAsyncApi, l_profileId, l_device.uuid)
-      local l_asyncApiPayload = CSK_LiveConnect.MqttProfile.getAsyncAPISpecification(l_device.mqttIdentification.profile)
-      liveConnect_Model.iccClient:addMqttTopic(l_asyncApiTopic, l_asyncApiPayload, "QOS1")
+      local l_asyncApiPayload = CSK_LiveConnect.MQTTProfile.getAsyncAPISpecification(l_device.mqttIdentification.profile)
+      liveConnect_Model.iccClient:addMQTTTopic(l_asyncApiTopic, l_asyncApiPayload, "QOS1")
     end
 
     -- Add async api profile
@@ -426,25 +439,25 @@ local function addMqttProfile(partNumber, serialNumber, mqttProfile)
       l_device.mqttCapabilities:addProfile(l_device.mqttAsyncApi.profile)
 
       -- Publish async api profile payload
-      local l_profileId = CSK_LiveConnect.MqttProfile.getUuid(l_device.mqttAsyncApi.profile)
+      local l_profileId = CSK_LiveConnect.MQTTProfile.getUUID(l_device.mqttAsyncApi.profile)
       local l_asyncApiTopic = string.format('%s/%s/%s', liveConnect_Model.iccClient.mqttTopicAsyncApi, l_profileId, l_device.uuid)
-      local l_asyncApiPayload = CSK_LiveConnect.MqttProfile.getAsyncAPISpecification(l_device.mqttAsyncApi.profile)
-      liveConnect_Model.iccClient:addMqttTopic(l_asyncApiTopic, l_asyncApiPayload, "QOS1")
+      local l_asyncApiPayload = CSK_LiveConnect.MQTTProfile.getAsyncAPISpecification(l_device.mqttAsyncApi.profile)
+      liveConnect_Model.iccClient:addMQTTTopic(l_asyncApiTopic, l_asyncApiPayload, "QOS1")
     end
 
     -- Add application profile to the capabilities
     l_device.mqttCapabilities:addProfile(mqttProfile)
 
     -- Publish async api profile payload
-    local l_profileId = CSK_LiveConnect.MqttProfile.getUuid(mqttProfile)
+    local l_profileId = CSK_LiveConnect.MQTTProfile.getUUID(mqttProfile)
     local l_asyncApiTopic = string.format('%s/%s/%s', liveConnect_Model.iccClient.mqttTopicAsyncApi, l_profileId, l_device.uuid)
-    local l_asyncApiPayload = CSK_LiveConnect.MqttProfile.getAsyncAPISpecification(mqttProfile)
-    liveConnect_Model.iccClient:addMqttTopic(l_asyncApiTopic, l_asyncApiPayload, "QOS1")
+    local l_asyncApiPayload = CSK_LiveConnect.MQTTProfile.getAsyncAPISpecification(mqttProfile)
+    liveConnect_Model.iccClient:addMQTTTopic(l_asyncApiTopic, l_asyncApiPayload, "QOS1")
 
     -- Publish and update of the capabilities profile payload
     local l_capabilitiesTopic = string.format('%s/%s', liveConnect_Model.iccClient.mqttTopicBaseCapabilities, l_device.uuid)
     local l_capabilitiesPayload = l_device.mqttCapabilities:getPayload()
-    liveConnect_Model.iccClient:addMqttTopic(l_capabilitiesTopic, l_capabilitiesPayload, "QOS1")
+    liveConnect_Model.iccClient:addMQTTTopic(l_capabilitiesTopic, l_capabilitiesPayload, "QOS1")
 
     Script.notifyEvent("LiveConnect_OnNewProfileAdded", mqttProfile:getName(), "asyncAPI")
     return l_device.uuid
@@ -455,14 +468,11 @@ local function addMqttProfile(partNumber, serialNumber, mqttProfile)
     return nil
   end
 end
-Script.serveFunction("CSK_LiveConnect.addMqttProfile", addMqttProfile)
+Script.serveFunction("CSK_LiveConnect.addMQTTProfile", addMQTTProfile)
 
 -------------------------------------------------------------------------------------
--- Add HTTP application profile
----@param partNumber string
----@param serialNumber string
----@param httpProfile CSK_LiveConnect.HttpProfile
-local function addHttpProfile(partNumber, serialNumber, httpProfile)
+
+local function addHTTPProfile(partNumber, serialNumber, httpProfile)
   if liveConnect_Model.iccClient ~= nil then
     _G.logger:info(NAME_OF_MODULE .. ": Register HTTP profile (" .. httpProfile:getName() .. ")")
     local l_device, l_isNewDevice = getDevice(partNumber, serialNumber)
@@ -473,7 +483,8 @@ local function addHttpProfile(partNumber, serialNumber, httpProfile)
       for serviceLocation, endpoint in pairs(l_applicationProfile:getEndpoints()) do
         liveConnect_Model.iccClient:addEndpoint(serviceLocation, endpoint)
       end
-      liveConnect_Model.iccClient:addHttpProfilePeerDevice(l_applicationProfile.profile, partNumber, serialNumber)
+
+      liveConnect_Model.iccClient:addHTTPProfilePeerDevice(l_applicationProfile.profile, partNumber, serialNumber)
 
       handlePeerDevice(l_device, l_isNewDevice, httpProfile)
     else
@@ -482,7 +493,7 @@ local function addHttpProfile(partNumber, serialNumber, httpProfile)
       for serviceLocation, endpoint in pairs(l_applicationProfile:getEndpoints()) do
         liveConnect_Model.iccClient:addEndpoint(serviceLocation, endpoint)
       end
-      liveConnect_Model.iccClient:addHttpProfileGatewayDevice(l_applicationProfile.profile)
+      liveConnect_Model.iccClient:addHTTPProfileGatewayDevice(l_applicationProfile.profile)
 
       -- Start profile update process
       liveConnect_Model.iccClient:reloadProfiles()
@@ -496,51 +507,46 @@ local function addHttpProfile(partNumber, serialNumber, httpProfile)
       return false
   end
 end
-Script.serveFunction("CSK_LiveConnect.addHttpProfile", addHttpProfile)
+Script.serveFunction("CSK_LiveConnect.addHTTPProfile", addHTTPProfile)
 
 -------------------------------------------------------------------------------------
--- Publish MQTT application data using part number and serial number
----@param topic string
----@param partNumber string
----@param serialNumber string
----@param payload string
-local function publishMqttData(topic, partNumber, serialNumber, payload)
+
+local function publishMQTTData(topic, partNumber, serialNumber, payload)
   -- Get meta information about the device
   local l_device = m_devices[partNumber .. serialNumber]
 
   if l_device ~= nil then
     -- Add uuid
-    local l_topicWithUuid = string.format('%s/%s', topic, l_device.uuid)
+    local l_topicWithUUID = string.format('%s/%s', topic, l_device.uuid)
 
     -- Add data to the mqtt message queue
-    _G.logger:fine(string.format("%s: Publish MQTT data (%s): %s", NAME_OF_MODULE, l_topicWithUuid, payload))
-    liveConnect_Model.iccClient:addMqttTopic(l_topicWithUuid, payload, "QOS1")
+    _G.logger:fine(string.format("%s: Publish MQTT data (%s): %s", NAME_OF_MODULE, l_topicWithUUID, payload))
+    liveConnect_Model.iccClient:addMQTTTopic(l_topicWithUUID, payload, "QOS1")
   end
 end
-Script.serveFunction("CSK_LiveConnect.publishMqttData", publishMqttData)
+Script.serveFunction("CSK_LiveConnect.publishMQTTData", publishMQTTData)
 
 -------------------------------------------------------------------------------------
--- Publish MQTT application data using the device UUID
-local function publishMqttDataById(topic, deviceUuid, payload)
+
+local function publishMQTTDataByID(topic, deviceUUID, payload)
   local l_device = nil
   for _, device in pairs(m_devices) do
-    if (device.uuid == deviceUuid) then
+    if (device.uuid == deviceUUID) then
       l_device = device
       break
     end
   end
 
   if l_device ~= nil then
-    publishMqttData(topic, l_device.partNumber, l_device.serialNumber, payload)
+    publishMQTTData(topic, l_device.partNumber, l_device.serialNumber, payload)
   else
-    _G.logger:warning(string.format("%s: Can't publish MQTT data. Device UUID (%s) can't be assigned", NAME_OF_MODULE, deviceUuid))
+    _G.logger:warning(string.format("%s: Can't publish MQTT data. Device UUID (%s) can't be assigned", NAME_OF_MODULE, deviceUUID))
   end
 end
-Script.serveFunction("CSK_LiveConnect.publishMqttDataById", publishMqttDataById)
+Script.serveFunction("CSK_LiveConnect.publishMQTTDataByID", publishMQTTDataByID)
 
 -------------------------------------------------------------------------------------
--- Check if the system clock is configured
----@return bool
+
 local function isSystemClockConfigured()
   -- Check if time is set correctly
   -- Check if day 2023-08-11T00:00:00Z pasted
@@ -551,8 +557,7 @@ end
 Script.serveFunction("CSK_LiveConnect.UI.isSystemClockConfigured", isSystemClockConfigured)
 
 -------------------------------------------------------------------------------------
--- Get status of the system clock
----@return string
+
 local function getSystemClockStatus()
   local l_day, l_month, l_year, l_hour, l_minute, l_second, _ = DateTime.getDateTimeValuesUTC()
   local l_timeString = string.format("%04d-%02d-%02d %02d:%02d:%02d UTC",
@@ -569,9 +574,7 @@ end
 Script.serveFunction("CSK_LiveConnect.UI.getSystemClockStatus", getSystemClockStatus)
 
 -------------------------------------------------------------------------------------
--- Remove peer device
----@param partNumber string 
----@param serialNumber string 
+
 local function removePeerDevice(partNumber, serialNumber)
   _G.logger:info(string.format("%s: Remove peer device (PN: %s / SN: %s)",NAME_OF_MODULE, partNumber, serialNumber))
   liveConnect_Model.iccClient:removePeerDevice(partNumber, serialNumber)
@@ -579,45 +582,39 @@ end
 Script.serveFunction("CSK_LiveConnect.removePeerDevice", removePeerDevice)
 
 -------------------------------------------------------------------------------------
--- Set queue size of the MQTT message queue
----@param queueSize string
-local function setMqttMessageQueueSize(queueSize)
+
+local function setMQTTMessageQueueSize(queueSize)
   _G.logger:info(string.format("%s: Set MQTT message queue size (%s)", NAME_OF_MODULE, queueSize))
   liveConnect_Model.parameters.mqttMessageQueueMaxLength = tonumber(queueSize)
 end
-Script.serveFunction("CSK_LiveConnect.setMqttMessageQueueSize", setMqttMessageQueueSize)
+Script.serveFunction("CSK_LiveConnect.setMQTTMessageQueueSize", setMQTTMessageQueueSize)
 
 -------------------------------------------------------------------------------------
--- Set 
----@param keepAliveInterval string
-local function setMqttKeepAliveInterval(keepAliveInterval)
+
+local function setMQTTKeepAliveInterval(keepAliveInterval)
   _G.logger:info(string.format("%s: Set MQTT keep alive interval (%sms)", NAME_OF_MODULE, keepAliveInterval))
   liveConnect_Model.parameters.mqttKeepAliveIntervalMs = tonumber(keepAliveInterval)
 end
-Script.serveFunction("CSK_LiveConnect.setMqttKeepAliveInterval", setMqttKeepAliveInterval)
-
+Script.serveFunction("CSK_LiveConnect.setMQTTKeepAliveInterval", setMQTTKeepAliveInterval)
 
 -------------------------------------------------------------------------------------
--- Set 
----@param connectTimeout string
-local function setMqttConnectTimeout(connectTimeout)
+
+local function setMQTTConnectTimeout(connectTimeout)
   _G.logger:info(string.format("%s: Set MQTT connect timeout (%sms)", NAME_OF_MODULE, connectTimeout))
   liveConnect_Model.parameters.mqttConnectTimeoutMs = tonumber(connectTimeout)
 end
-Script.serveFunction("CSK_LiveConnect.setMqttConnectTimeout", setMqttConnectTimeout)
+Script.serveFunction("CSK_LiveConnect.setMQTTConnectTimeout", setMQTTConnectTimeout)
 
 -------------------------------------------------------------------------------------
--- Set 
----@param messageInterval string
-local function setMqttMessageInterval(messageInterval)
+
+local function setMQTTMessageInterval(messageInterval)
   _G.logger:info(string.format("%s: Set MQTT message forwarding interval (%sms)", NAME_OF_MODULE, messageInterval))
   liveConnect_Model.parameters.mqttMessageForwardingIntervalMs = tonumber(messageInterval)
 end
-Script.serveFunction("CSK_LiveConnect.setMqttMessageInterval", setMqttMessageInterval)
+Script.serveFunction("CSK_LiveConnect.setMQTTMessageInterval", setMQTTMessageInterval)
 
 -------------------------------------------------------------------------------------
--- Set process interval to notice status changes of the LiveConnect connection
----@param interval string
+
 local function setProcessInterval(interval)
   _G.logger:info(string.format("%s: Set process interval (%sms)", NAME_OF_MODULE, interval))
   liveConnect_Model.parameters.processIntervalMs = tonumber(interval)
@@ -625,8 +622,7 @@ end
 Script.serveFunction('CSK_LiveConnect.setProcessInterval', setProcessInterval)
 
 -------------------------------------------------------------------------------------
--- Set timeout for the accepting of the pairing token
----@param timeout string
+
 local function setTokenTimeout(timeout)
   _G.logger:info(string.format("%s: Set token timeout (%sms)", NAME_OF_MODULE, timeout))
   liveConnect_Model.parameters.tokenTimeoutMs = tonumber(timeout)
@@ -634,8 +630,7 @@ end
 Script.serveFunction('CSK_LiveConnect.setTokenTimeout', setTokenTimeout)
 
 -------------------------------------------------------------------------------------
--- Set device discovery timeout
----@param timeout string
+
 local function setDeviceDiscoveryTimeout(timeout)
   _G.logger:info(string.format("%s: Set device discovery timeout (%sms)", NAME_OF_MODULE, timeout))
   liveConnect_Model.parameters.discoveryTimeoutMs = tonumber(timeout)
@@ -643,8 +638,7 @@ end
 Script.serveFunction('CSK_LiveConnect.setDeviceDiscoveryTimeout', setDeviceDiscoveryTimeout)
 
 -------------------------------------------------------------------------------------
--- Set part number of the gateway device
----@param partNumber string
+
 local function setGatewayPartNumber(partNumber)
   _G.logger:info(string.format("%s: Set part number of the gateway device (%s)", NAME_OF_MODULE, partNumber))
   liveConnect_Model.parameters.partNumber = partNumber
@@ -652,16 +646,14 @@ end
 Script.serveFunction('CSK_LiveConnect.setGatewayPartNumber', setGatewayPartNumber)
 
 -------------------------------------------------------------------------------------
--- Get part number of the gateway device
----@return string
+
 local function getGatewayPartNumber()
   return liveConnect_Model.parameters.partNumber
 end
 Script.serveFunction('CSK_LiveConnect.getGatewayPartNumber', getGatewayPartNumber)
 
 -------------------------------------------------------------------------------------
--- Set serial number of the gateway device
----@param serialNumber string
+
 local function setGatewaySerialNumber(serialNumber)
   _G.logger:info(string.format("%s: Set serial number of the gateway device (%s)", NAME_OF_MODULE, serialNumber))
   liveConnect_Model.parameters.serialNumber = serialNumber
@@ -669,16 +661,14 @@ end
 Script.serveFunction('CSK_LiveConnect.setGatewaySerialNumber', setGatewaySerialNumber)
 
 -------------------------------------------------------------------------------------
--- Get serial number of the gateway device
----@return string 
+
 local function getGatewaySerialNumber()
   return liveConnect_Model.parameters.serialNumber
 end
 Script.serveFunction('CSK_LiveConnect.getGatewaySerialNumber', getGatewaySerialNumber)
 
 -------------------------------------------------------------------------------------
--- Set cloud system (prod/int/dev)
----@param cloudSystem string
+
 local function setCloudSystem(cloudSystem)
   _G.logger:info(string.format("%s: Set cloud system (%s)", NAME_OF_MODULE, cloudSystem))
   liveConnect_Model.parameters.cloudSystem = cloudSystem
@@ -686,8 +676,7 @@ end
 Script.serveFunction('CSK_LiveConnect.setCloudSystem', setCloudSystem)
 
 -------------------------------------------------------------------------------------
--- Get a list of all registered devices and profiles
----@return table devices 
+
 local function getRegisteredProfiles()
   local l_devices = {}
   if liveConnect_Model.iccClient ~= nil then
@@ -696,7 +685,7 @@ local function getRegisteredProfiles()
     l_gatewayDevice:setDeviceType("GATEWAY_DEVICE")
     l_gatewayDevice:setPartNumber(liveConnect_Model.parameters.partNumber)
     l_gatewayDevice:setSerialNumber(liveConnect_Model.parameters.serialNumber)
-    l_gatewayDevice:setDeviceUuid(liveConnect_Model.iccClient.deviceUuid)
+    l_gatewayDevice:setDeviceUUID(liveConnect_Model.iccClient.deviceUuid)
     l_gatewayDevice:setProfile(liveConnect_Model.iccClient.httpProfilesGatewayDevice)
     table.insert(l_devices, l_gatewayDevice)
 
@@ -708,7 +697,7 @@ local function getRegisteredProfiles()
           l_peerDevice:setDeviceType("PEER_DEVICE")
           l_peerDevice:setPartNumber(peerDevice.partNumber)
           l_peerDevice:setSerialNumber(peerDevice.serialNumber)
-          l_peerDevice:setDeviceUuid(peerDevice.deviceUuid)
+          l_peerDevice:setDeviceUUID(peerDevice.deviceUuid)
 
           local l_peerProfiles = {}
           for _, profile in pairs(liveConnect_Model.iccClient.httpProfilesPeerDevice[index]) do
@@ -729,26 +718,23 @@ end
 Script.serveFunction('CSK_LiveConnect.getRegisteredProfiles', getRegisteredProfiles)
 
 -------------------------------------------------------------------------------------
--- Get validate token result
----@return string status
+
 local function getValidateTokenResult()
   return m_validateTokenResult
 end
 Script.serveFunction('CSK_LiveConnect.getValidateTokenResult', getValidateTokenResult)
 
 -------------------------------------------------------------------------------------
--- Remove all registered profiles and devices
+
 local function removeAllProfiles()
   _G.logger:info(NAME_OF_MODULE .. ": Removing all profiles and connected devices")
   m_devices = {}
   liveConnect_Model.iccClient:removeAllProfiles()
-
 end
 Script.serveFunction("CSK_LiveConnect.removeAllProfiles", removeAllProfiles)
 
 -------------------------------------------------------------------------------------
--- Page called
----@return string
+
 local function pageCalled()
   updateUserLevel() -- try to hide user specific content asap
   m_tmrLiveConnect:start()
@@ -756,43 +742,38 @@ local function pageCalled()
 end
 Script.serveFunction("CSK_LiveConnect.pageCalled", pageCalled)
 
--- **********************************************************************************
--- Start of functions for PersistentData module usage
--- **********************************************************************************
+-- *****************************************************************
+-- Following function can be adapted for CSK_PersistentData module usage
+-- *****************************************************************
 
 -------------------------------------------------------------------------------------
--- Set name of the parameter set
----@param name string
+
 local function setParameterName(name)
   _G.logger:info(NAME_OF_MODULE .. ": Set parameter name: " .. tostring(name))
   liveConnect_Model.parametersName = tostring(name)
 end
 Script.serveFunction("CSK_LiveConnect.setParameterName", setParameterName)
 
--------------------------------------------------------------------------------------
--- Send parameters
 local function sendParameters()
   if liveConnect_Model.persistentModuleAvailable then
     CSK_PersistentData.addParameter(liveConnect_Model.helperFuncs.convertTable2Container(liveConnect_Model.parameters), liveConnect_Model.parametersName)
     CSK_PersistentData.setModuleParameterName(NAME_OF_MODULE, liveConnect_Model.parametersName, liveConnect_Model.parameterLoadOnReboot)
-    _G.logger:info(NAME_OF_MODULE .. ": Send LiveConnect parameters with name '" .. liveConnect_Model.parametersName .. "' to PersistentData module.")
+    _G.logger:info(NAME_OF_MODULE .. ": Send LiveConnect parameters with name '" .. liveConnect_Model.parametersName .. "' to CSK_PersistentData module.")
     CSK_PersistentData.saveData()
 
     -- Reinit LiveConnect client to ensure that the parameters are accepted
     liveConnect_Model.iccClient:reinit()
   else
-    _G.logger:warning(NAME_OF_MODULE .. ": PersistentData Module not available.")
+    _G.logger:warning(NAME_OF_MODULE .. ": CSK_PersistentData module not available.")
   end
 end
 Script.serveFunction("CSK_LiveConnect.sendParameters", sendParameters)
 
--------------------------------------------------------------------------------------
--- Load parameters
 local function loadParameters()
   if liveConnect_Model.persistentModuleAvailable then
     local data = CSK_PersistentData.getParameter(liveConnect_Model.parametersName)
     if data then
-      _G.logger:info(NAME_OF_MODULE .. ": Loaded parameters from PersistentData module.")
+      _G.logger:info(NAME_OF_MODULE .. ": Loaded parameters from CSK_PersistentData module.")
       liveConnect_Model.parameters = liveConnect_Model.helperFuncs.convertContainer2Table(data)
 
       -- Reinit LiveConnect client to ensure that the parameters are accepted
@@ -800,32 +781,33 @@ local function loadParameters()
 
       CSK_LiveConnect.pageCalled()
     else
-      _G.logger:warning(NAME_OF_MODULE .. ": Loading parameters from PersistentData module did not work.")
+      _G.logger:warning(NAME_OF_MODULE .. ": Loading parameters from CSK_PersistentData module did not work.")
     end
   else
-    _G.logger:warning(NAME_OF_MODULE .. ": PersistentData Module not available.")
+    _G.logger:warning(NAME_OF_MODULE .. ": CSK_PersistentData module not available.")
   end
 end
 Script.serveFunction("CSK_LiveConnect.loadParameters", loadParameters)
 
--------------------------------------------------------------------------------------
--- Set parameter load on reboot
----@param status bool
 local function setLoadOnReboot(status)
   liveConnect_Model.parameterLoadOnReboot = status
   _G.logger:info(NAME_OF_MODULE .. ": Set new status to load setting on reboot: " .. tostring(status))
 end
 Script.serveFunction("CSK_LiveConnect.setLoadOnReboot", setLoadOnReboot)
 
--------------------------------------------------------------------------------------
--- Handle event "OnInitialDataLoaded"
+--- Function to react on initial load of persistent parameters
 local function handleOnInitialDataLoaded()
+
+  _G.logger:info(NAME_OF_MODULE .. ': Try to initially load parameter from CSK_PersistentData module.')
   if string.sub(CSK_PersistentData.getVersion(), 1, 1) == '1' then
+
     _G.logger:warning(NAME_OF_MODULE .. ': CSK_PersistentData module is too old and will not work. Please update CSK_PersistentData module.')
+
     liveConnect_Model.persistentModuleAvailable = false
   else
 
     local parameterName, loadOnReboot = CSK_PersistentData.getModuleParameterName(NAME_OF_MODULE)
+
     if parameterName then
       liveConnect_Model.parametersName = parameterName
       liveConnect_Model.parameterLoadOnReboot = loadOnReboot

@@ -5,11 +5,11 @@
       "category": "CSK Module LiveConnect Client",
       "pages": [
         {
-          "path": "LiveConnect/LiveConnect.html",
-          "name": "Paring"
+          "path": "CSK_Module_LiveConnect/CSK_Module_LiveConnect.html",
+          "name": "Pairing"
         },
         {
-          "path": "Parameters/Parameters.html",
+          "path": "CSK_Module_LiveConnect/CSK_Module_LiveConnect_Parameters.html",
           "name": "Parameters"
         }
       ]

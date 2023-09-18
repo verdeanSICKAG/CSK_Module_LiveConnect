@@ -8,7 +8,7 @@ m_object.__index = m_object
 
 -------------------------------------------------------------------------------------
 -- Get a generated UUID
-local function createUuid()
+local function createUUID()
   local l_template ='xxxxxxxx'
   local l_uuid =  string.gsub(l_template, '[xy]', function (c)
     local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
@@ -35,42 +35,42 @@ end
 
 -------------------------------------------------------------------------------------
 -- Create profile object
-function m_object.create(baseUrl)
+function m_object.create(baseURL)
   local self = setmetatable({}, m_object)
   self.endpoints = {}
-  self.baseUrl = baseUrl
+  self.baseURL = baseURL
   self.serviceLocation = "api"
 
-  local l_profile = CSK_LiveConnect.HttpProfile.create()
-  CSK_LiveConnect.HttpProfile.setUuid(l_profile, "6de815fe-48e1-46b4-8d66-32f3606a4527")
-  CSK_LiveConnect.HttpProfile.setName(l_profile,"HTTP/REST Device")
-  CSK_LiveConnect.HttpProfile.setVersion(l_profile, "0.1.3.20190201100000A")
-  CSK_LiveConnect.HttpProfile.setDescription(l_profile,"The SICK Standard HTTP Device HTTP/REST profile.")
-  CSK_LiveConnect.HttpProfile.setServiceLocation(l_profile, self.serviceLocation)
+  local l_profile = CSK_LiveConnect.HTTPProfile.create()
+  CSK_LiveConnect.HTTPProfile.setUUID(l_profile, "6de815fe-48e1-46b4-8d66-32f3606a4527")
+  CSK_LiveConnect.HTTPProfile.setName(l_profile,"HTTP/REST Device")
+  CSK_LiveConnect.HTTPProfile.setVersion(l_profile, "0.1.3.20190201100000A")
+  CSK_LiveConnect.HTTPProfile.setDescription(l_profile,"The SICK Standard HTTP Device HTTP/REST profile.")
+  CSK_LiveConnect.HTTPProfile.setServiceLocation(l_profile, self.serviceLocation)
 
   self.profile = l_profile
 
   -- Add profile endpoints
-  local l_id = createUuid()
-  self:addEndpoint("api" ..l_id, self.baseUrl .. "/api", "GET", getEndpointApi)
+  local l_id = createUUID()
+  self:addEndpoint("api" ..l_id, self.baseURL .. "/api", "GET", getEndpointApi)
 
   return self
 end
 
 -------------------------------------------------------------------------------------
 -- Add endpoints
-function m_object.addEndpoint(self, name, serviceUrl, method, _function)
+function m_object.addEndpoint(self, name, serviceURL, method, _function)
   -- Hand over "self" variable
   local callFunction = function(request)
       return _function(self, request)
     end
   local l_crownName = "CSK_LiveConnect. " .. name
-  local l_endpoint = CSK_LiveConnect.HttpProfile.Endpoint.create()
-  CSK_LiveConnect.HttpProfile.Endpoint.setMethod(l_endpoint, method)
-  CSK_LiveConnect.HttpProfile.Endpoint.setURI(l_endpoint, serviceUrl)
-  CSK_LiveConnect.HttpProfile.Endpoint.setHandlerFunction(l_endpoint, l_crownName)
+  local l_endpoint = CSK_LiveConnect.HTTPProfile.Endpoint.create()
+  CSK_LiveConnect.HTTPProfile.Endpoint.setMethod(l_endpoint, method)
+  CSK_LiveConnect.HTTPProfile.Endpoint.setURI(l_endpoint, serviceURL)
+  CSK_LiveConnect.HTTPProfile.Endpoint.setHandlerFunction(l_endpoint, l_crownName)
 
-  self.endpoints[serviceUrl] = l_endpoint
+  self.endpoints[serviceURL] = l_endpoint
   Script.serveFunction(l_crownName, callFunction, "object:CSK_LiveConnect.Request", "object:CSK_LiveConnect.Response")
 end
 
