@@ -729,6 +729,7 @@ end
 -------------------------------------------------------------------------------------
 -- Remove pairing
 function m_iccClientObject.removePairing(self)
+  self:removeAllProfiles()
   local l_enableAgain = false
   if self.enabled then
     self:disable()

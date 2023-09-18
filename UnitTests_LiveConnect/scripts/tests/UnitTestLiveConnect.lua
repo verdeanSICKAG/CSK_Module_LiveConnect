@@ -38,7 +38,7 @@ local m_lu = require('utils/LuaUnit')
 local m_httpProfile = require('profiles/ProfileHttpTest')
 local m_mqttProfile = require('profiles/ProfileMqttTest')
 local m_params = {}
-local m_numRegisteredProfilesExpected
+local m_numRegisteredHttpProfilesExpected
 TestClass = {}
 
 -------------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ function TestClass:test01()
   -- Load parameters
   m_params = UnitTests_LiveConnect.getTestParams()
 
-  m_numRegisteredProfilesExpected = 0
+  m_numRegisteredHttpProfilesExpected = 0
 end
 
 -------------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ function TestClass:test03()
   end
 
   print("- HTTP profile added")
-  m_numRegisteredProfilesExpected = m_numRegisteredProfilesExpected + 1
+  m_numRegisteredHttpProfilesExpected = m_numRegisteredHttpProfilesExpected + 1
   m_lu.assertIsTrue(true)
 end
 
@@ -212,7 +212,6 @@ function TestClass:test04()
   print("- MQTT payload simulation started")
 
   print("- MQTT profile added")
-  m_numRegisteredProfilesExpected = m_numRegisteredProfilesExpected + 1
   m_lu.assertIsTrue(true)
 end
 
@@ -234,7 +233,7 @@ function TestClass:test05()
   end
 
   print("- HTTP profile added")
-  m_numRegisteredProfilesExpected = m_numRegisteredProfilesExpected + 1
+  m_numRegisteredHttpProfilesExpected = m_numRegisteredHttpProfilesExpected + 1
   m_lu.assertIsTrue(true)
 end
 
@@ -259,25 +258,27 @@ function TestClass:test06()
   print("- MQTT payload simulation started")
 
   print("- MQTT profile added")
-  m_numRegisteredProfilesExpected = m_numRegisteredProfilesExpected + 1
   m_lu.assertIsTrue(true)
 end
 
 -------------------------------------------------------------------------------------
--- Test-case: Check number registered profiles
+-- Test-case: Check number registered HTTP profiles
 function TestClass:test07()
   print("============================================================================")
   print("Test-Case 07: Check number registered profiles")
   local l_devices = CSK_LiveConnect.getRegisteredProfiles()
   local l_numRegisteredProfiles = 0
   for _,device in pairs(l_devices) do
+    print("- Device: " .. device:getPartNumber() .. ": ".. tostring(#device:getProfile()) .. " HTTP profiles registered")
+    for _,profile in pairs(device:getProfile()) do
+      print(" + " .. profile:getName())
+    end
     l_numRegisteredProfiles = l_numRegisteredProfiles + #device:getProfile()
   end
 
-  if l_numRegisteredProfiles == m_numRegisteredProfilesExpected then
-    print(string.format("- Registered profiles = %s, ", m_numRegisteredProfilesExpected))
+  if l_numRegisteredProfiles == (m_numRegisteredHttpProfilesExpected + 2) then
     m_lu.assertIsTrue(true)
   else
-    m_lu.assertIsTrue(false, string.format("Number of registered profiles (%s) doesn't match with the expected number (%s)", l_numRegisteredProfiles, m_numRegisteredProfilesExpected))
+    m_lu.assertIsTrue(false, string.format("Number of registered profiles (%s) doesn't match with the expected number (%s)", l_numRegisteredProfiles, m_numRegisteredHttpProfilesExpected))
   end
 end
