@@ -47,7 +47,7 @@
                 </serves>
             </crown>
         </crown>
-        <meta key="author">Andreas Verdenhalven</meta>
+        <meta key="author">SICK AG</meta>
         <meta key="version">1.0.0</meta>
         <meta key="priority">low</meta>
         <meta key="copy-protected">false</meta>
