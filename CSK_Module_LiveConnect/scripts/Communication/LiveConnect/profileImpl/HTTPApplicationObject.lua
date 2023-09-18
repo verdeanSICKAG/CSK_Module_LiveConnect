@@ -8,7 +8,7 @@ m_object.__index = m_object
 
 -------------------------------------------------------------------------------------
 -- Get a generated UUID
-local function createUuid()
+local function createUUID()
   local l_template ='xxxxxxxx'
   local l_uuid =  string.gsub(l_template, '[xy]', function (c)
     local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
@@ -36,20 +36,20 @@ end
 
 -------------------------------------------------------------------------------------
 -- Create profile object
-function m_object.create(baseUrl, profile)
+function m_object.create(baseURL, profile)
   local self = setmetatable({}, m_object)
   self.endpoints = {}
-  self.baseUrl = baseUrl
+  self.baseURL = baseURL
   self.profile = profile
 
   -- Add openAPI profile endpoints
-  local l_id = createUuid()
-  local l_serviceUrl = self.baseUrl .. "/" .. self.profile:getServiceLocation()
-  self:addEndpoint("openapi" .. l_id, l_serviceUrl, "GET", getEndpointProfile)
+  local l_id = createUUID()
+  local l_serviceURL = self.baseURL .. "/" .. self.profile:getServiceLocation()
+  self:addEndpoint("openapi" .. l_id, l_serviceURL, "GET", getEndpointProfile)
 
   -- Add application related profiles
   for _, endpoint in pairs(self.profile:getEndpoints()) do
-    self.endpoints[l_serviceUrl .. "/" .. endpoint:getURI()] = endpoint
+    self.endpoints[l_serviceURL .. "/" .. endpoint:getURI()] = endpoint
   end
 
   return self
@@ -57,18 +57,18 @@ end
 
 -------------------------------------------------------------------------------------
 -- Add endpoints
-function m_object.addEndpoint(self, name, serviceUrl, method, _function)
+function m_object.addEndpoint(self, name, serviceURL, method, _function)
   -- Hand over "self" variable
   local callFunction = function(request)
       return _function(self, request)
     end
   local l_crownName = "CSK_LiveConnect. " .. name
-  local l_endpoint = CSK_LiveConnect.HttpProfile.Endpoint.create()
-  CSK_LiveConnect.HttpProfile.Endpoint.setMethod(l_endpoint, method)
-  CSK_LiveConnect.HttpProfile.Endpoint.setURI(l_endpoint, serviceUrl)
-  CSK_LiveConnect.HttpProfile.Endpoint.setHandlerFunction(l_endpoint, l_crownName)
+  local l_endpoint = CSK_LiveConnect.HTTPProfile.Endpoint.create()
+  CSK_LiveConnect.HTTPProfile.Endpoint.setMethod(l_endpoint, method)
+  CSK_LiveConnect.HTTPProfile.Endpoint.setURI(l_endpoint, serviceURL)
+  CSK_LiveConnect.HTTPProfile.Endpoint.setHandlerFunction(l_endpoint, l_crownName)
 
-  self.endpoints[serviceUrl] = l_endpoint
+  self.endpoints[serviceURL] = l_endpoint
   Script.serveFunction(l_crownName, callFunction, "object:CSK_LiveConnect.Request", "object:CSK_LiveConnect.Response")
 end
 

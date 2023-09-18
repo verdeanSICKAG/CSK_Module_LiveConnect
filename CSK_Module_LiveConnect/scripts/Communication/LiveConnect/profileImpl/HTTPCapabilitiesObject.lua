@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------------
 -- Variable declarations
 local m_object = {}
-local m_json = require("utils.Lunajson")
+local m_json = require("Communication.LiveConnect.utils.Lunajson")
 
 -------------------------------------------------------------------------------------
 -- Failed table lookups on the instances should fallback to the class table, to get methods
@@ -9,7 +9,7 @@ m_object.__index = m_object
 
 -------------------------------------------------------------------------------------
 -- Get a generated UUID
-local function createUuid()
+local function createUUID()
   local l_template ='xxxxxxxx'
   local l_uuid =  string.gsub(l_template, '[xy]', function (c)
     local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
@@ -46,11 +46,11 @@ local function getEndpointProfiles(self, request)
 
   for _, profile in pairs(self.profileList) do
     local l_profileInfo = {}
-    l_profileInfo['id'] = CSK_LiveConnect.HttpProfile.getUuid(profile)
-    l_profileInfo['name'] = CSK_LiveConnect.HttpProfile.getName(profile)
-    l_profileInfo['description'] = CSK_LiveConnect.HttpProfile.getDescription(profile)
-    l_profileInfo["version"] = CSK_LiveConnect.HttpProfile.getVersion(profile)
-    l_profileInfo['serviceLocation'] = self.baseUrl .. "/" .. CSK_LiveConnect.HttpProfile.getServiceLocation(profile)
+    l_profileInfo['id'] = CSK_LiveConnect.HTTPProfile.getUUID(profile)
+    l_profileInfo['name'] = CSK_LiveConnect.HTTPProfile.getName(profile)
+    l_profileInfo['description'] = CSK_LiveConnect.HTTPProfile.getDescription(profile)
+    l_profileInfo["version"] = CSK_LiveConnect.HTTPProfile.getVersion(profile)
+    l_profileInfo['serviceLocation'] = self.baseURL .. "/" .. CSK_LiveConnect.HTTPProfile.getServiceLocation(profile)
 
     ---@diagnostic disable-next-line: param-type-mismatch
     table.insert(l_profileTable, l_profileInfo)
@@ -65,45 +65,45 @@ end
 
 -------------------------------------------------------------------------------------
 -- Create profile object
-function m_object.create(baseUrl)
+function m_object.create(baseURL)
   local self = setmetatable({}, m_object)
   self.endpoints = {}
-  self.baseUrl = baseUrl
+  self.baseURL = baseURL
   self.serviceLocation = "capabilities"
   self.profileList = {}
 
-  local l_profile = CSK_LiveConnect.HttpProfile.create()
-  CSK_LiveConnect.HttpProfile.setUuid(l_profile, "2b292921-823e-4fde-a9e7-a556fe493ec1")
-  CSK_LiveConnect.HttpProfile.setName(l_profile,"Capabilities")
-  CSK_LiveConnect.HttpProfile.setVersion(l_profile, "0.1.3.20190201100000A")
-  CSK_LiveConnect.HttpProfile.setDescription(l_profile,"The SICK Standard Capabilities HTTP/REST profile.")
-  CSK_LiveConnect.HttpProfile.setOpenAPISpecification(l_profile, File.open("resources/profiles/http_capabilities.yaml", "rb"):read())
-  CSK_LiveConnect.HttpProfile.setServiceLocation(l_profile, self.serviceLocation)
+  local l_profile = CSK_LiveConnect.HTTPProfile.create()
+  CSK_LiveConnect.HTTPProfile.setUUID(l_profile, "2b292921-823e-4fde-a9e7-a556fe493ec1")
+  CSK_LiveConnect.HTTPProfile.setName(l_profile,"Capabilities")
+  CSK_LiveConnect.HTTPProfile.setVersion(l_profile, "0.1.3.20190201100000A")
+  CSK_LiveConnect.HTTPProfile.setDescription(l_profile,"The SICK Standard Capabilities HTTP/REST profile.")
+  CSK_LiveConnect.HTTPProfile.setOpenAPISpecification(l_profile, File.open("resources/profiles/http_capabilities.yaml", "rb"):read())
+  CSK_LiveConnect.HTTPProfile.setServiceLocation(l_profile, self.serviceLocation)
 
   self.profile = l_profile
 
   -- Add profile endpoints
-  local l_id = createUuid()
-  self:addEndpoint("capabilities" .. l_id, self.baseUrl .. "/capabilities", "GET", getEndpointCapabilities)
-  self:addEndpoint("capabilitiesProfiles" .. l_id, self.baseUrl .. "/capabilities/profiles", "GET", getEndpointProfiles)
+  local l_id = createUUID()
+  self:addEndpoint("capabilities" .. l_id, self.baseURL .. "/capabilities", "GET", getEndpointCapabilities)
+  self:addEndpoint("capabilitiesProfiles" .. l_id, self.baseURL .. "/capabilities/profiles", "GET", getEndpointProfiles)
 
   return self
 end
 
 -------------------------------------------------------------------------------------
 -- Add endpoints
-function m_object.addEndpoint(self, name, serviceUrl, method, _function)
+function m_object.addEndpoint(self, name, serviceURL, method, _function)
   -- Hand over "self" variable
   local callFunction = function(request)
       return _function(self, request)
     end
   local l_crownName = "CSK_LiveConnect. " .. name
-  local l_endpoint = CSK_LiveConnect.HttpProfile.Endpoint.create()
-  CSK_LiveConnect.HttpProfile.Endpoint.setMethod(l_endpoint, method)
-  CSK_LiveConnect.HttpProfile.Endpoint.setURI(l_endpoint, serviceUrl)
-  CSK_LiveConnect.HttpProfile.Endpoint.setHandlerFunction(l_endpoint, l_crownName)
+  local l_endpoint = CSK_LiveConnect.HTTPProfile.Endpoint.create()
+  CSK_LiveConnect.HTTPProfile.Endpoint.setMethod(l_endpoint, method)
+  CSK_LiveConnect.HTTPProfile.Endpoint.setURI(l_endpoint, serviceURL)
+  CSK_LiveConnect.HTTPProfile.Endpoint.setHandlerFunction(l_endpoint, l_crownName)
 
-  self.endpoints[serviceUrl] = l_endpoint
+  self.endpoints[serviceURL] = l_endpoint
   Script.serveFunction(l_crownName, callFunction, "object:CSK_LiveConnect.Request", "object:CSK_LiveConnect.Response")
 end
 

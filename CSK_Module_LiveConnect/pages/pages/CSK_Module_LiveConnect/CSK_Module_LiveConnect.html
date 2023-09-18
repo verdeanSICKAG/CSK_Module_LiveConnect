@@ -1,0 +1,165 @@
+<layout-row id="RowLayoutMain" style="flex-basis: 0; width: 100%">
+   <layout-column id="ColumnLayout1">
+      <h1 id="Headline" style="margin-top: 1rem; margin-bottom: 1rem">
+         LiveConnect Client (Pairing)
+      </h1>
+      <div class="header_img"></div>
+      <layout-row id="RowLayoutStatus" style="flex-basis: 0; width: 100%">
+			<stacked-view id="SV_CurrentView" value="0">
+				<stacked-pane id="SP_PairingCodeAndButton" value="0">
+					<stacked-view id="SV_PairingCode_UserLevel">
+						<stacked-pane id="SP_LoggedIn1" value="true">
+							<layout-row id="RowLayout1">
+								<davinci-text-field id="TF_Token" type="text" label="Pairing code">
+									<crown-set property="disabled" protocol="crownMSGPACK"
+										crown-function="CSK_LiveConnect/UI/isNotSystemClockConfigured">
+									</crown-set>
+									<crown-set event="change" crown-function="CSK_LiveConnect/setToken"
+										crown-path="token">
+									</crown-set>
+								</davinci-text-field>
+								<davinci-button id="BTN_ValidateToken" type="primary"
+									icon-position="append" icon="navigation/check"
+									onclick="document.getElementById('validateTokenButton').disabled = true;">
+									<crown-set event="submit"
+										crown-function="CSK_LiveConnect/startTokenValidation"
+										protocol="crownMSGPACK">
+									</crown-set>
+									<span>Validate</span>
+									<crown-edpws-binding property="disabled"
+										name="CSK_LiveConnect/UI/OnNewStatusSystemClockConfigured"
+										update-on-resume converter="function(value) {return !value;}">
+									</crown-edpws-binding>
+								</davinci-button>
+							</layout-row>
+							<layout-row id="RowLayout2" style="justify-content: space-between">
+								<davinci-value-display id="VD_TokenResult"
+									class="myCustomText_Status_LiveConnect" value=""
+									title="Validate token result">
+									<crown-on property="value"
+										crown-event="CSK_LiveConnect/OnNewValidateTokenResult">
+									</crown-on>
+								</davinci-value-display>
+							</layout-row>
+							<p style="max-width: 640px; font-size: 1rem; line-height: 1.5">
+								The pairing code can be requested from the appropriate device in the LiveConnect module within AssetHub. Please make sure that the part and serial number match.
+							</p>
+						</stacked-pane>
+						<crown-on property="value"
+							crown-event="CSK_LiveConnect/OnUserLevelMaintenanceActive">
+						</crown-on>
+						<stacked-pane id="SP_NotLoggedIn1" value="false">
+							<davinci-callout id="Callout1" type="info">
+								<span>
+									Please login with minimum user level Maintenance to start the pairing process.
+								</span>
+							</davinci-callout>
+						</stacked-pane>
+					</stacked-view>
+					<layout-column id="ColumnLayout3">
+						<davinci-value-display id="VD_ConnectionStatus"
+							label="Connection status" style="margin-bottom: 1rem">
+							<crown-edpws-binding property="value"
+								name="CSK_LiveConnect/OnNewStatusConnectionStatus"
+								update-on-resume>
+							</crown-edpws-binding>
+						</davinci-value-display>
+						<davinci-value-display id="VD_SystemClock"
+							label="System clock status (at page reload)"
+							style="margin-bottom: 1rem">
+							<crown-edpws-binding property="value"
+								name="CSK_LiveConnect/UI/OnNewStatusSystemClock" update-on-resume>
+							</crown-edpws-binding>
+						</davinci-value-display>
+						<davinci-value-display id="VD_PartNumber" label="Part number"
+							style="margin-bottom: 1rem">
+							<crown-on property="value"
+								crown-event="CSK_LiveConnect/OnNewGatewayPartNumber">
+							</crown-on>
+						</davinci-value-display>
+						<davinci-value-display id="VD_SerialNumber" label="Serial number"
+							style="margin-bottom: 1rem">
+							<crown-on property="value"
+								crown-event="CSK_LiveConnect/OnNewGatewaySerialNumber">
+							</crown-on>
+						</davinci-value-display>
+					</layout-column>
+				</stacked-pane>
+				<stacked-pane id="SP_DeviceURLAndUnpair" value="1">
+					<layout-row id="RowLayout3" style="justify-content: space-between">
+						<layout-column id="ColumnLayout4">
+							<davinci-value-display id="VD_ConnectionStatus2"
+								label="Connection status" style="margin-bottom: 1rem">
+								<crown-edpws-binding property="value"
+									name="CSK_LiveConnect/OnNewStatusConnectionStatus"
+									update-on-resume>
+								</crown-edpws-binding>
+							</davinci-value-display>
+							<davinci-value-display id="VD_SystemClock2"
+								label="System clock status (at page reload)"
+								style="margin-bottom: 1rem">
+								<crown-edpws-binding property="value"
+									name="CSK_LiveConnect/UI/OnNewStatusSystemClock" update-on-resume>
+								</crown-edpws-binding>
+							</davinci-value-display>
+							<davinci-value-display id="VD_PartNumber2" label="Part number"
+								style="margin-bottom: 1rem">
+								<crown-on property="value"
+									crown-event="CSK_LiveConnect/OnNewGatewayPartNumber">
+								</crown-on>
+							</davinci-value-display>
+							<davinci-value-display id="VD_SerialNumber2" label="Serial number"
+								style="margin-bottom: 1rem">
+								<crown-on property="value"
+									crown-event="CSK_LiveConnect/OnNewGatewaySerialNumber">
+								</crown-on>
+							</davinci-value-display>
+							<p style="max-width: 640px; font-size: 1rem; line-height: 1.5">
+								View device within LiveConnect module and configure data transfers or pair further devices.
+							</p>
+							<davinci-button id="BTN_OpenAsset" type="primary"
+								icon-position="append" icon="file/cloud"
+								onclick="window.open(document.getElementById('BTN_OpenAsset').getAttribute('value'), '_blank'); return false;">
+								<span>Open device in LiveConnect module</span>
+								<crown-edpws-binding property="value"
+									name="CSK_LiveConnect/OnNewStatusDeviceURL" update-on-resume>
+								</crown-edpws-binding>
+							</davinci-button>
+							<stacked-view id="SV_RemovePairing_UserLevel">
+								<stacked-pane id="SP_LoggedIn2" value="true">
+									<davinci-button id="BTN_RemovePairing" type="primary"
+										icon-position="append" icon="navigation/close">
+										<span>Remove pairing with LiveConnect</span>
+										<crown-set event="submit"
+											crown-function="CSK_LiveConnect/removePairing"
+											protocol="crownMSGPACK">
+										</crown-set>
+									</davinci-button>
+								</stacked-pane>
+								<stacked-pane id="SP_NotLoggedIn2" value="false">
+									<davinci-callout id="Callout2" type="info">
+										<span>
+											Please login with minimum user level Maintenance to remove the pairing with the AssetHub.
+										</span>
+									</davinci-callout>
+								</stacked-pane>
+								<crown-on property="value"
+									crown-event="CSK_LiveConnect/OnUserLevelMaintenanceActive">
+								</crown-on>
+							</stacked-view>
+						</layout-column>
+					</layout-row>
+				</stacked-pane>
+				<crown-edpws-binding property="value"
+					name="CSK_LiveConnect/UI/OnNewStatusCurrentView" update-on-resume>
+				</crown-edpws-binding>
+			</stacked-view>
+      </layout-row>
+		<stacked-view id="SV_PageCalled">
+			<crown-get property="value"
+				crown-function="CSK_LiveConnect/pageCalled" auto-update-ms="0"
+				protocol="crownMSGPACK">
+			</crown-get>
+		</stacked-view>
+   </layout-column>
+</layout-row>

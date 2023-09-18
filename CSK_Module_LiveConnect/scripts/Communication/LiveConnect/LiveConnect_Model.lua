@@ -1,5 +1,4 @@
----@diagnostic disable: undefined-global
--- luacheck: no max line length, ignore CSK_PersistentData
+---@diagnostic disable: undefined-global, redundant-parameter, missing-parameter
 --*****************************************************************
 -- Inside of this script, you will find the module definition
 -- including its parameters and functions
@@ -12,8 +11,8 @@
 -------------------------------------------------------------------------------------
 -- Variables
 local liveConnect_Model = {}
-local m_json = require("utils.Lunajson")
-local m_iccClientObject = require("Module.LiveConnect.ICCClientObject")
+local m_json = require("Communication.LiveConnect.utils.Lunajson")
+local m_iccClientObject = require("Communication.LiveConnect.ICCClientObject")
 
 -------------------------------------------------------------------------------------
 -- Constant values
@@ -23,36 +22,56 @@ local DEFAULT_SERIAL_NUMBER = "12345678"
 local TDCE_API_URL = "200.200.200.1/devicemanager/api/v1/system"
 local TDCE_API_PORT = 80
 
--- Check if UserManagement module can be used if wanted
+-- Check if CSK_UserManagement module can be used if wanted
 liveConnect_Model.userManagementModuleAvailable = CSK_UserManagement ~= nil or false
 
--- Check if DataPersistent module can be used if wanted
+-- Check if CSK_PersistentData module can be used if wanted
 liveConnect_Model.persistentModuleAvailable = CSK_PersistentData ~= nil or false
+
+-- Default values for persistent data
+-- If available, following values will be updated from data of CSK_PersistentData module (check CSK_PersistentData module for this)
+liveConnect_Model.parametersName = 'CSK_LiveConnect_Parameter' -- name of parameter dataset to be used for this module
+liveConnect_Model.parameterLoadOnReboot = true -- Status if parameter dataset should be loaded on app/device reboot
 
 -- Load script to communicate with the ModuleName_Model interface and give access
 -- to the ModuleName_Model object.
 -- Check / edit this script to see/edit functions which communicate with the UI
-local setLiveConnect_ModelHandle = require('Module/LiveConnect/LiveConnect_Controller')
+local setLiveConnect_ModelHandle = require('Communication/LiveConnect/LiveConnect_Controller')
 setLiveConnect_ModelHandle(liveConnect_Model)
 
 --Loading helper functions if needed
-liveConnect_Model.helperFuncs = require('Module/LiveConnect/helper/funcs')
+liveConnect_Model.helperFuncs = require('Communication/LiveConnect/helper/funcs')
 
+-- Serve API in global scope
+liveConnect_Model.iccClient = nil
+
+-- Parameters to be saved permanently if wanted
+liveConnect_Model.parameters = {}
+liveConnect_Model.parameters.cloudSystem = "prod"; -- Stage of the current connection (prod, int, dev)
+liveConnect_Model.parameters.discoveryTimeoutMs = 3000; -- Device discovery timeout
+liveConnect_Model.parameters.tokenTimeoutMs = 8000; -- Token timeout
+liveConnect_Model.parameters.processIntervalMs = 5000; -- Reaction time to notice status changes of the LiveConnect connection
+liveConnect_Model.parameters.mqttKeepAliveIntervalMs = 2000; -- MQTT keep alive interval
+liveConnect_Model.parameters.mqttConnectTimeoutMs = 2500; -- MQTT connection timeout 
+liveConnect_Model.parameters.mqttMessageForwardingIntervalMs = 100; -- MQTT message forwarding interval
+liveConnect_Model.parameters.mqttMessageQueueMaxLength = 100; -- Number of telegrams to be temporarily stored as soon as LiveConnect is interrupted
+liveConnect_Model.parameters.partNumber = DEFAULT_PART_NUMBER -- Part number from the gateway device
+liveConnect_Model.parameters.serialNumber = DEFAULT_SERIAL_NUMBER -- Serial number from the gateway device
 
 -------------------------------------------------------------------------------------
 -- Checks if a string starts with given character
---@isStringStartsWith(str:string, start:int):
+---@param str string String to check
+---@param start int Start position
 local function isStringStartsWith(str, start)
   return str:sub(1, #start) == start
 end
 
 -------------------------------------------------------------------------------------
 -- Get system information from a TDC-E via HTTP call
---@getTdceSystemInfo():
 local function getTdceSystemInfo()
   local l_client = HTTPClient.create()
   if not l_client then
-    _G.logger:warning(NAME_OF_MODULE .. ": Can't create http client handle")
+    _G.logger:warning(NAME_OF_MODULE .. ": Can't create HTTP client handle")
     return nil
   end
 
@@ -82,7 +101,6 @@ local function getTdceSystemInfo()
 end
 
 -- Get part number of the device
---@getPartNumber():
 local function getPartNumber()
   local l_partNumber
   -- Get part number from "Engine" crown (available for SIM platforms)
@@ -106,6 +124,7 @@ local function getPartNumber()
 
   return l_partNumber
 end
+liveConnect_Model.parameters.partNumber = getPartNumber()
 
 -- Get serial number of the device
 local function getSerialNumber()
@@ -131,27 +150,7 @@ local function getSerialNumber()
 
   return l_serialNumber
 end
-
--- Serve API in global scope
-liveConnect_Model.iccClient = nil
-
--- Parameters to be saved permanently if wanted
-liveConnect_Model.parameters = {}
-liveConnect_Model.parameters.cloudSystem = "prod"; -- Stage of the current connection (prod, int, dev)
-liveConnect_Model.parameters.discoveryTimeoutMs = 3000; -- Device discovery timeout
-liveConnect_Model.parameters.tokenTimeoutMs = 8000; -- Token timeout
-liveConnect_Model.parameters.processIntervalMs = 5000; -- Reaction time to notice status changes of the LiveConnect connection
-liveConnect_Model.parameters.mqttKeepAliveIntervalMs = 2000; -- Mqtt keep alive interval
-liveConnect_Model.parameters.mqttConnectTimeoutMs = 2500; -- MQTT connection timeout 
-liveConnect_Model.parameters.mqttMessageForwardingIntervalMs = 100; -- MQTT message forwarding interval
-liveConnect_Model.parameters.mqttMessageQueueMaxLength = 100; -- Number of telegrams to be temporarily stored as soon as LiveConnect is interrupted
-liveConnect_Model.parameters.partNumber = getPartNumber() -- Part number from the gateway device
-liveConnect_Model.parameters.serialNumber = getSerialNumber() -- Serial number from the gateway device
-
--- Default values for persistent data
--- If available, following values will be updated from data of PersistentData (check PersistentData module for this)
-liveConnect_Model.parametersName = 'CSK_LiveConnect_Parameter' -- name of parameter dataset to be used for this module
-liveConnect_Model.parameterLoadOnReboot = true -- Status if parameter dataset should be loaded on app/device reboot
+liveConnect_Model.parameters.serialNumber = getSerialNumber()
 
 --**************************************************************************
 --********************** End Global Scope **********************************
@@ -159,7 +158,6 @@ liveConnect_Model.parameterLoadOnReboot = true -- Status if parameter dataset sh
 --**************************************************************************
 --**********************Start Function Scope *******************************
 --**************************************************************************
-Script.serveEvent("CSK_LiveConnect.OnClientInitialized", "LiveConnect_OnClientInitialized")
 
 -------------------------------------------------------------------------------------
 -- Create ICC Client object which encapsulates all necessary functionality
@@ -170,7 +168,7 @@ function liveConnect_Model.createIccClient()
   liveConnect_Model.iccClient:addMainCapabilities() -- Add capabilities of the gateway device
   liveConnect_Model.iccClient:enable()
 
-  Script.notifyEvent("LiveConnect_OnClientInitialized")
+  local suc = Script.notifyEvent("LiveConnect_OnClientInitialized")
 end
 
 return liveConnect_Model
