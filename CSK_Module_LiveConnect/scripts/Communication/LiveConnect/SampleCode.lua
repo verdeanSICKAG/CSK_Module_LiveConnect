@@ -8,7 +8,8 @@
 
 -- Adapt accordingly
 local m_json = require("utils.Lunajson")
-local apiSpecificationFilePath = "resources/profileMQTTTest.yaml"
+local m_mqttProfileFilePath = "resources/profileMQTTTest.yaml"
+local m_httpProfileFilePath = "resources/profileHTTPTest.yaml"
 
 
 -- ##############################
@@ -40,7 +41,7 @@ local function addNewMQTTProfile(partNumber, serialNumber)
   l_mqttProfile:setName("LiveConnect MQTT test profile")
   l_mqttProfile:setDescription("Profile to test data push mechanism")
   l_mqttProfile:setBaseTopic(l_topic)
-  l_mqttProfile:setAsyncAPISpecification(File.open(apiSpecificationFilePath, "rb"):read())
+  l_mqttProfile:setAsyncAPISpecification(File.open(m_mqttProfileFilePath, "rb"):read())
   l_mqttProfile:setVersion("0.1.0")
 
   -- Payload definition
@@ -85,21 +86,6 @@ local function httpCallback(request)
 end
 
 -------------------------------------------------------------------------------------
--- Get endpoint
-local function createEndpoint(method, uri)
-  local l_crownName = Engine.getCurrentAppName() .. "." .. uri
-  local l_endpoint = CSK_LiveConnect.HTTPProfile.Endpoint.create()
-  CSK_LiveConnect.HTTPProfile.Endpoint.setHandlerFunction(l_endpoint, l_crownName)
-  CSK_LiveConnect.HTTPProfile.Endpoint.setMethod(l_endpoint, method)
-  CSK_LiveConnect.HTTPProfile.Endpoint.setURI(l_endpoint, uri)
-
-  -- Register callback function, which will be called to answer the HTTP request
-  Script.serveFunction(l_crownName, httpCallback, "object:CSK_LiveConnect.Request", "object:CSK_LiveConnect.Response")
-
-  return l_endpoint
-end
-
--------------------------------------------------------------------------------------
 -- Add HTTP application profile
 local function addNewHTTPProfile(partNumber, serialNumber)
   local l_httpProfile =  CSK_LiveConnect.HTTPProfile.create()
@@ -107,7 +93,7 @@ local function addNewHTTPProfile(partNumber, serialNumber)
   l_httpProfile:setDescription("Profile to test bi-direction communication between the server and the client")
   l_httpProfile:setVersion("0.2.0")
   l_httpProfile:setUUID("68f372d5-607c-4e16-b137-63af9fadaaa5")
-  l_httpProfile:setOpenAPISpecification(File.open("resources/profileHTTPTest.yaml", "rb"):read())
+  l_httpProfile:setOpenAPISpecification(File.open(m_httpProfileFilePath, "rb"):read())
   l_httpProfile:setServiceLocation("http-test")
 
   -- Endpoint definition
