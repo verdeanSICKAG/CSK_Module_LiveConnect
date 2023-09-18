@@ -48,12 +48,12 @@ Typically this profile can be used like this (check also main script of this mod
 The payload is defined in the profile. The format is JSON.</desc>
             <enum name="ConnectionStatus" trait="released">
                 <desc>Connection status enum.</desc>
-                <item desc="Status: Check pairing information." name="CHECK_PAIRING">CHECK_PAIRING</item>
-                <item desc="Status: Disconnected from LiveConnect backend." name="DISCONNECTED">DISCONNECTED</item>
-                <item desc="Status: Error occured." name="ERROR">ERROR</item>
-                <item desc="Status: Discovery response received." name="DISCOVERY_RESPONSE_RECEIVED">DISCOVERY_RESPONSE_RECEIVED</item>
-                <item desc="Status: Connected to LiveConnect backend." name="STATE_CONNECTED">STATE_CONNECTED</item>
-                <item desc="Status: Executing command." name="EXECUTING_COMMAND">EXECUTING_COMMAND</item>
+                <item desc="Check pairing information." name="CHECK_PAIRING">CHECK_PAIRING</item>
+                <item desc="Disconnected from LiveConnect backend." name="DISCONNECTED">DISCONNECTED</item>
+                <item desc="Error occured." name="ERROR">ERROR</item>
+                <item desc="Discovery response received." name="DISCOVERY_RESPONSE_RECEIVED">DISCOVERY_RESPONSE_RECEIVED</item>
+                <item desc="Connected to LiveConnect backend." name="STATE_CONNECTED">STATE_CONNECTED</item>
+                <item desc="Executing command." name="EXECUTING_COMMAND">EXECUTING_COMMAND</item>
             </enum>
             <serves>
                 <event name="OnNewStatusLoadParameterOnReboot">
