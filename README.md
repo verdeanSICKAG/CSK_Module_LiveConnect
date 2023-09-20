@@ -194,21 +194,6 @@ local function httpCallback(request)
 end
 
 -------------------------------------------------------------------------------------
--- Get endpoint
-local function createEndpoint(method, uri)
-  local l_crownName = Engine.getCurrentAppName() .. "." .. uri
-  local l_endpoint = CSK_LiveConnect.HttpProfile.Endpoint.create()
-  CSK_LiveConnect.HttpProfile.Endpoint.setHandlerFunction(l_endpoint, l_crownName)
-  CSK_LiveConnect.HttpProfile.Endpoint.setMethod(l_endpoint, method)
-  CSK_LiveConnect.HttpProfile.Endpoint.setURI(l_endpoint, uri)
-
-  -- Register callback function, which will be called to answer the HTTP request
-  Script.serveFunction(l_crownName, httpCallback, "object:CSK_LiveConnect.Request", "object:CSK_LiveConnect.Response")
-
-  return l_endpoint
-end
-
--------------------------------------------------------------------------------------
 -- Add HTTP application profile
 local function addHttpProfile(partNumber, serialNumber)
   local l_httpProfile =  CSK_LiveConnect.HttpProfile.create()
