@@ -21,24 +21,24 @@
 --SOFTWARE.
 
 ---@diagnostic disable: undefined-global, redundant-parameter, missing-parameter
--- CreationTemplateVersion: 3.6.0
+
 --**************************************************************************
 --**********************Start Global Scope *********************************
 --**************************************************************************
 
--- If app property "LuaLoadAllEngineAPI" is FALSE, use this to load and check for required APIs
+-- If App property "LuaLoadAllEngineAPI" is FALSE, use this to load and check for required APIs
 -- This can improve performance of garbage collection
 
 --_G.availableAPIs = require('Communication/LiveConnect/helper/checkAPIs') -- can be used to adjust function scope of the module related on available APIs of the device
------------------------------------------------------------
+  ----------------------------------------------------------------------------------------
 -- Logger
 _G.logger = Log.SharedLogger.create('ModuleLogger')
 _G.logHandle = Log.Handler.create()
 _G.logHandle:attachToSharedLogger('ModuleLogger')
-_G.logHandle:setConsoleSinkEnabled(false) --> Set to TRUE if CSK_Logger module is not used
-_G.logHandle:setLevel("ALL")
+_G.logHandle:setConsoleSinkEnabled(false) --> Set to TRUE if LoggingModule is not used
+_G.logHandle:setLevel("INFO")
 _G.logHandle:applyConfig()
------------------------------------------------------------
+  ----------------------------------------------------------------------------------------
 
 -- Loading script regarding LiveConnect_Model
 -- Check this script regarding LiveConnect_Model parameters and functions
@@ -47,32 +47,30 @@ _G.liveConnect_Model = require('Communication/LiveConnect/LiveConnect_Model')
 --**************************************************************************
 --**********************End Global Scope ***********************************
 --**************************************************************************
+
+--**************************************************************************
 --**********************Start Function Scope *******************************
 --**************************************************************************
-
---- Function to react on startup event of the app
 local function main()
 
   ----------------------------------------------------------------------------------------
   -- INFO: Please check if module will eventually load inital configuration triggered via
   --       event CSK_PersistentData.OnInitialDataLoaded
   --       (see internal variable _G.liveConnect_Model.parameterLoadOnReboot)
-  --       If so, the app will trigger the "OnDataLoadedOnReboot" event if ready after loading parameters
+  --       If so, the app will trigger the "OnDataLoadedOnReboot" event if ready after
+  --       loading parameters
   --
   -- Can be used e.g. like this
+  -- see "Communication.LiveConnect.SampleCode" script
   ----------------------------------------------------------------------------------------
 
-  -- _G.liveConnect_Model.doSomething() -- if you want to start a function
-  -- ...
+  _G.liveConnect_Model.createIccClient()
+
   CSK_LiveConnect.pageCalled() -- Update UI
 
 end
+
 Script.register("Engine.OnStarted", main)
-
---OR
-
--- Call function after persistent data was loaded
---Script.register("CSK_LiveConnect.OnDataLoadedOnReboot", main)
 
 --**************************************************************************
 --**********************End Function Scope *********************************

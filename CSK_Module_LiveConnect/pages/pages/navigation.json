@@ -1,4 +1,18 @@
 {
-  "version": "1.0", 
-  "pages": []
+  "version": "1.0",
+  "pages": [
+    {
+      "category": "CSK Module LiveConnect Client",
+      "pages": [
+        {
+          "path": "CSK_Module_LiveConnect/CSK_Module_LiveConnect.html",
+          "name": "Pairing"
+        },
+        {
+          "path": "CSK_Module_LiveConnect/CSK_Module_LiveConnect_Parameters.html",
+          "name": "Parameters"
+        }
+      ]
+    }
+  ]
 }

@@ -1,0 +1,34 @@
+openapi: 3.0.2
+      
+info:
+  title: "Gateway"
+  version: "0.0.1.20190712160000A"
+  description: "SICK HTTP Gateway HTTP/REST profile."
+      
+servers:
+  - url: "{location}/gateway"
+    variables:
+      location:
+        default: http://localhost
+        description: The service location URI.
+          
+tags:
+- name: "Gateway"
+    
+paths:
+  /things-connected:
+    get:
+      tags:
+      - "Gateway"
+      summary: "Under development. An HTTP gateway profile should provide access to underlying SICK HTTP services."
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uri
+            

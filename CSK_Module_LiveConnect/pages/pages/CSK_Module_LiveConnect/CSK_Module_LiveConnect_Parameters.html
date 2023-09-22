@@ -1,0 +1,333 @@
+<layout-row id="RowLayoutMain" style="align-items: stretch">
+   <layout-column id="ColumnLayout10">
+      <h1 style="margin-top: 1rem; margin-bottom: 1rem">
+         LiveConnect Client (Parameters)
+      </h1>
+      <p>Parameters specific to LiveConnect can be changed on this page in order to adapt the behavior of the client to your application.
+         <br>Once the parameters have been changed, please press the <b>"Save & Restart"</b> button to persist all parameters and restart the client.
+         <br>If the <b>"Load parameters on app start"</b> checkbox is activated, all parameters are automatically loaded after a restart.
+      </p>
+		<stacked-view id="SV_Parameters_UserLevel">
+			<stacked-pane id="SP_LoggedIn1" value="true">
+				<layout-column id="ColumnLayout1" style="align-items: stretch">
+					<layout-row id="RowLayout1"
+						style="flex-shrink: 3; align-items: stretch">
+						<layout-column id="ColumnLayout18" class="myCustomFrame_LiveConnect"
+							style="align-items: stretch">
+							<davinci-value-display id="VD_LCSettings"
+								label="LiveConnect settings:">
+							</davinci-value-display>
+							<layout-row id="RowLayout16"
+								style="justify-content: space-between; align-items: center">
+								<layout-column id="ColumnLayout28">
+									<davinci-value-display id="VD_CloudSystem" value="Cloud system:"
+										title="The stages int and dev are platforms that can only be used internally by SICK.">
+									</davinci-value-display>
+								</layout-column>
+								<layout-column id="ColumnLayout29">
+									<davinci-drop-down id="DD_CloudSystem">
+										<davinci-option id="Option4" value="prod">
+											<span>prod</span>
+										</davinci-option>
+										<davinci-option id="Option5" value="int">
+											<span>int</span>
+										</davinci-option>
+										<davinci-option id="Option6" value="dev">
+											<span>dev</span>
+										</davinci-option>
+										<crown-set event="change"
+											crown-function="CSK_LiveConnect/setCloudSystem"
+											protocol="crownMSGPACK" crown-path="cloudSystem">
+										</crown-set>
+										<crown-on property="value"
+											crown-event="CSK_LiveConnect/OnNewCloudSystem">
+										</crown-on>
+										<local-binding property="disabled" name="currentuser" update-on-resume
+											converter="getDisabled">
+										</local-binding>
+									</davinci-drop-down>
+								</layout-column>
+							</layout-row>
+							<layout-row id="RowLayout9"
+								style="align-items: center; justify-content: space-between">
+								<layout-column id="ColumnLayout16">
+									<davinci-value-display id="VD_ProcessInterval"
+										value="Process interval [ms]:"
+										title="Process interval to notice status changes of the LiveConnect connection.">
+									</davinci-value-display>
+								</layout-column>
+								<layout-column id="ColumnLayout17">
+									<davinci-number-input id="NI_ProcessInternval" step="1">
+										<crown-on property="value"
+											crown-event="CSK_LiveConnect/OnNewProcessInterval">
+										</crown-on>
+										<crown-set event="input"
+											crown-function="CSK_LiveConnect/setProcessInterval"
+											protocol="crownMSGPACK" crown-path="interval">
+										</crown-set>
+										<local-binding property="disabled" name="currentuser" update-on-resume
+											converter="getDisabled">
+										</local-binding>
+									</davinci-number-input>
+								</layout-column>
+							</layout-row>
+							<layout-row id="RowLayout11"
+								style="align-items: center; justify-content: space-between">
+								<layout-column id="ColumnLayout20">
+									<davinci-value-display id="VD_TokenTime" value="Token timeout [ms]:"
+										title="Timeout for the accepting of the pairing token">
+									</davinci-value-display>
+								</layout-column>
+								<layout-column id="ColumnLayout21">
+									<davinci-number-input id="NI_TokenTimeout" step="1">
+										<crown-on property="value"
+											crown-event="CSK_LiveConnect/OnNewTokenTimeout">
+										</crown-on>
+										<crown-set event="input"
+											crown-function="CSK_LiveConnect/setTokenTimeout"
+											protocol="crownMSGPACK" crown-path="timeout">
+										</crown-set>
+										<local-binding property="disabled" name="currentuser" update-on-resume
+											converter="getDisabled">
+										</local-binding>
+									</davinci-number-input>
+								</layout-column>
+							</layout-row>
+							<layout-row id="RowLayout15"
+								style="justify-content: space-between; align-items: center">
+								<layout-column id="ColumnLayout26">
+									<davinci-value-display id="VD_DeviceDiscovery"
+										value="Device discovery timeout [ms]:"
+										title="Device discovery timeout">
+									</davinci-value-display>
+								</layout-column>
+								<layout-column id="ColumnLayout27">
+									<davinci-number-input id="NI_DeviceDiscoveryTimeout" step="1">
+										<crown-on property="value"
+											crown-event="CSK_LiveConnect/OnNewDeviceDiscoveryTimeout">
+										</crown-on>
+										<crown-set event="input"
+											crown-function="CSK_LiveConnect/setDeviceDiscoveryTimeout"
+											protocol="crownMSGPACK" crown-path="timeout">
+										</crown-set>
+										<local-binding property="disabled" name="currentuser" update-on-resume
+											converter="getDisabled">
+										</local-binding>
+									</davinci-number-input>
+								</layout-column>
+							</layout-row>
+							<layout-row id="RowLayout7"
+								style="align-items: center; justify-content: space-between">
+								<layout-column id="ColumnLayout11">
+									<davinci-value-display id="VD_MsgQueue" value="Message queue size:"
+										title="If the LiveConnect connection is broken, the data is stored in the queue. When the queue is full, the oldest data is discarded automatically.">
+									</davinci-value-display>
+								</layout-column>
+								<layout-column id="ColumnLayout15">
+									<davinci-number-input id="NI_MqttMessageQueueSize" step="1" min="1">
+										<crown-on property="value"
+											crown-event="CSK_LiveConnect/OnNewMQTTQueueSize">
+										</crown-on>
+										<crown-set event="input"
+											crown-function="CSK_LiveConnect/setMQTTMessageQueueSize"
+											protocol="crownMSGPACK" crown-path="queueSize">
+										</crown-set>
+										<local-binding property="disabled" name="currentuser" update-on-resume
+											converter="getDisabled">
+										</local-binding>
+									</davinci-number-input>
+								</layout-column>
+							</layout-row>
+							<layout-row id="RowLayout14"
+								style="align-items: center; justify-content: space-between">
+								<layout-column id="ColumnLayout24">
+									<davinci-value-display id="VD_PartNumber"
+										value="Part number (gateway device):"
+										title="Part number of the gateway device. If it cannot be determined automatically, you can specify it here.">
+									</davinci-value-display>
+								</layout-column>
+								<layout-column id="ColumnLayout25">
+									<davinci-text-field id="TF_GatewayPartNumber" type="text">
+										<crown-on property="value"
+											crown-event="CSK_LiveConnect/OnNewGatewayPartNumber">
+										</crown-on>
+										<crown-set event="input"
+											crown-function="CSK_LiveConnect/setGatewayPartNumber"
+											protocol="crownMSGPACK" crown-path="partNumber">
+										</crown-set>
+										<local-binding property="disabled" name="currentuser" update-on-resume
+											converter="getDisabled">
+										</local-binding>
+									</davinci-text-field>
+								</layout-column>
+							</layout-row>
+							<layout-row id="RowLayout13"
+								style="justify-content: space-between; align-items: center">
+								<layout-column id="ColumnLayout22">
+									<davinci-value-display id="VD_SerialNumber"
+										value="Serial number (gateway device):"
+										title="Serial number of the gateway device. If it cannot be determined automatically, you can specify it here.">
+									</davinci-value-display>
+								</layout-column>
+								<layout-column id="ColumnLayout23">
+									<davinci-text-field id="TF_GatewaySerialNumber" type="text">
+										<crown-on property="value"
+											crown-event="CSK_LiveConnect/OnNewGatewaySerialNumber">
+										</crown-on>
+										<crown-set event="input"
+											crown-function="CSK_LiveConnect/setGatewaySerialNumber"
+											protocol="crownMSGPACK" crown-path="serialNumber">
+										</crown-set>
+										<local-binding property="disabled" name="currentuser" update-on-resume
+											converter="getDisabled">
+										</local-binding>
+									</davinci-text-field>
+								</layout-column>
+							</layout-row>
+						</layout-column>
+						<layout-column id="ColumnLayout8"
+							style="align-items: stretch; justify-content: space-between">
+							<layout-column id="ColumnLayout2" class="myCustomFrame_LiveConnect"
+								style="align-items: stretch">
+								<davinci-value-display id="LD_ConnectionSettings" value=""
+									label="Connection settings:">
+								</davinci-value-display>
+								<layout-row id="RowLayout5"
+									style="justify-content: space-between; align-items: center">
+									<layout-column id="ColumnLayout6">
+										<davinci-value-display id="VD_KeepAlive"
+											value="MQTT keep alive interval [ms]:"
+											title="MQTT keep alive interval of the MQTT client used for the LiveConnect connection.">
+										</davinci-value-display>
+									</layout-column>
+									<layout-column id="ColumnLayout3">
+										<davinci-number-input id="NI_MQTTKeepAlive" step="1" min="1"
+											converter="">
+											<crown-on property="value"
+												crown-event="CSK_LiveConnect/OnNewMQTTKeepAliveInterval">
+											</crown-on>
+											<crown-set event="input"
+												crown-function="CSK_LiveConnect/setMQTTKeepAliveInterval"
+												protocol="crownMSGPACK" crown-path="keepAliveInterval">
+											</crown-set>
+											<local-binding property="disabled" name="currentuser" update-on-resume
+												converter="getDisabled">
+											</local-binding>
+										</davinci-number-input>
+									</layout-column>
+								</layout-row>
+								<layout-row id="RowLayout2"
+									style="justify-content: space-between; align-items: center">
+									<layout-column id="ColumnLayout4">
+										<davinci-value-display id="VD_ConnectTO"
+											value="MQTT Connect timeout [ms]:"
+											title="MQTT client connect timeout.">
+										</davinci-value-display>
+									</layout-column>
+									<layout-column id="ColumnLayout5">
+										<davinci-number-input id="NI_MqttConnectTimeout" step="1" min="1">
+											<crown-on property="value"
+												crown-event="CSK_LiveConnect/OnNewMQTTConnectTimeout">
+											</crown-on>
+											<crown-set event="input"
+												crown-function="CSK_LiveConnect/setMQTTConnectTimeout"
+												protocol="crownMSGPACK" crown-path="connectTimeout">
+											</crown-set>
+											<local-binding property="disabled" name="currentuser" update-on-resume
+												converter="getDisabled">
+											</local-binding>
+										</davinci-number-input>
+									</layout-column>
+								</layout-row>
+								<layout-row id="RowLayout6"
+									style="align-items: center; justify-content: space-between">
+									<layout-column id="ColumnLayout7">
+										<davinci-value-display id="VD_MsgInterval"
+											value="MQTT message forwarding interval [ms]:"
+											title="MQTT Interval for forwarding data to the LiveConnect server.">
+										</davinci-value-display>
+									</layout-column>
+									<layout-column id="ColumnLayout9">
+										<davinci-number-input id="NI_MqttMessageInterval" step="1" min="1">
+											<crown-on property="value"
+												crown-event="CSK_LiveConnect/OnNewMQTTMessageInterval">
+											</crown-on>
+											<crown-set event="input"
+												crown-function="CSK_LiveConnect/setMQTTMessageInterval"
+												protocol="crownMSGPACK" crown-path="messageInterval">
+											</crown-set>
+											<local-binding property="disabled" name="currentuser" update-on-resume
+												converter="getDisabled">
+											</local-binding>
+										</davinci-number-input>
+									</layout-column>
+								</layout-row>
+							</layout-column>
+							<layout-column id="ColumnLayout12"></layout-column>
+							<layout-column id="Column_PersistentData"
+								class="myCustomFrame_LiveConnect" style="align-items: stretch">
+								<layout-row id="RowLayout12"
+									style="justify-content: space-between; align-items: center">
+									<davinci-value-display id="VD_LoadConfig"
+										value="Load parameters on app start:"
+										title="Load parameters from CSK_PersistentData on app start.">
+									</davinci-value-display>
+									<davinci-checkbox id="CB_LoadConfig"
+										title="Load configured parameters from CSK_PersistentData on app start.">
+										<span></span>
+										<crown-on property="checked"
+											crown-event="CSK_LiveConnect/OnNewStatusLoadParameterOnReboot">
+										</crown-on>
+										<crown-on property="disabled"
+											crown-event="CSK_LiveConnect/OnPersistentDataModuleAvailable"
+											converter="function(value) {return !value;}">
+										</crown-on>
+										<crown-set event="change"
+											crown-function="CSK_LiveConnect/setLoadOnReboot"
+											protocol="crownMSGPACK" crown-path="status">
+										</crown-set>
+									</davinci-checkbox>
+								</layout-row>
+								<layout-row id="RowLayout3" style="align-items: center">
+									<layout-column id="ColumnLayout13" style="align-items: stretch">
+									</layout-column>
+									<layout-column id="ColumnLayout14" style="align-items: stretch">
+										<davinci-button id="B_SaveConfig" type="primary"
+											icon-position="append"
+											title="Save current configured parameters and restart the LiveConnect Client">
+											<span>Save & Restart</span>
+											<crown-set event="submit"
+												crown-function="CSK_LiveConnect/sendParameters"
+												protocol="crownMSGPACK">
+											</crown-set>
+											<crown-on property="disabled"
+												crown-event="CSK_LiveConnect/OnPersistentDataModuleAvailable"
+												converter="function(value) {return !value;}">
+											</crown-on>
+										</davinci-button>
+									</layout-column>
+								</layout-row>
+							</layout-column>
+						</layout-column>
+					</layout-row>
+				</layout-column>
+			</stacked-pane>
+			<stacked-pane id="SP_NotLoggedIn1" value="false">
+				<davinci-callout id="Callout1" type="info">
+					<span>
+						Please login with minimum user level Maintenance to setup the LiveConnect Client.
+					</span>
+				</davinci-callout>
+			</stacked-pane>
+			<crown-on property="value"
+				crown-event="CSK_LiveConnect/OnUserLevelMaintenanceActive">
+			</crown-on>
+		</stacked-view>
+		<stacked-view id="SV_PageCalled">
+			<crown-get property="value"
+				crown-function="CSK_LiveConnect/pageCalled" auto-update-ms="0"
+				protocol="crownMSGPACK">
+			</crown-get>
+		</stacked-view>
+   </layout-column>
+</layout-row>

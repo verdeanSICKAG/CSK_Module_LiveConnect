@@ -2,26 +2,66 @@
 <manifest>
     <application name="CSK_Module_LiveConnect">
         <crown name="CSK_Module_LiveConnect">
-            <desc>This is an automatically generated CROWN (description not necessary).</desc>
+            <desc>Auto generated Crown (not needed)</desc>
+            <serves/>
         </crown>
         <crown name="CSK_LiveConnect">
             <trait>released</trait>
-            <desc>Please fill in information regarding: What is the idea of this module and its features? +
-How to use this module in general.... like: + 
-{empty} + 
-Typically the features of this module are used like this (check also main script of this module): +
-**1) Setup** +
-ToDo +
-{empty} + 
-**2) Something else...** +
-</desc>
+            <desc>This module provides the possibility to communicate via the SICK Industrial Cloud Connection (ICC) with a digital device (digital twin) configured in the SICK AssetHub to make local processed data securely available for cloud services. +
+For further information about this approach in general please check https://integrationspace.sick.com/. +
+{empty} +
+Before data can be exchanged, the physical gateway device must first be paired with the digital twin in the SICK AssetHub. +
+After the pairing process, profiles can be made known to the gateway device itself, or an attached device (peerDevice). +
+{empty} +
+There are two types of profiles that can be used: +
+{empty} +
+*1) MQTT profiles* +
+- The device automatically sends data into the cloud (data push) +
+- Profile description "asyncAPI" +
+{empty} +
+Typically this profile can be used like this (check also main script of this module regarding sample code): +
+{empty} +
+1.1) Create MQTT profile via CSK_LiveConnect.MQTTProfile.create() +
+1.2) Set all relevant parameters of this profle (check 'set...' functions of 'CSK_LiveConnect.MQTTProfile'). +
+1.3) Register application profile via 'CSK_LiveConnect.addMQTTProfile'. +
+1.4) Push JSON payload via 'CSK_LiveConnect.publishMQTTData'. +
+{empty} +
+*2) HTTP profiles* +
+- HTTP requests can be sent from the cloud side (data poll), which are answered by the device on the shop floor side. +
+- Profile description "openAPI" +
+{empty} +
+Typically this profile can be used like this (check also main script of this module regarding sample code): +
+{empty} +
+2.1.1) Create a HTTPProfile via 'CSK_LiveConnect.HTTPProfile.create' and set its parameters via its 'CSK_LiveConnect.HTTPProfile.set...' functions. +
+2.1.2) Create an endpoint via 'CSK_LiveConnect.HTTPProfile.Endpoint.create' and configure its values via its 'CSK_LiveConnect.HTTPProfile.Endpoint.set...' functions. +
+2.1.3) Serve an individual function to be triggered via remote with a 'CSK_LiveConnect.Request' as input parameter and a 'CSK_LiveConnect.Response' as return value. E.g. via: +
+'Script.serveFunction('[AppName].[UriName]', httpCallbackFunction, "object:CSK_LiveConnect.Request", "object:CSK_LiveConnect.Response")'. +
+2.1.4) Add the endpoints via 'CSK_LiveConnect.HTTPProfile.setEndpoints'. +
+2.1.5) Add the HTTP profile via 'CSK_LiveConnect.addHTTPProfile'. +
+{empty} +
+2.2) To respond now on HTTP requests it can be done like this: +
+2.2.1) Create a response via 'CSK_LiveConnect.Response.create' and header via 'CSK_LiveConnect.Header.create'. +
+2.2.2) Set key and value of the header via 'CSK_LiveConnect.Header.setKey' / 'CSK_LiveConnect.Header.setValue'. +
+2.2.3) Set header and status code of the response via 'CSK_LiveConnect.Response.setHeaders' / 'CSK_LiveConnect.Response.setStatusCode'. +
+2.2.4) Set response content via ''CSK_LiveConnect.Response.setContent' and return the CSK_LiveConnect.Response object. +
+{empty} +
+The payload is defined in the profile. The format is JSON.</desc>
+            <enum name="ConnectionStatus" trait="released">
+                <desc>Connection status enum.</desc>
+                <item desc="Check pairing information." name="CHECK_PAIRING">CHECK_PAIRING</item>
+                <item desc="Disconnected from LiveConnect backend." name="DISCONNECTED">DISCONNECTED</item>
+                <item desc="Error occured." name="ERROR">ERROR</item>
+                <item desc="Discovery response received." name="DISCOVERY_RESPONSE_RECEIVED">DISCOVERY_RESPONSE_RECEIVED</item>
+                <item desc="Connected to LiveConnect backend." name="STATE_CONNECTED">STATE_CONNECTED</item>
+                <item desc="Executing command." name="EXECUTING_COMMAND">EXECUTING_COMMAND</item>
+            </enum>
             <serves>
                 <event name="OnNewStatusLoadParameterOnReboot">
                     <desc>Notify status if parameters should be loaded on app/device boot up.</desc>
                     <param desc="Status" multiplicity="1" name="status" type="bool"/>
                 </event>
                 <event name="OnPersistentDataModuleAvailable">
-                    <desc>Notify status if features of CSK_PersistendData module are available.</desc>
+                    <desc>Notify status if features of CSK_PersistentData module are available.</desc>
                     <param desc="Status" multiplicity="1" name="status" type="bool"/>
                 </event>
                 <event name="OnDataLoadedOnReboot">
@@ -29,7 +69,7 @@ ToDo +
                 </event>
                 <event name="OnNewParameterName">
                     <desc>Notify name of persistent data parameter.</desc>
-                    <param desc="Parameter name" multiplicity="1" name="name" type="string"/>
+                    <param desc="Parameter name." multiplicity="1" name="name" type="string"/>
                 </event>
                 <event name="OnUserLevelOperatorActive">
                     <desc>Status of Operator userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
@@ -47,6 +87,81 @@ ToDo +
                     <desc>Status of Admin userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
                     <param desc="Status" multiplicity="1" name="status" type="bool"/>
                 </event>
+                <event name="OnClientInitialized">
+                    <trait>released</trait>
+                    <desc>Event called when the LiveConnect client has been initialised.</desc>
+                </event>
+                <event name="OnNewProfileAdded">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as a new profile was added.</desc>
+                    <param desc="Name of the profile." multiplicity="1" name="name" type="string"/>
+                    <param desc="Profile type (asyncAPI / openAPI)." multiplicity="1" name="profileType" type="string"/>
+                </event>
+                <event name="OnNewMQTTKeepAliveInterval">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as the MQTT keep alive interval has been changed.</desc>
+                    <param desc="Keep alive interval [ms]" multiplicity="1" name="keepAliveInterval" type="string"/>
+                </event>
+                <event name="OnNewMQTTConnectTimeout">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as the MQTT connect timeout has been changed.</desc>
+                    <param desc="Timeout [ms]" multiplicity="1" name="timeout" type="string"/>
+                </event>
+                <event name="OnNewMQTTMessageInterval">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as the MQTT message interval has been changed.</desc>
+                    <param desc="Message interval [ms]." multiplicity="1" name="messageInterval" type="string"/>
+                </event>
+                <event name="OnNewMQTTQueueSize">
+                    <trait>released</trait>
+                    <desc>If the LiveConnect connection is broken, the data is stored in the queue. +
+When the queue is full, the oldest data is discarded automatically. +
+This event is triggered as soon as the MQTT queue size has been changed.</desc>
+                    <param desc="Queue size" multiplicity="1" name="queueSize" type="string"/>
+                </event>
+                <event name="OnNewGatewayPartNumber">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as the part number of the gateway device has been changed.</desc>
+                    <param desc="Part number of the gateway device." multiplicity="1" name="partNumber" type="string"/>
+                </event>
+                <event name="OnNewGatewaySerialNumber">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as the serial number of the gateway device has been changed.</desc>
+                    <param desc="Serial number of the gateway device." multiplicity="1" name="serialNumber" type="string"/>
+                </event>
+                <event name="OnNewProcessInterval">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as the Process interval has been changed.</desc>
+                    <param desc="Process interval [ms]." multiplicity="1" name="processInterval" type="string"/>
+                </event>
+                <event name="OnNewTokenTimeout">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as the token timeout has been changed.</desc>
+                    <param desc="Token timeout [ms]." multiplicity="1" name="tokenTimeout" type="string"/>
+                </event>
+                <event name="OnNewDeviceDiscoveryTimeout">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as the device discovery timeout has been changed.</desc>
+                    <param desc="Timeout [ms]" multiplicity="1" name="deviceDiscoveryTimeout" type="string"/>
+                </event>
+                <event name="OnNewCloudSystem">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as the cloud system has been changed.</desc>
+                    <param desc="Cloud system (prod, int, dev)." multiplicity="1" name="cloudSystem" type="string"/>
+                </event>
+                <event name="OnNewValidateTokenResult">
+                    <trait>released</trait>
+                    <desc>This event is triggered as soon as the validate token result has been changed.</desc>
+                    <param desc="Validate token result." multiplicity="1" name="status" type="string"/>
+                </event>
+                <event name="OnNewStatusConnectionStatus">
+                    <desc>Notify LiveConnect  connection status.</desc>
+                    <param desc="Connection status. +&#10;- Offline +&#10;- Online +&#10;- Execute command +&#10;- Discover devices +&#10;- Waiting for token validationtion " multiplicity="1" name="status" type="string"/>
+                </event>
+                <event name="OnNewStatusDeviceURL">
+                    <desc>Notify device URL which refers to the digital twin on the SICK AssetHub.</desc>
+                    <param desc="URL which refers to the digital twin on the SICK AssetHub." multiplicity="1" name="url" type="string"/>
+                </event>
                 <function name="setParameterName">
                     <desc>Function to set the name of the parameters if saved/loaded via the CSK_PersistentData module.</desc>
                     <param desc="Name of the parameter." multiplicity="1" name="name" type="string"/>
@@ -55,7 +170,7 @@ ToDo +
                     <desc>Send parameters to CSK_PersistentData module if possible to save them.</desc>
                 </function>
                 <function name="loadParameters">
-                    <desc>Load parameters for this module from the CSK_PersistentData module if possible and use them.</desc>
+                    <desc>Load parameters for this module from the PersistentData CSK-module if possible and use them</desc>
                 </function>
                 <function name="setLoadOnReboot">
                     <desc>Configure if this module should load its saved parameters at app/device boot up.</desc>
@@ -65,10 +180,522 @@ ToDo +
                     <desc>Function to register "OnResume" of the module UI (only as helper function).</desc>
                     <return desc="Empty string (only needed to simplify binding)." multiplicity="1" name="empty" type="string"/>
                 </function>
+                <function name="publishMQTTData">
+                    <trait>released</trait>
+                    <desc>Publish MQTT data to the cloud using a part- and serial number of the device in the AssetHub.</desc>
+                    <param desc="MQTT topic where the data should be published to. +&#10;The topics are defined in the device profile." multiplicity="1" name="topic" type="string"/>
+                    <param desc="Part number of the device in the AssetHub to which the data is to be sent." multiplicity="1" name="partNumber" type="string"/>
+                    <param desc="Serial number of the device in the AssetHub to which the data is to be sent." multiplicity="1" name="serialNumber" type="string"/>
+                    <param desc="JSON based payload to be published. +&#10;The payload is defined in the MQTT profile." multiplicity="1" name="payload" type="string"/>
+                </function>
+                <function name="addMQTTProfile">
+                    <trait>released</trait>
+                    <desc>Add a new MQTT profile to new or an already exiting device.</desc>
+                    <param desc="Part number of the device that should be assigned to the profile." multiplicity="1" name="partNumber" type="string"/>
+                    <param desc="Serial number of the device that should be assigned to the profile." multiplicity="1" name="serialNumber" type="string"/>
+                    <param alias="CSK_LiveConnect.MQTTProfile" desc="MQTT profile designed as a crown datatype." multiplicity="1" name="profile" type="object"/>
+                    <return desc="UUID" multiplicity="1" name="uuid" type="string"/>
+                </function>
+                <function name="removePeerDevice">
+                    <trait>released</trait>
+                    <desc>Removes a peer device. +
+Serial- and part number are used to identify a device.</desc>
+                    <param desc="Part number of the peer device to be removed." multiplicity="1" name="partNumber" type="string"/>
+                    <param desc="Serial number of the peer device to be removed." multiplicity="1" name="serialNumber" type="string"/>
+                </function>
+                <function name="addHTTPProfile">
+                    <trait>released</trait>
+                    <desc>Add a new HTTP profile to new or an already exiting device.</desc>
+                    <param desc="Part number of the device that should be assigned to the profile." multiplicity="1" name="partNumber" type="string"/>
+                    <param desc="Serial number of the device that should be assigned to the profile." multiplicity="1" name="serialNumber" type="string"/>
+                    <param alias="CSK_LiveConnect.HTTPProfile" desc="HTTP profile designed as a crown datatype." multiplicity="1" name="httpProfile" type="object"/>
+                    <return desc="Profile successfully added." multiplicity="1" name="success" type="bool"/>
+                </function>
+                <function name="setMQTTMessageQueueSize">
+                    <trait>released</trait>
+                    <desc>Function to set the size of the MQTT message queue.</desc>
+                    <param desc="Message queue size." multiplicity="1" name="queueSize" type="string"/>
+                </function>
+                <function name="removeAllProfiles">
+                    <trait>released</trait>
+                    <desc>Remove all profiles and connected devices instead of the paired gateway device.</desc>
+                </function>
+                <function name="publishMQTTDataByID">
+                    <trait>released</trait>
+                    <desc>Publish MQTT data to the cloud using the device UUID</desc>
+                    <param desc="MQTT topic where the data should be published to. +&#10;The topics are defined in the device profile." multiplicity="1" name="topic" type="string"/>
+                    <param desc="Device UUID of the device to which the data is to be sent. +&#10;The UUID is returned by the function &quot;addMQTTProfile&quot;." multiplicity="1" name="deviceUUID" type="string"/>
+                    <param desc="JSON based payload to be published. +&#10;The payload is defined in the MQTT profile." multiplicity="1" name="payload" type="string"/>
+                </function>
+                <function name="setMQTTKeepAliveInterval">
+                    <trait>released</trait>
+                    <desc>MQTT keep alive interval.
+</desc>
+                    <param desc="MQTT keep alive interval [ms]." multiplicity="1" name="keepAliveInterval" type="string"/>
+                </function>
+                <function name="setProcessInterval">
+                    <trait>released</trait>
+                    <desc>Reaction time to notice status changes of the LiveConnect connection.</desc>
+                    <param desc="Process interval [ms]." multiplicity="1" name="interval" type="string"/>
+                </function>
+                <function name="setTokenTimeout">
+                    <trait>released</trait>
+                    <desc>Timeout for the accepting of the pairing token.</desc>
+                    <param desc="Timeout time [ms]." multiplicity="1" name="timeout" type="string"/>
+                </function>
+                <function name="setDeviceDiscoveryTimeout">
+                    <trait>released</trait>
+                    <desc>Device discovery timeout.</desc>
+                    <param desc="Timeout time [ms]." multiplicity="1" name="timeout" type="string"/>
+                </function>
+                <function name="setGatewaySerialNumber">
+                    <trait>released</trait>
+                    <desc>The serial number is automatically read out. If this is not possible, it can be set manually.</desc>
+                    <param desc="Serial number of the gateway device." multiplicity="1" name="serialNumber" type="string"/>
+                </function>
+                <function name="getRegisteredProfiles">
+                    <trait>released</trait>
+                    <desc>Get a list of all registered devices and corresponding profiles.</desc>
+                    <return alias="CSK_LiveConnect.Device" desc="Assigned devices and profiles to the gateway device." multiplicity="+" name="devices" type="object"/>
+                </function>
+                <function name="setMQTTConnectTimeout">
+                    <trait>released</trait>
+                    <desc>MQTT connect timeout.</desc>
+                    <param desc="MQTT connect timeout [ms]." multiplicity="1" name="connectTimeout" type="string"/>
+                </function>
+                <function name="setMQTTMessageInterval">
+                    <trait>released</trait>
+                    <desc>MQTT message forwarding interval.</desc>
+                    <param desc="MQTT message forwarding interval [ms]." multiplicity="1" name="messageInterval" type="string"/>
+                </function>
+                <function name="setGatewayPartNumber">
+                    <trait>released</trait>
+                    <desc>The part number is automatically read out. If this is not possible, it can be set manually.</desc>
+                    <param desc="Part number of the gateway device." multiplicity="1" name="partNumber" type="string"/>
+                </function>
+                <function name="setCloudSystem">
+                    <trait>released</trait>
+                    <desc>Set cloud system that should be used. +
+The "dev" and "int" stage are only accessible in the SICK internal network.</desc>
+                    <param desc="Cloud system (prod, int, dev)." multiplicity="1" name="cloudSystem" type="string"/>
+                </function>
+                <function name="getConnectionStatus">
+                    <desc>Get LiveConnect connection status.</desc>
+                    <return desc="Status: +&#10;- Online +&#10;- Execute command +&#10;- Discovery +&#10;- Pairing +&#10;- Offline" multiplicity="1" name="status" type="string"/>
+                </function>
+                <function name="getDeviceURL">
+                    <desc>Get device URL which refers to the digital twin on the SICK AssetHub.</desc>
+                    <return desc="URL which refers to the digital twin on the SICK AssetHub." multiplicity="1" name="url" type="string"/>
+                </function>
+                <function name="removePairing">
+                    <desc>Remove pairing between the phsical device and the digital twin in the SICK AssetHub.</desc>
+                </function>
+                <function name="setToken">
+                    <trait>released</trait>
+                    <desc>Set pairing token generated from the SICK AssetHub.</desc>
+                    <param desc="Token" multiplicity="1" name="token" type="string"/>
+                </function>
+                <function name="startTokenValidation">
+                    <desc>Start token validation.</desc>
+                </function>
+                <function name="getValidateTokenResult">
+                    <trait>released</trait>
+                    <desc>Get validate token result.</desc>
+                    <return desc="Validate token result." multiplicity="1" name="status" type="string"/>
+                </function>
+                <function name="getGatewayPartNumber">
+                    <trait>released</trait>
+                    <desc>Get part number of the gateway device itself.</desc>
+                    <return desc="Part number of the gateway device." multiplicity="1" name="partNumber" type="string"/>
+                </function>
+                <function name="getGatewaySerialNumber">
+                    <trait>released</trait>
+                    <desc>Get serial number of the gateway device itself.</desc>
+                    <return desc="Serial number of the gateway device." multiplicity="1" name="serialNumber" type="string"/>
+                </function>
             </serves>
+            <crown name="UI">
+                <desc>Functionalities especially for the UI.</desc>
+                <serves>
+                    <event name="OnNewStatusSystemClockConfigured">
+                        <desc>Notify if system clock was configured.</desc>
+                        <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                    </event>
+                    <event name="OnNewStatusSystemClock">
+                        <desc>Notify system clock status.</desc>
+                        <param desc="Status (configured / not configured) and date / time in format [yyyy-mm-dd hh:mm:ss] UTC)." multiplicity="1" name="status" type="string"/>
+                    </event>
+                    <event name="OnNewStatusCurrentView">
+                        <desc>Notify information about the information to be displayed on the UI page (UI only).</desc>
+                        <param desc="0 = Show pairing code and pair button. +&#10;1 = Show device url and unpair button." multiplicity="1" name="value" type="string"/>
+                    </event>
+                    <function name="getCurrentView">
+                        <trait>released</trait>
+                        <desc> Provides information about the information to be displayed on the UI page (UI only).
+</desc>
+                        <return desc="0 = Show pairing code and pair button. +&#10;1 = Show device url and unpair button." multiplicity="1" name="value" type="string"/>
+                    </function>
+                    <function name="getSystemClockStatus">
+                        <trait>released</trait>
+                        <desc>Get the status of the system clock (UI only).</desc>
+                        <return desc="Status (configured / not configured) and date / time in format [yyyy-mm-dd hh:mm:ss] UTC)." multiplicity="1" name="status" type="string"/>
+                    </function>
+                    <function name="isSystemClockConfigured">
+                        <trait>released</trait>
+                        <desc>Indicates if the system clock is configured.</desc>
+                        <return desc="true = not configured +&#10;false= configured" multiplicity="1" name="value" type="bool"/>
+                    </function>
+                </serves>
+            </crown>
+            <crown builtin="true" name="MQTTProfile">
+                <desc>MQTT profile definition. +
+Listed 'get'/'set' functions in API documentation relate to CROWN properties.</desc>
+                <serves>
+                    <function name="create">
+                        <desc>Creates an object</desc>
+                        <return alias="CSK_LiveConnect.MQTTProfile" desc="The instance" name="obj" type="object"/>
+                    </function>
+                    <function name="setUUID">
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" name="obj" type="object"/>
+                        <param desc="MQTT profile UUID with identifies the profile." name="arg" type="string"/>
+                    </function>
+                    <function name="getUUID">
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" name="obj" type="object"/>
+                        <return desc="MQTT profile UUID with identifies the profile." name="arg" type="string"/>
+                    </function>
+                    <function name="setName">
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" name="obj" type="object"/>
+                        <param desc="MQTT profile name." name="arg" type="string"/>
+                    </function>
+                    <function name="getName">
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" name="obj" type="object"/>
+                        <return desc="MQTT profile name." name="arg" type="string"/>
+                    </function>
+                    <function name="setDescription">
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" name="obj" type="object"/>
+                        <param desc="MQTT profile description." name="arg" type="string"/>
+                    </function>
+                    <function name="getDescription">
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" name="obj" type="object"/>
+                        <return desc="MQTT profile description." name="arg" type="string"/>
+                    </function>
+                    <function name="setBaseTopic">
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" name="obj" type="object"/>
+                        <param desc="Must be unique if multiple profile instances are used per device.&#10;&#10;&#10;&#10;&#10;&#10;&#10;&#10;" multiplicity="1" name="arg" type="string"/>
+                    </function>
+                    <function name="getBaseTopic">
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" name="obj" type="object"/>
+                        <return desc="Must be unique if multiple profile instances are used per device.&#10;&#10;&#10;&#10;&#10;&#10;&#10;&#10;" multiplicity="1" name="arg" type="string"/>
+                    </function>
+                    <function name="getVersion">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="MQTT profile version in the format [X.X.X]." multiplicity="1" name="Version" type="string"/>
+                    </function>
+                    <function name="setVersion">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="MQTT profile version in the format [X.X.X]." multiplicity="1" name="Version" type="string"/>
+                    </function>
+                    <function name="getAsyncAPISpecification">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="Content of the asyncAPI specification file." multiplicity="1" name="AsyncAPISpecification" type="string"/>
+                    </function>
+                    <function name="setAsyncAPISpecification">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.MQTTProfile" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="Content of the asyncAPI specification file." multiplicity="1" name="AsyncAPISpecification" type="string"/>
+                    </function>
+                </serves>
+            </crown>
+            <crown builtin="true" name="HTTPProfile">
+                <desc>HTTP profile definition. +
+Listed 'get'/'set' functions in API documentation relate to CROWN properties.</desc>
+                <serves>
+                    <function name="create">
+                        <desc>Creates an object</desc>
+                        <return alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                    </function>
+                    <function name="setUUID">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <param desc="HTTP profile UUID with identifies the profile." name="arg" type="string"/>
+                    </function>
+                    <function name="getUUID">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <return desc="HTTP profile UUID with identifies the profile." name="arg" type="string"/>
+                    </function>
+                    <function name="setName">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <param desc="HTTP profile name." name="arg" type="string"/>
+                    </function>
+                    <function name="getName">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <return desc="HTTP profile name." name="arg" type="string"/>
+                    </function>
+                    <function name="setDescription">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <param desc="HTTP profile description." name="arg" type="string"/>
+                    </function>
+                    <function name="getDescription">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <return desc="HTTP profile description." name="arg" type="string"/>
+                    </function>
+                    <function name="setOpenAPISpecification">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <param desc="Content of the openAPI specification file." name="arg" type="string"/>
+                    </function>
+                    <function name="getOpenAPISpecification">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <return desc="Content of the openAPI specification file." name="arg" type="string"/>
+                    </function>
+                    <function name="setVersion">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <param desc="HTTP profile version in the format [X.X.X]." name="arg" type="string"/>
+                    </function>
+                    <function name="getVersion">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <return desc="HTTP profile version in the format [X.X.X]." name="arg" type="string"/>
+                    </function>
+                    <function name="setServiceLocation">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <param desc="HTTP profile service location without a leading or an ending &quot;/&quot;." multiplicity="1" name="arg" type="string"/>
+                    </function>
+                    <function name="getServiceLocation">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <return desc="HTTP profile service location without a leading or an ending &quot;/&quot;." multiplicity="1" name="arg" type="string"/>
+                    </function>
+                    <function name="setEndpoints">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <param alias="CSK_LiveConnect.HTTPProfile.Endpoint" desc="HTTP endpoints provided by the profile." multiplicity="+" name="arg" type="object"/>
+                    </function>
+                    <function name="getEndpoints">
+                        <param alias="CSK_LiveConnect.HTTPProfile" desc="The instance" name="obj" type="object"/>
+                        <return alias="CSK_LiveConnect.HTTPProfile.Endpoint" desc="HTTP endpoints provided by the profile." multiplicity="+" name="arg" type="object"/>
+                    </function>
+                </serves>
+                <crown builtin="true" name="Endpoint">
+                    <desc>HTTP endpoint that is offered by the HTTP profile. +
+Listed 'get'/'set' functions in API documentation relate to CROWN properties.</desc>
+                    <serves>
+                        <function name="create">
+                            <desc>Creates an object</desc>
+                            <return alias="CSK_LiveConnect.HTTPProfile.Endpoint" desc="The instance" name="obj" type="object"/>
+                        </function>
+                        <function name="setURI">
+                            <param alias="CSK_LiveConnect.HTTPProfile.Endpoint" desc="The instance" name="obj" type="object"/>
+                            <param desc="Relative URI of the HTTP endpoint without a leading &quot;/&quot;." name="arg" type="string"/>
+                        </function>
+                        <function name="getURI">
+                            <param alias="CSK_LiveConnect.HTTPProfile.Endpoint" desc="The instance" name="obj" type="object"/>
+                            <return desc="Relative URI of the HTTP endpoint without a leading &quot;/&quot;." name="arg" type="string"/>
+                        </function>
+                        <function name="setMethod">
+                            <param alias="CSK_LiveConnect.HTTPProfile.Endpoint" desc="The instance" name="obj" type="object"/>
+                            <param desc="HTTP method that is allowed on this endpoint (GET, POST)." name="arg" type="string"/>
+                        </function>
+                        <function name="getMethod">
+                            <param alias="CSK_LiveConnect.HTTPProfile.Endpoint" desc="The instance" name="obj" type="object"/>
+                            <return desc="HTTP method that is allowed on this endpoint (GET, POST)." name="arg" type="string"/>
+                        </function>
+                        <function name="setHandlerFunction">
+                            <param alias="CSK_LiveConnect.HTTPProfile.Endpoint" desc="The instance" name="obj" type="object"/>
+                            <param desc="CROWN name of a function with parameter type is request and return value type is response." name="arg" type="string"/>
+                        </function>
+                        <function name="getHandlerFunction">
+                            <param alias="CSK_LiveConnect.HTTPProfile.Endpoint" desc="The instance" name="obj" type="object"/>
+                            <return desc="CROWN name of a function with parameter type is request and return value type is response." name="arg" type="string"/>
+                        </function>
+                    </serves>
+                </crown>
+            </crown>
+            <crown builtin="true" name="Response">
+                <desc>HTTP response that should be sent to the LiveConnect server. +
+Listed 'get'/'set' functions in API documentation relate to CROWN properties.</desc>
+                <serves>
+                    <function name="create">
+                        <desc>Creates an object</desc>
+                        <return alias="CSK_LiveConnect.Response" desc="The instance" name="obj" type="object"/>
+                    </function>
+                    <function name="setContent">
+                        <param alias="CSK_LiveConnect.Response" desc="The instance" name="obj" type="object"/>
+                        <param desc="REST payload (body)." name="arg" type="binary"/>
+                    </function>
+                    <function name="getContent">
+                        <param alias="CSK_LiveConnect.Response" desc="The instance" name="obj" type="object"/>
+                        <return desc="REST payload (body)." name="arg" type="binary"/>
+                    </function>
+                    <function name="setStatusCode">
+                        <param alias="CSK_LiveConnect.Response" desc="The instance" name="obj" type="object"/>
+                        <param desc="HTTP REST status code." name="arg" type="int"/>
+                    </function>
+                    <function name="getStatusCode">
+                        <param alias="CSK_LiveConnect.Response" desc="The instance" name="obj" type="object"/>
+                        <return desc="HTTP REST status code." name="arg" type="int"/>
+                    </function>
+                    <function name="getHeaders">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Response" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return alias="CSK_LiveConnect.Header" desc="HTTP header information." multiplicity="+" name="Headers" type="object"/>
+                    </function>
+                    <function name="setHeaders">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Response" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param alias="CSK_LiveConnect.Header" desc="HTTP header information." multiplicity="+" name="Headers" type="object"/>
+                    </function>
+                </serves>
+            </crown>
+            <crown builtin="true" name="Request">
+                <desc>HTTP request that was received by the LiveConnect server. +
+Listed 'get'/'set' functions in API documentation relate to CROWN properties.</desc>
+                <serves>
+                    <function name="create">
+                        <desc>Creates an object</desc>
+                        <return alias="CSK_LiveConnect.Request" desc="The instance" name="obj" type="object"/>
+                    </function>
+                    <function name="setMethod">
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" name="obj" type="object"/>
+                        <param desc="REST method (GET,POST, ..)." name="arg" type="string"/>
+                    </function>
+                    <function name="getMethod">
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" name="obj" type="object"/>
+                        <return desc="REST method (GET,POST, ..)." name="arg" type="string"/>
+                    </function>
+                    <function name="setContent">
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" name="obj" type="object"/>
+                        <param desc="REST payload (body)." name="arg" type="binary"/>
+                    </function>
+                    <function name="getContent">
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" name="obj" type="object"/>
+                        <return desc="REST payload (body)." name="arg" type="binary"/>
+                    </function>
+                    <function name="getHost">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="Host URL." multiplicity="1" name="Host" type="string"/>
+                    </function>
+                    <function name="setHost">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="Host URL." multiplicity="1" name="Host" type="string"/>
+                    </function>
+                    <function name="getHeaders">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return alias="CSK_LiveConnect.Header" desc="HTTP header information." multiplicity="+" name="key" type="object"/>
+                    </function>
+                    <function name="setHeaders">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param alias="CSK_LiveConnect.Header" desc="HTTP header information." multiplicity="+" name="key" type="object"/>
+                    </function>
+                    <function name="getURL">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="URL from the sender. Depending on the application, the URL contains REST parameter information." multiplicity="1" name="u" type="string"/>
+                    </function>
+                    <function name="setURL">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Request" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="URL from the sender. Depending on the application, the URL contains REST parameter information." multiplicity="1" name="u" type="string"/>
+                    </function>
+                </serves>
+            </crown>
+            <crown builtin="true" name="Header">
+                <trait>released</trait>
+                <desc>Header information of a HTTP request / response. +
+Listed 'get'/'set' functions in API documentation relate to CROWN properties.</desc>
+                <serves>
+                    <function name="getKey">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Header" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="Key of the header entry." multiplicity="1" name="Key" type="string"/>
+                    </function>
+                    <function name="setKey">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Header" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="Key of the header entry." multiplicity="1" name="Key" type="string"/>
+                    </function>
+                    <function name="create">
+                        <trait>released</trait>
+                        <return alias="CSK_LiveConnect.Header" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                    </function>
+                    <function name="getValue">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Header" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="Value of the header entry." multiplicity="1" name="Value" type="auto"/>
+                    </function>
+                    <function name="setValue">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Header" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="Value of the header entry." multiplicity="1" name="Value" type="auto"/>
+                    </function>
+                </serves>
+            </crown>
+            <crown builtin="true" name="Device">
+                <trait>released</trait>
+                <desc>Assignment of profiles to a device. +
+Listed 'get'/'set' functions in API documentation relate to CROWN properties.</desc>
+                <serves>
+                    <function name="getDeviceUUID">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="Device UUID (see asset URL of the digital twin)." multiplicity="1" name="N" type="string"/>
+                    </function>
+                    <function name="setDeviceUUID">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="Device UUID (see asset URL of the digital twin)." multiplicity="1" name="N" type="string"/>
+                    </function>
+                    <function name="create">
+                        <trait>released</trait>
+                        <return alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                    </function>
+                    <function name="getProfile">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="Attached profiles to the device." multiplicity="+" name="Profile" type="object"/>
+                    </function>
+                    <function name="setProfile">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="Attached profiles to the device." multiplicity="+" name="Profile" type="object"/>
+                    </function>
+                    <function name="getPartNumber">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="Part number of the device." multiplicity="1" name="PartNumber" type="string"/>
+                    </function>
+                    <function name="setPartNumber">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="Part number of the device." multiplicity="1" name="PartNumber" type="string"/>
+                    </function>
+                    <function name="getSerialNumber">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="Serial number of the device." multiplicity="1" name="SerialNumber" type="string"/>
+                    </function>
+                    <function name="setSerialNumber">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="Serial number of the device." multiplicity="1" name="SerialNumber" type="string"/>
+                    </function>
+                    <function name="getDeviceType">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <return desc="Type of the device (PEER_DEVICE, GATEWAY_DEVICE)." multiplicity="1" name="DeviceType" type="string"/>
+                    </function>
+                    <function name="setDeviceType">
+                        <trait>released</trait>
+                        <param alias="CSK_LiveConnect.Device" desc="The instance" multiplicity="1" name="obj" type="object"/>
+                        <param desc="Type of the device (PEER_DEVICE, GATEWAY_DEVICE)." multiplicity="1" name="DeviceType" type="string"/>
+                    </function>
+                </serves>
+            </crown>
         </crown>
         <meta key="author">SICK AG</meta>
-        <meta key="version">0.1.0</meta>
+        <meta key="version">3.0.0</meta>
         <meta key="priority">low</meta>
         <meta key="copy-protected">false</meta>
         <meta key="read-protected">false</meta>
