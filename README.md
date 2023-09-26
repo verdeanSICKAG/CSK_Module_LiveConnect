@@ -1,14 +1,14 @@
 # CSK_Module_LiveConnect
 
 This module provides features to communicate data to a digital device (digital twin) configured in the SICK AssetHub.  
-### Info: Regarding further information on how to use this module please have a look into the [CSK_Template_AssetHub](https://github.com/SICKAppSpaceCodingStarterKit/CSK_Template_AssetHub).  
+### Info: Regarding further information on how to use this module please have a look into the [CSK_Template_LiveConnectDemo](https://github.com/SICKAppSpaceCodingStarterKit/CSK_Template_LiveConnectDemo).  
 
 ![plot](./docu/media/LiveConnect_Pairing.jpg)
 ![plot](./docu/media/LiveConnect_Parameter.jpg)
 
 ## How to Run
 The app includes an intuitive GUI to setup the LiveConnect Client pairing.  
-For further information check out the [documentation](https://raw.githack.com/SICKAppSpaceCodingStarterKit/CSK_Module_LiveConnect/main/docu/CSK_Module_LiveConnect.html) in the folder "docu" and the [CSK_Template_AssetHub](https://github.com/SICKAppSpaceCodingStarterKit/CSK_Template_AssetHub).
+For further information check out the [documentation](https://raw.githack.com/SICKAppSpaceCodingStarterKit/CSK_Module_LiveConnect/main/docu/CSK_Module_LiveConnect.html) in the folder "docu" and the [CSK_Template_LiveConnectDemo](https://github.com/SICKAppSpaceCodingStarterKit/CSK_Template_LiveConnectDemo).
 
 ## Parameters
 Some specific parameters can be changed in order to adapt the behavior of the client to your application.  
