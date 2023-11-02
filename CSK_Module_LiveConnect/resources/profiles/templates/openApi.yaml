@@ -1,0 +1,21 @@
+openapi: 3.0.2
+info:
+  title: ""
+  version: "1.0.0"
+  description: ""
+servers:
+  - url: "http://localhost"
+paths:
+  /endpoint:
+    get:
+      tags:
+      - ""
+      description: ""
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:

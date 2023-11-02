@@ -1,0 +1,57 @@
+asyncapi: 2.6.0
+info:
+  title: ""
+  version: 1.0.0
+  description: ""
+servers:
+  default:
+    url: 'localhost:1883'
+    description: Allows you to connect using the MQTT protocol.
+    protocol: mqtt
+channels:
+  'sick/generic/{deviceId}':
+    publish:
+      message:
+        $ref: '#/components/messages/generic'
+    parameters:
+      deviceId:
+        schema:
+          type: string
+        description: >-
+          A unique identifier for the device, e.g. a combination of device name,
+          version and serial number or a generated UUID
+components:
+  messages:
+    generic:
+      headers:
+        type: object
+        properties:
+          qos:
+            $ref: '#/components/schemas/MQTTQoSHeader'
+          retainFlag:
+            $ref: '#/components/schemas/MQTTRetainHeader'
+      payload:
+        $ref: '#/components/schemas/GenericPayload'
+  schemas:
+    MQTTQoSHeader:
+      title: qos
+      description: Quality of Service
+      type: integer
+      format: int32
+      default: 1
+      enum:
+        - 0
+        - 1
+        - 2
+    MQTTRetainHeader:
+      title: retainFlag
+      description: >
+        This flag determines if the message will be saved by the broker for the
+        specified topic as last known good value. New clients that subscribe to
+        that topic will receive the last retained message on that topic
+        instantly after subscribing.
+      type: boolean
+      default: false
+    GenericPayload:
+      type: object
+      properties:

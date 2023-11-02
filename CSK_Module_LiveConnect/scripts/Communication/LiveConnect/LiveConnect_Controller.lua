@@ -174,19 +174,6 @@ local function getArrayLength(data)
 end
 
 -------------------------------------------------------------------------------------
--- Generate a random UUID
----@return string
-local function createUUID()
-  local l_template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-  local l_uuid =  string.gsub(l_template, '[xy]', function (c)
-    local l_val = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
-    return string.format('%x', l_val)
-  end)
-
-  return l_uuid
-end
-
--------------------------------------------------------------------------------------
 -- Clear token when the validation timer is exceeded
 local function clearValidateTokenResult()
   m_validateTokenResult = ""
@@ -314,7 +301,7 @@ local function getDevice(partNumber, serialNumber)
   local l_index = partNumber .. serialNumber
   -- Check if the device is a peer device
   local l_isPeerDevice = not ((partNumber == liveConnect_Model.parameters.partNumber) and (serialNumber == liveConnect_Model.parameters.serialNumber))
-  local l_deviceUUID = createUUID()
+  local l_deviceUUID = l_index
   local l_deviceURL;
   if l_isPeerDevice then
     l_deviceURL = liveConnect_Model.iccClient.standardInterfaceServer .. "/gateway/" .. l_deviceUUID
