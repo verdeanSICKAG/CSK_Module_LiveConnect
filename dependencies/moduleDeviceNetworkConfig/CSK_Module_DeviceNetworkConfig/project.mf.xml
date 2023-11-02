@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest>
+    <application name="CSK_Module_DeviceNetworkConfig">
+        <crown name="CSK_Module_DeviceNetworkConfig">
+            <desc>This is an automatically generated CROWN (description not necessary).</desc>
+            <serves/>
+        </crown>
+        <crown name="CSK_DeviceNetworkConfig">
+            <trait>released</trait>
+            <desc>This module provides the possibility to setup the ethernet interfaces of the device. +
+See following descriptions of events/functions regarding further information.
+</desc>
+            <serves>
+                <event name="OnNewSubnetMask">
+                    <desc>Notify current subnet mask.</desc>
+                    <param desc="Subnet mask." multiplicity="1" name="SubnetMask" type="string"/>
+                </event>
+                <event name="OnNewIP">
+                    <desc>Notify current IP.</desc>
+                    <param desc="IP" multiplicity="1" name="ip" type="string"/>
+                </event>
+                <event name="OnNewInterfaceTable">
+                    <desc>Notify interface table as JSON (e.g. for table in UI).</desc>
+                    <param desc="Table of interfaces as a JSON string." multiplicity="1" name="InterfaceTable" type="string"/>
+                </event>
+                <event name="OnNewDHCPStatus">
+                    <desc>Notify current DHCP status.</desc>
+                    <param desc="Status" multiplicity="1" name="DHCPStatus" type="bool"/>
+                </event>
+                <event name="OnNewDefaultGateway">
+                    <desc>Notify current 'Default Gateway'</desc>
+                    <param desc="Default Gateway." multiplicity="1" name="DefaultGateway" type="string"/>
+                </event>
+                <event name="OnIPDisabled">
+                    <desc>Notified to disable / enable 'IP' text field in UI.</desc>
+                    <param desc="Status" multiplicity="1" name="isDisabled" type="bool"/>
+                </event>
+                <event name="OnSubnetDisabled">
+                    <desc>Notified to disable / enable 'Subnet mask' text field in UI.</desc>
+                    <param desc="Status" multiplicity="1" name="isDisabled" type="bool"/>
+                </event>
+                <event name="OnGatewayDisabled">
+                    <desc>Notified to disable / enable 'Gateway' text field in UI.</desc>
+                    <param desc="Status" multiplicity="1" name="isDisabled" type="bool"/>
+                </event>
+                <event name="OnIPError">
+                    <desc>Highlights the 'IP' in UI if format of IP is not correct.</desc>
+                    <param desc="Status" multiplicity="1" name="isError" type="bool"/>
+                </event>
+                <event name="OnSubnetError">
+                    <desc>Highlights the 'Subnet' field in UI if format is not correct.</desc>
+                    <param desc="Status" multiplicity="1" name="isError" type="bool"/>
+                </event>
+                <event name="OnGatewayError">
+                    <desc>Highlights the 'Gateway field' in UI if format of gateway is not correct.</desc>
+                    <param desc="Status" multiplicity="1" name="isError" type="bool"/>
+                </event>
+                <event name="OnApplyButtonDisabled">
+                    <desc>Notified to disable / enable 'Apply new config' button in UI.</desc>
+                    <param desc="Status" multiplicity="1" name="isDisabled" type="bool"/>
+                </event>
+                <event name="OnNewEthernetConfigStatus">
+                    <desc>Notify current configuration process status.</desc>
+                    <param desc="Status" multiplicity="1" name="newEthernetConfigStatus" type="string"/>
+                </event>
+                <event name="OnDHCPDisabled">
+                    <desc>Notified to disable / enable 'DHCP' checkbox in UI.</desc>
+                    <param desc="Status" multiplicity="1" name="isDisabled" type="bool"/>
+                </event>
+                <event name="OnNewInterfaceChoice">
+                    <desc>Notify currently selected interface.</desc>
+                    <param desc="The selected interface." multiplicity="1" name="NewInterface" type="string"/>
+                </event>
+                <event name="OnUserLevelOperatorActive">
+                    <desc>Status of Operator userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnUserLevelMaintenanceActive">
+                    <desc>Status of Maintenance userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnUserLevelServiceActive">
+                    <desc>Status of Service userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnUserLevelAdminActive">
+                    <desc>Status of Admin userlevel. Used internally in combination with the CSK_UserManagement module if available.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnNewPingResult">
+                    <desc>Notify result of executed ping command.</desc>
+                    <param desc="Result" multiplicity="1" name="result" type="bool"/>
+                </event>
+                <event name="OnNewPingDetails">
+                    <desc>Notify details of executed ping command.</desc>
+                    <param desc="Ping details." multiplicity="1" name="details" type="string"/>
+                </event>
+                <event name="OnNewDNS">
+                    <trait>released</trait>
+                    <desc>Notify a new nameserver.</desc>
+                    <param desc="Name server list" multiplicity="1" name="dnsServerList" type="string"/>
+                </event>
+                <event name="OnDataLoadedOnReboot">
+                    <desc>Event to call if module tried to load parameters and should be ready.</desc>
+                </event>
+                <event name="OnNewStatusLoadParameterOnReboot">
+                    <desc>Notify status if parameters should be loaded on app/device boot up.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnNewParameterName">
+                    <desc>Notify name of persistent data parameter.</desc>
+                    <param desc="Parameter name" multiplicity="1" name="name" type="string"/>
+                </event>
+                <event name="OnPersistentDataModuleAvailable">
+                    <desc>Notify status if features of CSK_PersistendData module are available.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </event>
+                <event name="OnDNSIPError">
+                    <trait>released</trait>
+                    <desc>Highlights the DNS 'IP' in UI if format of IP is not correct.</desc>
+                    <param desc="Status" multiplicity="1" name="isError" type="bool"/>
+                </event>
+                <function name="pageCalled">
+                    <desc>Function to register "OnResume" of the module UI (only as helper function).</desc>
+                    <return desc="Empty string (only needed to simplify binding)." multiplicity="1" name="empty" type="string"/>
+                </function>
+                <function name="setSubnetMask">
+                    <desc>Preset subnet mask to be configured via 'applyConfig'.</desc>
+                    <param desc="Subnet mask" multiplicity="1" name="newSubnetMask" type="string"/>
+                </function>
+                <function name="setInterfaceIP">
+                    <desc>Preset IP to be configured via 'applyConfig'.</desc>
+                    <param desc="IP" multiplicity="1" name="newIP" type="string"/>
+                </function>
+                <function name="setDHCPState">
+                    <desc>Preset DHCP status to be configured via 'applyConfig'.</desc>
+                    <param desc="DHCP state (true to enable DHCP)." multiplicity="1" name="newDHCPstate" type="bool"/>
+                </function>
+                <function name="setDefaultGateway">
+                    <desc>Preset default gateway to be configured via 'applyConfig'.</desc>
+                    <param desc="Gateway" multiplicity="1" name="newDefaultGateway" type="string"/>
+                </function>
+                <function name="selectInterface">
+                    <desc>Select ethernet interface via table in UI.</desc>
+                    <param desc="The string with chosen row's content in JSON format." multiplicity="1" name="row_selected" type="string"/>
+                </function>
+                <function name="refresh">
+                    <desc>Get current configuration of Ethernet ports.</desc>
+                </function>
+                <function name="applyConfig">
+                    <desc>Apply preset network configuration to device when button in UI is pressed.</desc>
+                </function>
+                <function name="applyEthernetConfig">
+                    <desc>Applies new configuration of Ethernet interface.</desc>
+                    <param desc="Name of Ethernet interface to upload new configuration to, e.g. ETH1, ETH2 etc." multiplicity="1" name="interfaceName" type="string"/>
+                    <param desc="New DHCP state. If true, then IP, subnet mask and gateway must be nil." multiplicity="1" name="dhcpEnabled" type="bool"/>
+                    <param desc="New IP addres. Must be nil if DHCP is on." multiplicity="1" name="ipAddress" type="string"/>
+                    <param desc="New subnet mask. Must be nil if DHCP is on." multiplicity="1" name="subnetMask" type="string"/>
+                    <param desc="New default gateway. Must be nil if DHCP is on." multiplicity="1" name="gateway" type="string"/>
+                </function>
+                <function name="getNetworkDescription">
+                    <desc>Get current network description of device in JSON format.</desc>
+                    <return desc="Network description as JSON." multiplicity="?" name="jsonInterfacesTable" type="string"/>
+                </function>
+                <function name="ping">
+                    <desc>Try to ping preset IP (see 'setPingIpAddress').</desc>
+                </function>
+                <function name="setPingIPAddress">
+                    <desc>Preset IP to ping (see 'ping' function).</desc>
+                    <param desc="IP" multiplicity="1" name="ping_ip" type="string"/>
+                </function>
+                <function name="selectDNSViaUI">
+                    <trait>released</trait>
+                    <desc>Select nameserver entry via table in UI.</desc>
+                    <param desc="The string with chosen row's content in JSON format." multiplicity="1" name="selectedRow" type="string"/>
+                </function>
+                <function name="setDNS">
+                    <trait>released</trait>
+                    <desc>Set IP address of the nameserver.</desc>
+                    <param desc="Nameserver IP" multiplicity="1" name="dns" type="string"/>
+                </function>
+                <function name="addDNS">
+                    <trait>released</trait>
+                    <desc>Add a new nameserver IP.</desc>
+                </function>
+                <function name="removeDNS">
+                    <trait>released</trait>
+                    <desc>Remove the selected nameserver IP.</desc>
+                </function>
+                <function name="setParameterName">
+                    <desc>Function to set the name of the parameters if saved/loaded via the CSK_PersistentData module.</desc>
+                    <param desc="Name of the parameter." multiplicity="1" name="name" type="string"/>
+                </function>
+                <function name="sendParameters">
+                    <desc>Send parameters to CSK_PersistentData module if possible to save them.</desc>
+                </function>
+                <function name="loadParameters">
+                    <desc>Load parameters for this module from the CSK_PersistentData module if possible and use them.</desc>
+                </function>
+                <function name="setLoadOnReboot">
+                    <desc>Configure if this module should load its saved parameters at app/device boot up.</desc>
+                    <param desc="Status" multiplicity="1" name="status" type="bool"/>
+                </function>
+            </serves>
+        </crown>
+        <meta key="author">SICK AG</meta>
+        <meta key="version">2.1.0</meta>
+        <meta key="priority">low</meta>
+        <meta key="copy-protected">false</meta>
+        <meta key="read-protected">false</meta>
+        <meta key="crown2-flow-engine">false</meta>
+        <meta key="LuaLoadAllEngineAPI">true</meta>
+        <entry default="CSK_Module_DeviceNetworkConfig.lua" path="scripts"/>
+    </application>
+</manifest>
