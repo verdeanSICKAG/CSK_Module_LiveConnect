@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------------
 -- Variables
 local m_class = {}
-local m_yamlSerializer = require("Communication.LiveConnect.utils.yaml.YamlSerializer")
-local m_yamlDeserializer = require("Communication.LiveConnect.utils.yaml.YamlDeserializer")
+local m_yamlParser = require("Communication.LiveConnect.utils.yaml.YamlParser")
+local m_yamlComposer = require("Communication.LiveConnect.utils.yaml.YamlComposer")
 
 -------------------------------------------------------------------------------------
 -- Constants
@@ -18,7 +18,7 @@ local function createAsyncApi(title, description, endpoint, properties)
   l_file:close()
 
   -- Serialize template
-  local l_documentAsTable = m_yamlSerializer.serialize(l_content, false)
+  local l_documentAsTable = m_yamlParser.parse(l_content, false)
 
   -- Update profile info
   l_documentAsTable.info.title = title
@@ -35,7 +35,7 @@ local function createAsyncApi(title, description, endpoint, properties)
   l_documentAsTable["components"]["schemas"]["GenericPayload"]["properties"] = properties
 
   -- Deserialize yaml table
-  local l_resultYaml = m_yamlDeserializer.deserialize(l_documentAsTable)
+  local l_resultYaml = m_yamlComposer.compose(l_documentAsTable)
 
   return l_resultYaml
 end
@@ -49,7 +49,7 @@ local function createOpenApi(title, description, endpoint, properties)
   l_file:close()
 
   -- Serialize template
-  local l_documentAsTable = m_yamlSerializer.serialize(l_content, false)
+  local l_documentAsTable = m_yamlParser.parse(l_content, false)
 
   -- Update profile info
   l_documentAsTable.info.title = title
@@ -79,7 +79,7 @@ local function createOpenApi(title, description, endpoint, properties)
   end
 
   -- Deserialize yaml table and provide it as a string
-  local l_resultYaml = m_yamlDeserializer.deserialize(l_documentAsTable)
+  local l_resultYaml = m_yamlComposer.compose(l_documentAsTable)
 
   return l_resultYaml
 end

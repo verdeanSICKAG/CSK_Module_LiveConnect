@@ -190,11 +190,11 @@ This event is triggered as soon as the MQTT queue size has been changed.</desc>
                 </function>
                 <function name="addMQTTProfile">
                     <trait>released</trait>
-                    <desc>Add a new MQTT profile to new or an already exiting device.</desc>
+                    <desc>Add a new MQTT profile to a new or an already exiting device.</desc>
                     <param desc="Part number of the device that should be assigned to the profile." multiplicity="1" name="partNumber" type="string"/>
                     <param desc="Serial number of the device that should be assigned to the profile." multiplicity="1" name="serialNumber" type="string"/>
                     <param alias="CSK_LiveConnect.MQTTProfile" desc="MQTT profile designed as a crown datatype." multiplicity="1" name="profile" type="object"/>
-                    <return desc="UUID" multiplicity="1" name="uuid" type="string"/>
+                    <return desc="Topic of profile data. this can be used to publish payload." multiplicity="1" name="topic" type="string"/>
                 </function>
                 <function name="removePeerDevice">
                     <trait>released</trait>
@@ -209,7 +209,7 @@ Serial- and part number are used to identify a device.</desc>
                     <param desc="Part number of the device that should be assigned to the profile." multiplicity="1" name="partNumber" type="string"/>
                     <param desc="Serial number of the device that should be assigned to the profile." multiplicity="1" name="serialNumber" type="string"/>
                     <param alias="CSK_LiveConnect.HTTPProfile" desc="HTTP profile designed as a crown datatype." multiplicity="1" name="httpProfile" type="object"/>
-                    <return desc="Profile successfully added." multiplicity="1" name="success" type="bool"/>
+                    <return desc="Profile successfully added." multiplicity="+" name="handlerFunctions" type="string"/>
                 </function>
                 <function name="setMQTTMessageQueueSize">
                     <trait>released</trait>
@@ -219,13 +219,6 @@ Serial- and part number are used to identify a device.</desc>
                 <function name="removeAllProfiles">
                     <trait>released</trait>
                     <desc>Remove all profiles and connected devices instead of the paired gateway device.</desc>
-                </function>
-                <function name="publishMQTTDataByID">
-                    <trait>released</trait>
-                    <desc>Publish MQTT data to the cloud using the device UUID</desc>
-                    <param desc="MQTT topic where the data should be published to. +&#10;The topics are defined in the device profile." multiplicity="1" name="topic" type="string"/>
-                    <param desc="Device UUID of the device to which the data is to be sent. +&#10;The UUID is returned by the function &quot;addMQTTProfile&quot;." multiplicity="1" name="deviceUUID" type="string"/>
-                    <param desc="JSON based payload to be published. +&#10;The payload is defined in the MQTT profile." multiplicity="1" name="payload" type="string"/>
                 </function>
                 <function name="setMQTTKeepAliveInterval">
                     <trait>released</trait>
@@ -312,6 +305,23 @@ The "dev" and "int" stage are only accessible in the SICK internal network.</des
                     <trait>released</trait>
                     <desc>Get serial number of the gateway device itself.</desc>
                     <return desc="Serial number of the gateway device." multiplicity="1" name="serialNumber" type="string"/>
+                </function>
+                <function name="addMQTTProfileYAML">
+                    <trait>released</trait>
+                    <desc>Add a new MQTT profile to a new or an already exiting device.</desc>
+                    <param desc="Part number of the device that should be assigned to the profile." multiplicity="1" name="partNumber" type="string"/>
+                    <param desc="Serial number of the device that should be assigned to the profile." multiplicity="1" name="serialNumber" type="string"/>
+                    <param desc="MQTT profile designed as a crown datatype." multiplicity="1" name="profile" type="string"/>
+                    <return desc="Topic of profile data. this can be used to publish payload." multiplicity="1" name="topic" type="string"/>
+                </function>
+                <function name="addHTTPProfileYAML">
+                    <trait>released</trait>
+                    <desc>Add a new HTTP profile to new or an already exiting device.</desc>
+                    <param desc="Part number of the device that should be assigned to the profile." multiplicity="1" name="partNumber" type="string"/>
+                    <param desc="Serial number of the device that should be assigned to the profile." multiplicity="1" name="serialNumber" type="string"/>
+                    <param desc="HTTP profile" multiplicity="1" name="profile" type="string"/>
+                    <param desc="" multiplicity="1" name="appName" type="string"/>
+                    <return desc="" multiplicity="+" name="handlerFunctions" type="string"/>
                 </function>
             </serves>
             <crown name="UI">
@@ -695,7 +705,7 @@ Listed 'get'/'set' functions in API documentation relate to CROWN properties.</d
             </crown>
         </crown>
         <meta key="author">SICK AG</meta>
-        <meta key="version">3.0.0</meta>
+        <meta key="version">4.0.0</meta>
         <meta key="priority">low</meta>
         <meta key="copy-protected">false</meta>
         <meta key="read-protected">false</meta>

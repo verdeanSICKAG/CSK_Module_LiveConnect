@@ -1,4 +1,4 @@
----@diagnostic disable: param-type-mismatch, undefined-global, redundant-parameter
+---@diagnostic disable: param-type-mismatch, undefined-global, redundant-parameter, cast-local-type
 
 --***********************************************************************************
 -- Inside of this script, you will find the necessary functions,
@@ -16,6 +16,7 @@ local m_mqttIdentificationObject = require("Communication.LiveConnect.profileImp
 local m_mqttAsyncApiObject = require("Communication.LiveConnect.profileImpl.MQTTAsyncApiObject")
 local m_httpCapabilitiesObject = require("Communication.LiveConnect.profileImpl.HTTPCapabilitiesObject")
 local m_httpApplicationObject = require("Communication.LiveConnect.profileImpl.HTTPApplicationObject")
+local m_yamlParser = require("Communication.LiveConnect.utils.yaml.YamlParser")
 local m_devices = {}
 local m_clearValidateTokenResultTimer = Timer.create()
 local m_validateTokenResult = ""
@@ -171,6 +172,30 @@ local function getArrayLength(data)
     l_len = l_len + 1
   end
   return l_len
+end
+
+-------------------------------------------------------------------------------------
+-- Generate a random UUID which is every time fixed for a given string input
+---@return string
+local function createFixedUUID(str)
+  local l_template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+  local l_seed = 0x69;
+  local l_seedOffset = 0
+
+  for c in string.gmatch(str, ".") do
+    l_seed = l_seed ~ string.byte(c)
+  end
+
+  local l_uuid =  string.gsub(l_template, '[xy]', function (c)
+    math.randomseed(l_seed + l_seedOffset)
+    l_seedOffset = l_seedOffset + 0xAB
+
+    local l_val = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+    return string.format('%x', l_val)
+  end)
+
+  math.randomseed(DateTime.getTimestamp())
+  return l_uuid
 end
 
 -------------------------------------------------------------------------------------
@@ -447,7 +472,7 @@ local function addMQTTProfile(partNumber, serialNumber, mqttProfile)
     liveConnect_Model.iccClient:addMQTTTopic(l_capabilitiesTopic, l_capabilitiesPayload, "QOS1")
 
     Script.notifyEvent("LiveConnect_OnNewProfileAdded", mqttProfile:getName(), "asyncAPI")
-    return l_device.uuid
+    return mqttProfile:getBaseTopic()
   else
     _G.logger:warning(NAME_OF_MODULE .. ": Can't add MQTT profile, because the LiveConnect client is not yet initialized. The client needs 100ms to initialize itself.")
 
@@ -458,10 +483,73 @@ end
 Script.serveFunction("CSK_LiveConnect.addMQTTProfile", addMQTTProfile)
 
 -------------------------------------------------------------------------------------
+---@diagnostic disable-next-line: return-type-mismatch
+local function addMQTTProfileYaml(partNumber, serialNumber, profile)
+  if liveConnect_Model.iccClient ~= nil then
+    -- Parse yaml file
+    local l_asyncProfileTable = m_yamlParser.parse(profile, false)
+
+    -- Check if the yaml file is valid (info)
+    if not l_asyncProfileTable.info or not l_asyncProfileTable.info.title or not l_asyncProfileTable.info.description or not l_asyncProfileTable.info.version then
+      _G.logger:severe(NAME_OF_MODULE .. ": Invalid asyncAPI profile (can't validate \"info\")")
+      return nil
+    end
+
+    -- Check if the yaml file is valid (channels)
+    if l_asyncProfileTable.channels then
+      if getArrayLength(l_asyncProfileTable.channels) == 0 then
+        _G.logger:severe(NAME_OF_MODULE .. ": Invalid asyncAPI profile (no \"channels\" defined)")
+        return nil
+      elseif getArrayLength(l_asyncProfileTable.channels) > 1 then
+        _G.logger:severe(NAME_OF_MODULE .. ": Invalid asyncAPI profile (more than one \"channels\" defined)")
+        return nil
+      end
+    else
+      _G.logger:severe(NAME_OF_MODULE .. ": Invalid asyncAPI profile (no \"channels\" defined)")
+      return nil
+    end
+
+    -- Create profile UUID
+    local l_profileUuid = createFixedUUID(string.format("%s_%s_%s", l_asyncProfileTable.info.title, l_asyncProfileTable.info.description, l_asyncProfileTable.info.version))
+
+    -- Get base topic
+    local l_baseTopic = ""
+    for k,_ in pairs(l_asyncProfileTable.channels) do
+      local l_splitPos = string.find(k, "/{")
+      if (l_splitPos == nil) then
+        l_splitPos = -1
+      else
+        l_splitPos = l_splitPos - 1
+      end
+
+      l_baseTopic = string.sub(k, 1, l_splitPos)
+      break
+    end
+    --l_baseTopic = "sick/device/demo1"
+
+    -- Create crown representation of the profile
+    local l_asyncProfileObject = CSK_LiveConnect.MQTTProfile.create()
+    CSK_LiveConnect.MQTTProfile.setName(l_asyncProfileObject, l_asyncProfileTable.info.title)
+    CSK_LiveConnect.MQTTProfile.setDescription(l_asyncProfileObject, l_asyncProfileTable.info.description)
+    CSK_LiveConnect.MQTTProfile.setAsyncAPISpecification(l_asyncProfileObject, profile)
+    CSK_LiveConnect.MQTTProfile.setVersion(l_asyncProfileObject, l_asyncProfileTable.info.version)
+    CSK_LiveConnect.MQTTProfile.setBaseTopic(l_asyncProfileObject, l_baseTopic)
+    CSK_LiveConnect.MQTTProfile.setUUID(l_asyncProfileObject, l_profileUuid)
+
+    return addMQTTProfile(partNumber, serialNumber, l_asyncProfileObject)
+  else
+    _G.logger:warning(NAME_OF_MODULE .. ": Can't add MQTT profile, because the LiveConnect client is not yet initialized. The client needs 100ms to initialize itself.")
+    return nil
+  end
+end
+Script.serveFunction("CSK_LiveConnect.addMQTTProfileYAML", addMQTTProfileYaml)
+
+-------------------------------------------------------------------------------------
 
 local function addHTTPProfile(partNumber, serialNumber, httpProfile)
   if liveConnect_Model.iccClient ~= nil then
     _G.logger:info(NAME_OF_MODULE .. ": Register HTTP profile (" .. httpProfile:getName() .. ")")
+    local l_handlerFunctions = {}
     local l_device, l_isNewDevice = getDevice(partNumber, serialNumber)
 
     if l_device.isPeerDevice then
@@ -477,7 +565,7 @@ local function addHTTPProfile(partNumber, serialNumber, httpProfile)
     else
       -- Add application profile
       local l_applicationProfile = m_httpApplicationObject.create(l_device.url, httpProfile)
-      for serviceLocation, endpoint in pairs(l_applicationProfile:getEndpoints()) do
+      for serviceLocation, httpProfile in pairs(l_applicationProfile:getEndpoints()) do
         liveConnect_Model.iccClient:addEndpoint(serviceLocation, endpoint)
       end
       liveConnect_Model.iccClient:addHTTPProfileGatewayDevice(l_applicationProfile.profile)
@@ -488,13 +576,108 @@ local function addHTTPProfile(partNumber, serialNumber, httpProfile)
 
     -- Check if profile was successfully added
     Script.notifyEvent("LiveConnect_OnNewProfileAdded", httpProfile:getName(), "openAPI")
-    return true
+
+    -- Get handler function which need to serve
+    for _, endpoint in pairs(httpProfile:getEndpoints()) do
+      table.insert(l_handlerFunctions, endpoint:getHandlerFunction())
+    end
+
+    return l_handlerFunctions
   else
     _G.logger:warning(NAME_OF_MODULE .. ": Can't add HTTP profile, because the LiveConnect client is not yet initialized. The client needs 100ms to initialize itself.")
       return false
   end
 end
 Script.serveFunction("CSK_LiveConnect.addHTTPProfile", addHTTPProfile)
+
+-------------------------------------------------------------------------------------
+
+local function addHTTPProfileYaml(partNumber, serialNumber, profile, crownName)
+  if liveConnect_Model.iccClient ~= nil then
+    -- Parse yaml file
+    local l_openApiProfileTable = m_yamlParser.parse(profile, false)
+
+    -- Check if the yaml file is valid (info)
+    if not l_openApiProfileTable.info or not l_openApiProfileTable.info.title or not l_openApiProfileTable.info.description or not l_openApiProfileTable.info.version then
+      _G.logger:severe(NAME_OF_MODULE .. ": Invalid openAPI profile (can't validate \"info\")")
+      return nil
+    end
+
+    -- Check if the yaml file is valid (servers)
+    if not l_openApiProfileTable.servers or not l_openApiProfileTable.servers[1] or not l_openApiProfileTable.servers[1].url  then
+      _G.logger:severe(NAME_OF_MODULE .. ": Invalid openAPI profile (can't validate \"servers\")")
+      return nil
+    end
+
+    -- Check if the yaml file is valid (paths)
+    if l_openApiProfileTable.paths then
+      if getArrayLength(l_openApiProfileTable.paths) == 0 then
+        _G.logger:severe(NAME_OF_MODULE .. ": Invalid openAPI profile (no \"paths\" defined)")
+        return nil
+      end
+    else
+      _G.logger:severe(NAME_OF_MODULE .. ": Invalid openAPI profile (no \"paths\" defined)")
+      return nil
+    end
+
+    -- Create profile UUID
+    local l_profileUuid = createFixedUUID(string.format("%s_%s_%s", l_openApiProfileTable.info.title, l_openApiProfileTable.info.description, l_openApiProfileTable.info.version))
+
+    -- Get service location from servers.url
+    local l_serviceLocation = m_yamlParser.computeServerUrl(l_openApiProfileTable.servers[1])
+
+    -- Create crown representation of the profile
+    local l_openApiProfileObject = CSK_LiveConnect.HTTPProfile.create()
+    CSK_LiveConnect.HTTPProfile.setName(l_openApiProfileObject, l_openApiProfileTable.info.title)
+    CSK_LiveConnect.HTTPProfile.setDescription(l_openApiProfileObject, l_openApiProfileTable.info.description)
+    CSK_LiveConnect.HTTPProfile.setVersion(l_openApiProfileObject, l_openApiProfileTable.info.version)
+    CSK_LiveConnect.HTTPProfile.setOpenAPISpecification(l_openApiProfileObject, profile)
+
+    CSK_LiveConnect.HTTPProfile.setUUID(l_openApiProfileObject, l_profileUuid)
+    CSK_LiveConnect.HTTPProfile.setServiceLocation(l_openApiProfileObject, l_serviceLocation)
+
+    -- Endpoint definitions
+    local l_endpoints = {}
+    for path,_ in pairs(l_openApiProfileTable.paths) do
+      local l_path = string.sub(path, 2, #path)
+
+      --Check if the path ends with a parameter {...}
+      local l_posParams = string.find(l_path, "/{")
+      if l_posParams ~= nil and l_posParams > 1 then
+        l_path = string.sub(l_path, 1, l_posParams - 1)
+      end
+      local l_functionCrown = string.format("%s.%s", crownName, l_path)
+
+      -- Get method type
+      local l_method
+      if l_openApiProfileTable.paths[path] then
+        for method,_ in pairs(l_openApiProfileTable.paths[path]) do
+          l_method = string.upper(method)
+          break
+        end
+      else
+        _G.logger:severe(NAME_OF_MODULE .. ": No method found in endpoint \"" .. path .. "\"")
+        return nil
+      end
+
+      local l_endpoint = CSK_LiveConnect.HTTPProfile.Endpoint.create()
+      CSK_LiveConnect.HTTPProfile.Endpoint.setHandlerFunction(l_endpoint, l_functionCrown)
+      CSK_LiveConnect.HTTPProfile.Endpoint.setMethod(l_endpoint, l_method)
+      CSK_LiveConnect.HTTPProfile.Endpoint.setURI(l_endpoint, l_path)
+
+      table.insert(l_endpoints, l_endpoint)
+    end
+
+    CSK_LiveConnect.HTTPProfile.setEndpoints(l_openApiProfileObject, l_endpoints)
+
+    return addHTTPProfile(partNumber, serialNumber, l_openApiProfileObject)
+
+  else
+    _G.logger:warning(NAME_OF_MODULE .. ": Can't add HTTP profile, because the LiveConnect client is not yet initialized. The client needs 100ms to initialize itself.")
+      return false
+  end
+end
+Script.serveFunction("CSK_LiveConnect.addHTTPProfileYAML", addHTTPProfileYaml)
 
 -------------------------------------------------------------------------------------
 
@@ -513,24 +696,6 @@ local function publishMQTTData(topic, partNumber, serialNumber, payload)
 end
 Script.serveFunction("CSK_LiveConnect.publishMQTTData", publishMQTTData)
 
--------------------------------------------------------------------------------------
-
-local function publishMQTTDataByID(topic, deviceUUID, payload)
-  local l_device = nil
-  for _, device in pairs(m_devices) do
-    if (device.uuid == deviceUUID) then
-      l_device = device
-      break
-    end
-  end
-
-  if l_device ~= nil then
-    publishMQTTData(topic, l_device.partNumber, l_device.serialNumber, payload)
-  else
-    _G.logger:warning(string.format("%s: Can't publish MQTT data. Device UUID (%s) can't be assigned", NAME_OF_MODULE, deviceUUID))
-  end
-end
-Script.serveFunction("CSK_LiveConnect.publishMQTTDataByID", publishMQTTDataByID)
 
 -------------------------------------------------------------------------------------
 

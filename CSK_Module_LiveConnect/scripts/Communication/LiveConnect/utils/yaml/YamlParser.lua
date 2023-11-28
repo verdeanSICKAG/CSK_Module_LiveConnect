@@ -2,6 +2,7 @@
 -- Variables
 local m_class = {}
 local m_tinyYaml = require("Communication.LiveConnect.utils.yaml.Tinyyaml")
+local m_urlParser = require("Communication.LiveConnect.utils.yaml.Url")
 
 -------------------------------------------------------------------------------------
 -- Checks if a string ends with the with given characters
@@ -37,7 +38,7 @@ local function getTableValueByScope(path, dataFull)
     local l_curLocation = dataFull
     for i=1, #l_pathParts do
         if (l_curLocation[l_pathParts[i]] == nil) then
-            print("Entry \"" .. l_pathParts[i] .. "\" in \"" .. l_enteredPaths .. "\", does not exist.")
+            error("Entry \"" .. l_pathParts[i] .. "\" in \"" .. l_enteredPaths .. "\", does not exist.")
             return nil
         end
         -- If last value in l_pathParts
@@ -78,7 +79,9 @@ local function resolveTable(dataPart, dataFull, resolveRefs)
   return l_resolvedYaml
 end
 
-function m_class.serialize(yamlData, resolveReferences)
+-------------------------------------------------------------------------------------
+-- 
+function m_class.parse(yamlData, resolveReferences)
   -- Parse yaml
   local l_yamlAsTable = m_tinyYaml.parse(yamlData)
 
@@ -91,6 +94,37 @@ function m_class.serialize(yamlData, resolveReferences)
   end
 
   return l_yamlAsTable
+end
+
+-------------------------------------------------------------------------------------
+-- Compute URL
+function m_class.computeServerUrl(serverObject)
+  local l_url = nil
+  if serverObject then
+    if serverObject.url then
+      l_url = serverObject.url
+
+      -- Check if variables are used within the url
+      for var in string.gmatch(serverObject.url, "{%w*}") do
+        local l_variable = string.sub(var, 2, #var -1)
+        if serverObject.variables[l_variable] and serverObject.variables[l_variable].default then
+          local l_resolvedValue = serverObject.variables[l_variable].default
+
+          -- Replace variables aginst the corresponding default value
+          l_url = string.gsub(l_url, var, l_resolvedValue)
+        end
+      end
+
+      local l_urlObject = m_urlParser.parse(l_url)
+      l_url = string.sub(l_urlObject.path, 2, -1)
+    else
+      error("Url property not found within the server object")
+    end
+  else
+    error("No server object found")
+  end
+
+  return l_url
 end
 
 return m_class

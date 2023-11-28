@@ -110,7 +110,7 @@ end
 
 -------------------------------------------------------------------------------------
 -- Deserialize the LUA table and provide it as yaml data
-function m_class.deserialize(yamlAsTable)
+function m_class.compose(yamlAsTable)
   local l_dataOrdered = {}
   local l_dataSorted ={}
 

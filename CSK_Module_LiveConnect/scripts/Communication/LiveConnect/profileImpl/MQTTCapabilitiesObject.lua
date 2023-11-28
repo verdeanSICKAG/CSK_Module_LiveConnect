@@ -39,40 +39,50 @@ function m_object.create(topic)
 end
 
 -------------------------------------------------------------------------------------
+-- 
+local function getPayloadData(profile, baseTopic)
+  local l_profileInfo = {}
+  l_profileInfo['id'] = CSK_LiveConnect.MQTTProfile.getUUID(profile)
+  l_profileInfo['name'] = CSK_LiveConnect.MQTTProfile.getName(profile)
+  l_profileInfo['description'] = CSK_LiveConnect.MQTTProfile.getDescription(profile)
+  l_profileInfo["baseTopic"] = baseTopic
+
+  local l_version = stringSplit(CSK_LiveConnect.MQTTProfile.getVersion(profile), ".")
+  l_profileInfo['version'] = {}
+
+  -- Major
+  if l_version[1] ~= nil then
+    l_profileInfo['version']["major"] = tonumber(l_version[1])
+  end
+
+  -- Minor
+  if l_version[2] ~= nil then
+    l_profileInfo['version']["minor"] = tonumber(l_version[2])
+  end
+
+  -- Patch
+  if l_version[3] ~= nil then
+    l_profileInfo['version']["patch"] = tonumber(l_version[3])
+  end
+
+  -- Qualifier
+  if l_version[4] ~= nil then
+    l_profileInfo['version']["qualifier"] = l_version[4]
+  end
+
+  return l_profileInfo
+end
+
+-------------------------------------------------------------------------------------
 -- Get profile data
 function m_object.getPayload(self)
   local l_profileTable = {}
   for _, profile in pairs(self.profileList) do
-    local l_profileInfo = {}
-    l_profileInfo['id'] = CSK_LiveConnect.MQTTProfile.getUUID(profile)
-    l_profileInfo['name'] = CSK_LiveConnect.MQTTProfile.getName(profile)
-    l_profileInfo['description'] = CSK_LiveConnect.MQTTProfile.getDescription(profile)
-    l_profileInfo["baseTopic"] = CSK_LiveConnect.MQTTProfile.getBaseTopic(profile)
-
-    local l_version = stringSplit(CSK_LiveConnect.MQTTProfile.getVersion(profile), ".")
-    l_profileInfo['version'] = {}
-
-    -- Major
-    if l_version[1] ~= nil then
-      l_profileInfo['version']["major"] = tonumber(l_version[1])
-    end
-
-  	-- Minor
-    if l_version[2] ~= nil then
-      l_profileInfo['version']["minor"] = tonumber(l_version[2])
-    end
-
-  	-- Patch
-    if l_version[3] ~= nil then
-      l_profileInfo['version']["patch"] = tonumber(l_version[3])
-    end
-
-    -- Qualifier
-    if l_version[4] ~= nil then
-      l_profileInfo['version']["qualifier"] = l_version[4]
-    end
-
-    table.insert(l_profileTable, l_profileInfo)
+    local l_baseTopic = CSK_LiveConnect.MQTTProfile.getBaseTopic(profile)
+    table.insert(l_profileTable, getPayloadData(profile, l_baseTopic))
+    --for _,topic in pairs(l_baseTopic) do
+    --  table.insert(l_profileTable, getPayloadData(profile, topic))
+    --end
   end
 
   return m_json.encode(l_profileTable)
