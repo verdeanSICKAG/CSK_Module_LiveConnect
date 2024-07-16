@@ -402,7 +402,7 @@ local function addMQTTProfile(partNumber, serialNumber, mqttProfile)
     -- Get UUID of the device 
     local l_device, l_isNewDevice = getDevice(partNumber, serialNumber)
 
-    -- Create peer devie if it doesn't already exist
+    -- Create peer device if it doesn't already exist
     handlePeerDevice(l_device, l_isNewDevice, nil)
 
     -- Add capabilities profile
@@ -558,14 +558,13 @@ local function addHTTPProfile(partNumber, serialNumber, httpProfile)
       for serviceLocation, endpoint in pairs(l_applicationProfile:getEndpoints()) do
         liveConnect_Model.iccClient:addEndpoint(serviceLocation, endpoint)
       end
-
       liveConnect_Model.iccClient:addHTTPProfilePeerDevice(l_applicationProfile.profile, partNumber, serialNumber)
 
       handlePeerDevice(l_device, l_isNewDevice, httpProfile)
     else
       -- Add application profile
       local l_applicationProfile = m_httpApplicationObject.create(l_device.url, httpProfile)
-      for serviceLocation, httpProfile in pairs(l_applicationProfile:getEndpoints()) do
+      for serviceLocation, endpoint in pairs(l_applicationProfile:getEndpoints()) do
         liveConnect_Model.iccClient:addEndpoint(serviceLocation, endpoint)
       end
       liveConnect_Model.iccClient:addHTTPProfileGatewayDevice(l_applicationProfile.profile)
